@@ -1,50 +1,21 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Dinguz Launcher — Home (3-per-row)</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game Launcher</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="container">
-    <header class="topbar">
-      <div class="logo">Dinguz Launcher</div>
-      <div class="search-wrap">
-        <input id="search" type="search" placeholder="Search games..." aria-label="Search games" />
-      </div>
-      <button id="toggleForm" class="btn small">Add game</button>
-    </header>
+    <aside class="sidebar">
+      <label for="search" class="search-label">Search games</label>
+      <input type="search" id="search" placeholder="Type to search..." aria-label="Search games" autocomplete="off" />
+    </aside>
 
-    <section id="addFormWrap" class="card form-card hidden" aria-hidden="true">
-      <form id="addGameForm" autocomplete="off">
-        <div class="form-row">
-          <label>Game name <input name="name" required /></label>
-          <label>Thumbnail URL <input name="thumbnail" placeholder="https://..." required /></label>
-        </div>
-        <div class="form-row">
-          <label>Download URL <input name="download" placeholder="https://..." required /></label>
-          <label>Size <input name="size" placeholder="e.g. 120 MB" /></label>
-        </div>
-        <div class="form-row">
-          <label>Version <input name="version" placeholder="e.g. v1.0" /></label>
-          <label>Date <input name="date" type="date" /></label>
-        </div>
-        <div class="form-row form-actions">
-          <button type="submit" class="btn">Save & Add</button>
-          <button type="button" id="cancelForm" class="btn alt">Cancel</button>
-        </div>
-        <p class="hint">Thumbnails should be ~16:9 for best look. Files hosted on direct links start download/open in new tab.</p>
-      </form>
-    </section>
-
-    <main>
-      <div id="homeGrid" class="grid" aria-live="polite"></div>
+    <main class="main-content">
+      <div id="gameList" class="game-list" aria-live="polite"></div>
     </main>
-
-    <footer class="footer">
-      <small>Static launcher • Add unlimited games • Data stored locally in your browser</small>
-    </footer>
   </div>
 
   <script src="script.js" defer></script>
