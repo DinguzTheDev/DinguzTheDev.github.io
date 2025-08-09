@@ -65,10 +65,16 @@ function renderGames(filter = '') {
       <img class="game-thumb" src="${escapeHtml(game.thumbnail)}" alt="${escapeHtml(game.name)} thumbnail" loading="lazy" />
       <div class="game-bottom-bar">
         <div class="game-info-left">${escapeHtml(game.size)} • ${escapeHtml(game.version)} • Updated: ${escapeHtml(game.date)}</div>
-        <a href="${escapeHtml(game.download)}" target="_blank" rel="noopener" class="download-btn" tabindex="0">Download</a>
+        <button class="download-btn" tabindex="0" aria-label="Download ${escapeHtml(game.name)}">Download</button>
       </div>
     `;
+
     gameListEl.appendChild(tile);
+
+    const downloadBtn = tile.querySelector('.download-btn');
+    downloadBtn.addEventListener('click', () => {
+      window.open(game.download, '_blank', 'noopener');
+    });
   });
 }
 
