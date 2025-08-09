@@ -25,6 +25,24 @@ const GAMES = [
     date: "2025-08-01",
     download: "https://example-files.online-convert.com/document/txt/example.txt"
   },
+  {
+    id: "sample-forest",
+    name: "Forest Runner",
+    thumbnail: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1400&auto=format&fit=crop",
+    size: "75 MB",
+    version: "v1.2",
+    date: "2025-08-01",
+    download: "https://example-files.online-convert.com/document/txt/example.txt"
+  },
+  {
+    id: "sample-forest",
+    name: "Forest Runner",
+    thumbnail: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1400&auto=format&fit=crop",
+    size: "75 MB",
+    version: "v1.2",
+    date: "2025-08-01",
+    download: "https://example-files.online-convert.com/document/txt/example.txt"
+  },
 ];
 
 // DOM refs
