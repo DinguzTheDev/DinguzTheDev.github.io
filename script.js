@@ -1,11 +1,11 @@
 const GAMES = [
   {
     id: "game1",
-    name: "Sigma Game",
+    name: "Forest Runner",
     thumbnail: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1400&auto=format&fit=crop",
-    size: "15.6 GB",
-    version: "v1.4.5-beta",
-    date: "2025-08-09",
+    size: "75 MB",
+    version: "v1.2",
+    date: "2025-08-01",
     download: "https://example.com/game1.zip"
   },
   {
@@ -63,9 +63,8 @@ function renderGames(filter = '') {
     tile.className = 'game-tile';
     tile.innerHTML = `
       <img class="game-thumb" src="${escapeHtml(game.thumbnail)}" alt="${escapeHtml(game.name)} thumbnail" loading="lazy" />
-      <div class="game-info">
-        <h3 class="game-name">${escapeHtml(game.name)}</h3>
-        <div class="game-meta">${escapeHtml(game.size)} • ${escapeHtml(game.version)} • Updated: ${escapeHtml(game.date)}</div>
+      <div class="game-bottom-bar">
+        <div class="game-info-left">${escapeHtml(game.size)} • ${escapeHtml(game.version)} • Updated: ${escapeHtml(game.date)}</div>
         <a href="${escapeHtml(game.download)}" target="_blank" rel="noopener" class="download-btn" tabindex="0">Download</a>
       </div>
     `;
