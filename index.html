@@ -1,1 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Dinguz Free Games Launcher</title>
+<link rel="stylesheet" href="styles.css" />
+<link rel="icon" href="data:,">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="logo">Dinguz Launcher</div>
+      <div class="search-wrap">
+        <input id="search" type="search" placeholder="Search games..." />
+      </div>
+      <nav class="tabs">
+        <button data-tab="browse" class="tab active">Browse</button>
+        <button data-tab="library" class="tab">Library <span id="libCount" class="count">0</span></button>
+      </nav>
+    </header>
 
+    <main>
+      <section id="browse" class="panel active">
+        <div id="browseGrid" class="grid"></div>
+      </section>
+
+      <section id="library" class="panel">
+        <div id="libGrid" class="grid"></div>
+      </section>
+    </main>
+
+    <aside class="floating-note">
+      All games are free — click <strong>Add</strong> to add to your Library, then click <strong>Download</strong> to open the file link.
+    </aside>
+
+    <footer>
+      <small>Minimal dark glassmorphism UI · Static, client-side launcher</small>
+    </footer>
+  </div>
+
+  <!-- Templates -->
+  <template id="tileTemplate">
+    <div class="tile">
+      <div class="thumbWrap">
+        <img class="thumb" src="" alt="" />
+      </div>
+      <div class="tileFooter">
+        <div class="leftInfo">
+          <div class="size"></div>
+          <div class="meta"></div>
+        </div>
+        <div class="rightActions">
+          <button class="addBtn">Add</button>
+          <a class="downloadBtn" target="_blank" rel="noopener">Download</a>
+        </div>
+      </div>
+    </div>
+  </template>
+
+<script src="script.js" defer></script>
+</body>
+</html>
