@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Game Launcher</title>
+  <title>Game Launcher with Animations</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="container">
-    <aside class="sidebar">
-      <label for="search" class="search-label">Search games</label>
-      <input type="search" id="search" placeholder="Type to search..." aria-label="Search games" autocomplete="off" />
-    </aside>
+    <header class="topbar">
+      <div class="logo">Dinguz Launcher</div>
+      <input type="search" id="search" placeholder="Search games..." aria-label="Search games" autocomplete="off" />
+    </header>
 
     <main class="main-content">
       <div id="gameList" class="game-list" aria-live="polite"></div>
