@@ -1,58 +1,176 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Dinguz Free Games Launcher — Home</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" href="data:,">
+  <meta charset="UTF-8" />
+  <title>Game Launcher - 3 Tiles per Row</title>
+  <style>
+    body {
+      background: #111;
+      color: #eee;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    #homeGrid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr); /* 3 kolumny */
+      gap: 20px;
+      max-width: 1000px;
+      width: 100%;
+    }
+
+    .tile {
+      background: rgba(30, 30, 30, 0.6);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(0, 120, 255, 0.5);
+      backdrop-filter: blur(10px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tile:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 20px rgba(0, 180, 255, 0.8);
+    }
+
+    /* Miniaturka 16:9 - ustalamy wysokość z proporcji szerokości */
+    .tile img {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      display: block;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+    }
+
+    .info {
+      padding: 12px 15px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .info h3 {
+      margin: 0 0 10px 0;
+      font-size: 1.3rem;
+      color: #00aaff;
+    }
+
+    .details {
+      font-size: 0.9rem;
+      color: #bbb;
+      margin-bottom: 10px;
+    }
+
+    .download-btn {
+      align-self: flex-start;
+      padding: 8px 16px;
+      background: #0088ff;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+
+    .download-btn:hover {
+      background: #005fcc;
+    }
+
+    /* Responsywność na mniejszych ekranach */
+    @media (max-width: 900px) {
+      #homeGrid {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 700px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      #homeGrid {
+        grid-template-columns: 1fr;
+        max-width: 350px;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="app">
-    <header class="topbar">
-      <div class="logo">Dinguz Launcher</div>
-      <div class="search-wrap">
-        <input id="search" type="search" placeholder="Search games..." aria-label="Search games" />
-      </div>
-      <nav class="tabs">
-        <button class="tab active" aria-current="page">Home</button>
-      </nav>
-    </header>
 
-    <main>
-      <section id="home" class="panel active">
-        <div id="homeGrid" class="grid" aria-live="polite"></div>
-      </section>
-    </main>
+  <main>
+    <h1 style="text-align:center; margin-bottom: 30px;">Free Games Launcher</h1>
+    <div id="homeGrid" aria-live="polite"></div>
+  </main>
 
-    <aside class="floating-note">
-      All games are free — click <strong>Download</strong> to open the file link immediately.
-    </aside>
+  <script>
+    const GAMES = [
+      {
+        id: "game1",
+        name: "Forest Runner",
+        thumbnail: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1400&auto=format&fit=crop",
+        size: "75 MB",
+        version: "v1.2",
+        date: "2025-08-01",
+        download: "https://example.com/game1.zip"
+      },
+      {
+        id: "game2",
+        name: "Sky Blazer",
+        thumbnail: "https://images.unsplash.com/photo-1505678261036-a3fcc5e884ee?q=80&w=1400&auto=format&fit=crop",
+        size: "220 MB",
+        version: "v2.0",
+        date: "2025-07-24",
+        download: "https://example.com/game2.zip"
+      },
+      {
+        id: "game3",
+        name: "Desert Dash",
+        thumbnail: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=1400&auto=format&fit=crop",
+        size: "110 MB",
+        version: "v1.5",
+        date: "2025-07-15",
+        download: "https://example.com/game3.zip"
+      },
+      {
+        id: "game4",
+        name: "Ocean Explorer",
+        thumbnail: "https://images.unsplash.com/photo-1494526585095-c41746248156?q=80&w=1400&auto=format&fit=crop",
+        size: "300 MB",
+        version: "v3.1",
+        date: "2025-06-30",
+        download: "https://example.com/game4.zip"
+      }
+    ];
 
-    <footer>
-      <small>Minimal dark glassmorphism UI · Static, client-side launcher</small>
-    </footer>
-  </div>
+    const homeGrid = document.getElementById('homeGrid');
 
-  <!-- Template for a wide tile -->
-  <template id="tileTemplate">
-    <article class="tile" role="article" aria-label="game-tile">
-      <div class="thumbWrap">
-        <img class="thumb" src="" alt="" />
-      </div>
-      <div class="tileFooter">
-        <div class="leftInfo">
-          <div class="title"></div>
-          <div class="size"></div>
-          <div class="meta"></div>
-        </div>
-        <div class="rightActions">
-          <a class="downloadBtn" target="_blank" rel="noopener">Download</a>
-        </div>
-      </div>
-    </article>
-  </template>
+    function renderHome() {
+      homeGrid.innerHTML = "";
+      GAMES.forEach(game => {
+        const tile = document.createElement('div');
+        tile.className = "tile";
+        tile.innerHTML = `
+          <img src="${game.thumbnail}" alt="${game.name}">
+          <div class="info">
+            <h3>${game.name}</h3>
+            <div class="details">${game.size} • ${game.version}</div>
+            <div class="details">Updated: ${game.date}</div>
+            <a href="${game.download}" class="download-btn" target="_blank" rel="noopener">Download</a>
+          </div>
+        `;
+        homeGrid.appendChild(tile);
+      });
+    }
 
-  <script src="script.js" defer></script>
+    renderHome();
+  </script>
+
 </body>
 </html>
