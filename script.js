@@ -1,12 +1,11 @@
-// List of games to display — dodaj swoje gry tutaj
 const GAMES = [
   {
     id: "game1",
-    name: "Forest Runner",
+    name: "Sigma Game",
     thumbnail: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1400&auto=format&fit=crop",
-    size: "75 MB",
-    version: "v1.2",
-    date: "2025-08-01",
+    size: "15.6 GB",
+    version: "v1.4.5-beta",
+    date: "2025-08-09",
     download: "https://example.com/game1.zip"
   },
   {
@@ -78,5 +77,4 @@ searchInput.addEventListener('input', e => {
   renderGames(e.target.value);
 });
 
-// Initial render
 renderGames();
