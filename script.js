@@ -25,24 +25,6 @@ const GAMES = [
     date: "2025-08-01",
     download: "https://example-files.online-convert.com/document/txt/example.txt"
   },
-  {
-    id: "sample-sky",
-    name: "Sky Blazer",
-    thumbnail: "https://images.unsplash.com/photo-1505678261036-a3fcc5e884ee?q=80&w=1400&auto=format&fit=crop",
-    size: "220 MB",
-    version: "v2.0",
-    date: "2025-07-24",
-    download: "https://example-files.online-convert.com/document/txt/example.txt"
-  },
-  {
-    id: "sample-puzzle",
-    name: "Puzzle Island",
-    thumbnail: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1400&auto=format&fit=crop",
-    size: "42 MB",
-    version: "v0.9",
-    date: "2025-05-12",
-    download: "https://example-files.online-convert.com/document/txt/example.txt"
-  }
 ];
 
 // DOM refs
