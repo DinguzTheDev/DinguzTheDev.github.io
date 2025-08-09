@@ -1,27 +1,27 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Dinguz Free Games Launcher — Home</title>
-<link rel="stylesheet" href="styles.css" />
-<link rel="icon" href="data:,">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dinguz Free Games Launcher — Home</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:,">
 </head>
 <body>
   <div class="app">
     <header class="topbar">
       <div class="logo">Dinguz Launcher</div>
       <div class="search-wrap">
-        <input id="search" type="search" placeholder="Search games..." />
+        <input id="search" type="search" placeholder="Search games..." aria-label="Search games" />
       </div>
       <nav class="tabs">
-        <button class="tab active">Home</button>
+        <button class="tab active" aria-current="page">Home</button>
       </nav>
     </header>
 
     <main>
       <section id="home" class="panel active">
-        <div id="homeGrid" class="grid"></div>
+        <div id="homeGrid" class="grid" aria-live="polite"></div>
       </section>
     </main>
 
@@ -34,9 +34,9 @@
     </footer>
   </div>
 
-  <!-- Template for a tile -->
+  <!-- Template for a wide tile -->
   <template id="tileTemplate">
-    <div class="tile" role="article" aria-label="game-tile">
+    <article class="tile" role="article" aria-label="game-tile">
       <div class="thumbWrap">
         <img class="thumb" src="" alt="" />
       </div>
@@ -50,9 +50,9 @@
           <a class="downloadBtn" target="_blank" rel="noopener">Download</a>
         </div>
       </div>
-    </div>
+    </article>
   </template>
 
-<script src="script.js" defer></script>
+  <script src="script.js" defer></script>
 </body>
 </html>
