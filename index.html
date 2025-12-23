@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ile Do Wigilii?</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, #020111 10%, #1a1a2e 100%);
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            transition: background 3s ease-out;
+        }
+
+        body.final-state {
+            background: #000000;
+        }
+
+        /* --- UI --- */
+        #start-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 200;
+            display: flex; justify-content: center; align-items: center; cursor: pointer;
+        }
+        #start-overlay h1 {
+            border: 2px solid white; padding: 20px; border-radius: 10px; background: rgba(255,255,255,0.1);
+        }
+
+        #white-flash {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; z-index: 150; opacity: 0; pointer-events: none;
+            transition: opacity 3s ease-out;
+        }
+
+        #countdown-container {
+            z-index: 100; text-align: center;
+        }
+        #countdown {
+            font-size: 3rem; text-shadow: 0 0 20px #fff, 0 0 30px #ff00de;
+        }
+
+        /* --- WATERMARK --- */
+        #watermark {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            color: rgba(255, 255, 255, 0.5); 
+            font-size: 0.8rem;
+            z-index: 300;
+            pointer-events: none;
+            font-family: sans-serif;
+        }
+
+        /* --- TŁO --- */
+        .snow, .star-bg {
+            position: absolute; top: -10px; border-radius: 50%; pointer-events: none;
+        }
+        .snow { background: white; opacity: 0.8; animation: fall linear infinite; }
+        .star-bg { background: rgb(255, 255, 200); animation: twinkle 2s infinite ease-in-out; }
+
+        @keyframes fall { to { transform: translateY(105vh); } }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1.2); } }
+
+        /* Canvas */
+        #mainCanvas {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 50;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="watermark">made by .dinguzthedev</div>
+
+    <div id="start-overlay" onclick="startExperience()">
+        <h1>KLIKNIJ, ABY ROZPOCZĄĆ 🎄</h1>
+    </div>
+
+    <div id="white-flash"></div>
+
+    <div id="countdown-container">
+        <div id="countdown">Ładowanie czasu...</div>
+    </div>
+    
+    <canvas id="mainCanvas"></canvas>
+
+    <audio id="musicMain" src="alliwantforchristmas.mp3" preload="auto" crossorigin="anonymous"></audio>
+    <audio id="musicBoom" src="boom.mp3" preload="auto"></audio>
+
+<script>
+    // ==========================================
+    // ⚙️ KONFIGURACJA
+    // ==========================================
+    // DATA WIGILII (Testowe +5s, zmień na: "2025-12-24T00:00:00")
+    let targetDateStr = "2025-12-24T00:00:00"
+    // ==========================================
+
+    const countdownEl = document.getElementById('countdown');
+    const countdownContainer = document.getElementById('countdown-container');
+    const whiteFlashEl = document.getElementById('white-flash');
+    const musicMain = document.getElementById('musicMain');
+    const musicBoom = document.getElementById('musicBoom');
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let countdownInterval;
+    let isFinalState = false;
+    
+    // Audio API
+    let audioCtx, analyser, dataArray, bufferLength, mediaSource;
+    let shootingStars = [];
+
+    function startExperience() {
+        document.getElementById('start-overlay').style.display = 'none';
+        initAudioContext();
+        
+        musicBoom.play().then(() => { musicBoom.pause(); musicBoom.currentTime = 0; }).catch(()=>{});
+        
+        createBackgroundElements(); 
+        startTimer();
+    }
+
+    function initAudioContext() {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioCtx.createAnalyser();
+        
+        mediaSource = audioCtx.createMediaElementSource(musicMain);
+        mediaSource.connect(analyser);
+        analyser.connect(audioCtx.destination);
+
+        analyser.fftSize = 256; 
+        bufferLength = analyser.frequencyBinCount; 
+        dataArray = new Uint8Array(bufferLength); 
+    }
+
+    function startTimer() {
+        const targetDate = new Date(targetDateStr).getTime();
+        countdownInterval = setInterval(() => {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            countdownEl.innerHTML = `Do Wigilii:<br>${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+            if (distance < 0) {
+                clearInterval(countdownInterval);
+                countdownEl.innerHTML = "00:00:00";
+                triggerSequence();
+            }
+        }, 1000);
+    }
+
+    function triggerSequence() {
+        countdownContainer.style.display = 'none'; 
+        whiteFlashEl.style.opacity = 1; 
+        document.body.classList.add('final-state');
+        musicBoom.play();
+        
+        void whiteFlashEl.offsetWidth; 
+        whiteFlashEl.style.opacity = 0;
+
+        setTimeout(() => {
+            whiteFlashEl.style.display = 'none'; 
+            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+            musicMain.play(); 
+            isFinalState = true; 
+            animateFinalScene(); 
+        }, 3000); 
+    }
+
+    // --- ANIMACJA ---
+    function animateFinalScene() {
+        if (!isFinalState) return;
+        requestAnimationFrame(animateFinalScene);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Analiza dźwięku
+        analyser.getByteFrequencyData(dataArray);
+        let bassSum = 0;
+        let bassCount = 20;
+        for(let i = 0; i < bassCount; i++) {
+            bassSum += dataArray[i];
+        }
+        let bassAverage = bassSum / bassCount;
+
+        updateShootingStars();
+        drawReactiveText(bassAverage);
+    }
+
+    // --- SPADAJĄCE GWIAZDY ---
+    function updateShootingStars() {
+        if (Math.random() < 0.015) { 
+            createShootingStar();
+        }
+
+        shootingStars.forEach((star, index) => {
+            star.x += star.vx;
+            star.y += star.vy;
+            
+            const tailX = star.x - star.vx * star.tailLength;
+            const tailY = star.y - star.vy * star.tailLength;
+
+            const gradient = ctx.createLinearGradient(star.x, star.y, tailX, tailY);
+            gradient.addColorStop(0, 'rgba(255, 255, 220, 1)');
+            gradient.addColorStop(1, 'rgba(255, 255, 220, 0)');
+
+            ctx.beginPath();
+            ctx.moveTo(star.x, star.y);
+            ctx.lineTo(tailX, tailY);
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = star.width;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            // Usuwanie
+            if (star.y > canvas.height + 200 || star.x > canvas.width + 200) {
+                shootingStars.splice(index, 1);
+            }
+        });
+    }
+
+    function createShootingStar() {
+        // --- POPRAWIONE SPAWNOWANIE ---
+        // Spawnujemy trochę z lewej (minusowa szerokość) do prawej, 
+        // żeby gwiazdy mogły przelatywać przez cały ekran przy tym kącie
+        const startX = Math.random() * (canvas.width * 1.5) - (canvas.width * 0.5);
+        const startY = -Math.random() * 100; // Nad ekranem
+
+        const speed = Math.random() * 4 + 3;
+
+        // --- NOWY KĄT: 30-45 STOPNI ---
+        // To sprawia, że lecą ładnie po skosie (diagonalnie)
+        const angleDegrees = Math.random() * 15 + 30; // 30 do 45 stopni
+        const angle = angleDegrees * (Math.PI / 180);
+
+        shootingStars.push({
+            x: startX,
+            y: startY,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            width: Math.random() * 3 + 1, 
+            tailLength: Math.random() * 30 + 20 
+        });
+    }
+
+
+    // --- TEKST ---
+    function drawReactiveText(volume) {
+        const baseFontSize = window.innerWidth < 600 ? 40 : 80;
+        const volumeBoost = (volume / 255) * 50;
+        const finalFontSize = baseFontSize + volumeBoost;
+
+        ctx.save();
+        ctx.font = `bold ${finalFontSize}px 'Courier New', monospace`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        const lightness = 50 + (volume / 255) * 20;
+        ctx.fillStyle = `hsl(45, 100%, ${lightness}%)`;
+        
+        ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
+        ctx.shadowBlur = (volume / 255) * 40;
+
+        ctx.fillText("WESOŁYCH ŚWIĄT!", canvas.width / 2, canvas.height / 2);
+        ctx.restore();
+    }
+
+
+    // --- TŁO ---
+    function createBackgroundElements() {
+        const body = document.body;
+        for(let i=0; i<50; i++) {
+            const star = document.createElement('div');
+            star.className = 'star-bg';
+            star.style.left = Math.random() * 100 + 'vw';
+            star.style.top = Math.random() * 80 + 'vh';
+            star.style.width = Math.random() * 3 + 1 + 'px';
+            star.style.height = star.style.width;
+            star.style.animationDuration = (Math.random() * 3 + 1) + 's';
+            body.appendChild(star);
+        }
+        for(let i=0; i<80; i++) {
+            const snow = document.createElement('div');
+            snow.className = 'snow';
+            snow.style.left = Math.random() * 100 + 'vw';
+            snow.style.width = Math.random() * 5 + 2 + 'px';
+            snow.style.height = snow.style.width;
+            snow.style.animationDuration = (Math.random() * 5 + 5) + 's';
+            snow.style.animationDelay = Math.random() * 5 + 's';
+            body.appendChild(snow);
+        }
+    }
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+
+</script>
+</body>
+</html>
