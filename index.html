@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ile Do Świąt?</title>
+    <title>Kierunek: Mateusz</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            background: linear-gradient(to bottom, #020111 10%, #1a1a2e 100%);
+            background: linear-gradient(to bottom, #12001f 10%, #240b36 100%);
             height: 100vh;
             overflow: hidden;
             font-family: 'Courier New', Courier, monospace;
@@ -27,11 +27,14 @@
         /* --- UI --- */
         #start-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 200;
+            background: rgba(0,0,0,0.95); z-index: 200;
             display: flex; justify-content: center; align-items: center; cursor: pointer;
+            flex-direction: column;
         }
         #start-overlay h1 {
-            border: 2px solid white; padding: 20px; border-radius: 10px; background: rgba(255,255,255,0.1);
+            border: 2px solid #d600ff; padding: 20px; border-radius: 10px; 
+            background: rgba(255,255,255,0.05); color: #d600ff;
+            text-shadow: 0 0 10px #d600ff; text-align: center;
         }
 
         #white-flash {
@@ -44,30 +47,59 @@
             z-index: 100; text-align: center;
         }
         #countdown {
-            font-size: 3rem; text-shadow: 0 0 20px #fff, 0 0 30px #ff00de;
+            font-size: 3rem; 
+            text-shadow: 0 0 20px #fff, 0 0 30px #9d00ff;
+        }
+        #trip-title {
+            font-size: 1.5rem; color: #ccc; margin-bottom: 20px; letter-spacing: 2px;
+        }
+
+        /* --- WIDEO KONTENER --- */
+        #video-container {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex;
+            justify-content: space-around; 
+            align-items: center; 
+            z-index: 60;
+            pointer-events: none;
+            display: none; 
+            padding: 0 2%; 
+            box-sizing: border-box;
+        }
+
+        .beat-video {
+            width: 30%; 
+            height: auto;
+            max-height: 85vh; 
+            object-fit: contain;
+            
+            /* Tło MP4 staje się przezroczyste (musi być czarne w pliku) */
+            mix-blend-mode: screen; 
+            
+            /* Usunięty transition dla ostrych uderzeń */
+            transform-origin: center center;
+            will-change: transform;
         }
 
         /* --- WATERMARK --- */
         #watermark {
-            position: fixed;
-            bottom: 15px;
-            right: 15px;
-            color: rgba(255, 255, 255, 0.5); 
-            font-size: 0.8rem;
-            z-index: 300;
-            pointer-events: none;
-            font-family: sans-serif;
+            position: fixed; bottom: 15px; right: 15px;
+            color: rgba(255, 255, 255, 0.4); 
+            font-size: 0.7rem; z-index: 300; pointer-events: none; font-family: sans-serif;
+            text-transform: uppercase; letter-spacing: 1px;
         }
 
         /* --- TŁO --- */
         .snow, .star-bg {
             position: absolute; top: -10px; border-radius: 50%; pointer-events: none;
         }
-        .snow { background: white; opacity: 0.8; animation: fall linear infinite; }
-        .star-bg { background: rgb(255, 255, 200); animation: twinkle 2s infinite ease-in-out; }
+        .snow { background: white; opacity: 0.6; animation: fall linear infinite; }
+        .star-bg { background: rgb(200, 230, 255); animation: twinkle 2s infinite ease-in-out; }
 
         @keyframes fall { to { transform: translateY(105vh); } }
-        @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1.2); } }
+        @keyframes twinkle { 0%, 100% { opacity: 0.2; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1.2); } }
 
         /* Canvas */
         #mainCanvas {
@@ -81,31 +113,46 @@
     <div id="watermark">made by .dinguzthedev</div>
 
     <div id="start-overlay" onclick="startExperience()">
-        <h1>KLIKNIJ, ABY ROZPOCZĄĆ 🎄</h1>
+        <h1>ODPAL PROTOKÓŁ: MATEUSZ 🚀</h1>
+        <p style="color: #888; margin-top: 10px;">(kliknij ekran)</p>
     </div>
 
     <div id="white-flash"></div>
 
     <div id="countdown-container">
-        <div id="countdown">Ładowanie czasu...</div>
+        <div id="trip-title">CZAS DO WYJAZDU:</div>
+        <div id="countdown">Ładowanie...</div>
     </div>
     
+    <div id="video-container">
+        <video class="beat-video" id="vid1" src="video1.mp4" loop muted playsinline></video>
+        <video class="beat-video" id="vid2" src="video2.mp4" loop muted playsinline></video>
+        <video class="beat-video" id="vid3" src="video3.mp4" loop muted playsinline></video>
+    </div>
+
     <canvas id="mainCanvas"></canvas>
 
-    <audio id="musicMain" src="alliwantforchristmas.mp3" preload="auto" crossorigin="anonymous"></audio>
+    <audio id="musicMain" src="erotycznaprzygoda.mp3" preload="auto" crossorigin="anonymous"></audio>
     <audio id="musicBoom" src="boom.mp3" preload="auto"></audio>
 
 <script>
     // ==========================================
     // ⚙️ KONFIGURACJA
     // ==========================================
-    // DATA WIGILII (Testowe +5s, zmień na: "2025-12-24T00:00:00")
-    let targetDateStr = "2025-12-25T00:00:00"
+    
+    // DEBUG: 10 sekund
+    let targetDateStr = "2025-12-27T00:00:00"
+    // DOCELOWO (odkomentuj):
+    // let targetDateStr = "2025-12-27T00:00:00"; 
+
     // ==========================================
 
     const countdownEl = document.getElementById('countdown');
     const countdownContainer = document.getElementById('countdown-container');
     const whiteFlashEl = document.getElementById('white-flash');
+    const videoContainer = document.getElementById('video-container');
+    const videos = document.querySelectorAll('.beat-video');
+    
     const musicMain = document.getElementById('musicMain');
     const musicBoom = document.getElementById('musicBoom');
     const canvas = document.getElementById('mainCanvas');
@@ -117,9 +164,13 @@
     let countdownInterval;
     let isFinalState = false;
     
-    // Audio API
+    // Audio API vars
     let audioCtx, analyser, dataArray, bufferLength, mediaSource;
     let shootingStars = [];
+
+    // Zmienne do wykrywania problemów z dźwiękiem (Auto-Bit)
+    let zeroDataCount = 0;
+    let forceSimulation = false;
 
     function startExperience() {
         document.getElementById('start-overlay').style.display = 'none';
@@ -127,14 +178,21 @@
         
         musicBoom.play().then(() => { musicBoom.pause(); musicBoom.currentTime = 0; }).catch(()=>{});
         
+        videos.forEach(v => {
+            v.play().then(() => { v.pause(); v.currentTime = 0; }).catch(()=>{});
+        });
+
         createBackgroundElements(); 
         startTimer();
     }
 
     function initAudioContext() {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // Tworzymy kontekst
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
         analyser = audioCtx.createAnalyser();
         
+        // Podpinamy źródło
         mediaSource = audioCtx.createMediaElementSource(musicMain);
         mediaSource.connect(analyser);
         analyser.connect(audioCtx.destination);
@@ -155,7 +213,7 @@
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-            countdownEl.innerHTML = `Do świąt Bożego Narodzenia:<br>${days}d ${hours}h ${minutes}m ${seconds}s`;
+            countdownEl.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
 
             if (distance < 0) {
                 clearInterval(countdownInterval);
@@ -176,6 +234,10 @@
 
         setTimeout(() => {
             whiteFlashEl.style.display = 'none'; 
+            videoContainer.style.display = 'flex';
+            videos.forEach(v => v.play());
+
+            // Upewnij się, że AudioContext działa
             if (audioCtx.state === 'suspended') { audioCtx.resume(); }
             musicMain.play(); 
             isFinalState = true; 
@@ -183,43 +245,79 @@
         }, 3000); 
     }
 
-    // --- ANIMACJA ---
+    // --- PĘTLA ANIMACJI ---
     function animateFinalScene() {
         if (!isFinalState) return;
         requestAnimationFrame(animateFinalScene);
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Analiza dźwięku
+        // 1. Analiza Basu
         analyser.getByteFrequencyData(dataArray);
+        
         let bassSum = 0;
-        let bassCount = 20;
-        for(let i = 0; i < bassCount; i++) {
+        // Sprawdzamy zakres basów (0-20)
+        for(let i = 0; i < 20; i++) {
             bassSum += dataArray[i];
         }
-        let bassAverage = bassSum / bassCount;
+        let bassAverage = bassSum / 20;
+
+        // --- SYSTEM AWARYJNY (AUTO-BIT) ---
+        // Jeśli bas wynosi 0 przez dłuższy czas (np. z powodu blokady przeglądarki),
+        // włączamy symulację, żeby użytkownik widział efekt.
+        if (bassAverage === 0) {
+            zeroDataCount++;
+            if (zeroDataCount > 50) { // Po 50 klatkach ciszy włącz symulację
+                forceSimulation = true;
+            }
+        } else {
+            zeroDataCount = 0;
+            forceSimulation = false;
+        }
+
+        if (forceSimulation) {
+            // Generuj sztuczny bit (puls sinusoidalny szybki)
+            // Zwraca wartość 0-255 symulującą muzykę
+            const time = Date.now();
+            // Puls co ok. 500ms
+            const beat = (Math.sin(time / 80) + 1) * 100; 
+            bassAverage = beat;
+        }
+        // ----------------------------------
 
         updateShootingStars();
-        drawReactiveText(bassAverage);
+        pulseVideos(bassAverage);
     }
 
-    // --- SPADAJĄCE GWIAZDY ---
+    function pulseVideos(volume) {
+        // volume: 0-255
+        // Zwiększona czułość: nawet mały bas (50) da widoczny efekt
+        let scaleBoost = (volume / 255) * 0.5; // Max powiększenie 1.5x
+        
+        // Dodaj minimalny próg, żeby nie drgało przy ciszy
+        if (scaleBoost < 0.05) scaleBoost = 0;
+
+        const scale = 1 + scaleBoost;
+        
+        videos.forEach(v => {
+            v.style.transform = `scale(${scale})`;
+        });
+    }
+
+    // --- GWIAZDY ---
     function updateShootingStars() {
-        if (Math.random() < 0.015) { 
+        if (Math.random() < 0.02) { 
             createShootingStar();
         }
 
         shootingStars.forEach((star, index) => {
             star.x += star.vx;
             star.y += star.vy;
-            
             const tailX = star.x - star.vx * star.tailLength;
             const tailY = star.y - star.vy * star.tailLength;
-
             const gradient = ctx.createLinearGradient(star.x, star.y, tailX, tailY);
-            gradient.addColorStop(0, 'rgba(255, 255, 220, 1)');
-            gradient.addColorStop(1, 'rgba(255, 255, 220, 0)');
-
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
             ctx.beginPath();
             ctx.moveTo(star.x, star.y);
             ctx.lineTo(tailX, tailY);
@@ -227,8 +325,6 @@
             ctx.lineWidth = star.width;
             ctx.lineCap = 'round';
             ctx.stroke();
-
-            // Usuwanie
             if (star.y > canvas.height + 200 || star.x > canvas.width + 200) {
                 shootingStars.splice(index, 1);
             }
@@ -236,72 +332,39 @@
     }
 
     function createShootingStar() {
-        // --- POPRAWIONE SPAWNOWANIE ---
-        // Spawnujemy trochę z lewej (minusowa szerokość) do prawej, 
-        // żeby gwiazdy mogły przelatywać przez cały ekran przy tym kącie
         const startX = Math.random() * (canvas.width * 1.5) - (canvas.width * 0.5);
-        const startY = -Math.random() * 100; // Nad ekranem
-
-        const speed = Math.random() * 4 + 3;
-
-        // --- NOWY KĄT: 30-45 STOPNI ---
-        // To sprawia, że lecą ładnie po skosie (diagonalnie)
-        const angleDegrees = Math.random() * 15 + 30; // 30 do 45 stopni
-        const angle = angleDegrees * (Math.PI / 180);
-
+        const startY = -Math.random() * 100; 
+        const speed = Math.random() * 5 + 4; 
+        const angle = (Math.random() * 15 + 30) * (Math.PI / 180);
         shootingStars.push({
-            x: startX,
-            y: startY,
+            x: startX, y: startY,
             vx: Math.cos(angle) * speed,
             vy: Math.sin(angle) * speed,
             width: Math.random() * 3 + 1, 
-            tailLength: Math.random() * 30 + 20 
+            tailLength: Math.random() * 25 + 15 
         });
     }
-
-
-    // --- TEKST ---
-    function drawReactiveText(volume) {
-        const baseFontSize = window.innerWidth < 600 ? 40 : 80;
-        const volumeBoost = (volume / 255) * 50;
-        const finalFontSize = baseFontSize + volumeBoost;
-
-        ctx.save();
-        ctx.font = `bold ${finalFontSize}px 'Courier New', monospace`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        
-        const lightness = 50 + (volume / 255) * 20;
-        ctx.fillStyle = `hsl(45, 100%, ${lightness}%)`;
-        
-        ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
-        ctx.shadowBlur = (volume / 255) * 40;
-
-        ctx.fillText("WESOŁYCH ŚWIĄT!", canvas.width / 2, canvas.height / 2);
-        ctx.restore();
-    }
-
 
     // --- TŁO ---
     function createBackgroundElements() {
         const body = document.body;
-        for(let i=0; i<50; i++) {
+        for(let i=0; i<60; i++) {
             const star = document.createElement('div');
             star.className = 'star-bg';
             star.style.left = Math.random() * 100 + 'vw';
-            star.style.top = Math.random() * 80 + 'vh';
-            star.style.width = Math.random() * 3 + 1 + 'px';
+            star.style.top = Math.random() * 100 + 'vh';
+            star.style.width = Math.random() * 3 + 'px';
             star.style.height = star.style.width;
-            star.style.animationDuration = (Math.random() * 3 + 1) + 's';
+            star.style.animationDuration = (Math.random() * 2 + 0.5) + 's';
             body.appendChild(star);
         }
-        for(let i=0; i<80; i++) {
+        for(let i=0; i<50; i++) {
             const snow = document.createElement('div');
             snow.className = 'snow';
             snow.style.left = Math.random() * 100 + 'vw';
-            snow.style.width = Math.random() * 5 + 2 + 'px';
+            snow.style.width = Math.random() * 4 + 1 + 'px';
             snow.style.height = snow.style.width;
-            snow.style.animationDuration = (Math.random() * 5 + 5) + 's';
+            snow.style.animationDuration = (Math.random() * 5 + 3) + 's';
             snow.style.animationDelay = Math.random() * 5 + 's';
             body.appendChild(snow);
         }
