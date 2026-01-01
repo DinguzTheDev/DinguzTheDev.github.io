@@ -37,93 +37,43 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* --- INPUT CUSTOMIZATION (NO ARROWS & GLOW) --- */
-        /* Ukrywanie strzałek w Chrome/Safari/Edge */
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        /* Ukrywanie strzałek w Firefox */
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
+        /* --- INPUT CUSTOMIZATION --- */
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
 
         input[type="number"], input[type="text"], input[type="password"], select {
-            background: #050510;
-            border: 1px solid #333;
-            color: white;
-            padding: 12px 15px;
-            font-family: inherit;
-            font-size: 1.1rem;
-            width: 100%;
-            border-radius: 6px;
+            background: #050510; border: 1px solid #333; color: white; padding: 12px 15px;
+            font-family: inherit; font-size: 1.1rem; width: 100%; border-radius: 6px;
             transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        input:focus, select:focus { border-color: var(--moon-primary); outline: none; box-shadow: 0 0 15px rgba(125, 95, 255, 0.5); }
 
-        /* GLOW EFFECT ON FOCUS */
-        input:focus, select:focus { 
-            border-color: var(--moon-primary); 
-            outline: none; 
-            box-shadow: 0 0 15px rgba(125, 95, 255, 0.5), inset 0 0 10px rgba(125, 95, 255, 0.1);
-        }
-
-        /* --- BET CONTROLS GROUP --- */
-        .input-group {
-            display: flex;
-            gap: 5px;
-        }
-        .input-group input {
-            border-top-right-radius: 0;
-            border-bottom-right-radius: 0;
-        }
+        /* --- BET CONTROLS --- */
+        .input-group { display: flex; gap: 5px; }
+        .input-group input { border-top-right-radius: 0; border-bottom-right-radius: 0; }
         .bet-ctrl-btn {
-            background: #1a1a2e;
-            border: 1px solid #333;
-            color: var(--text-dim);
-            font-weight: bold;
-            cursor: pointer;
-            padding: 0 12px;
-            font-size: 0.9rem;
-            transition: 0.2s;
-            border-left: none;
+            background: #1a1a2e; border: 1px solid #333; color: var(--text-dim);
+            font-weight: bold; cursor: pointer; padding: 0 12px; font-size: 0.9rem;
+            transition: 0.2s; border-left: none;
         }
         .bet-ctrl-btn:hover { background: #2a2a40; color: white; }
         .bet-ctrl-btn:last-child { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
 
         /* --- TOASTS --- */
-        #notification-area {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            pointer-events: none;
-        }
+        #notification-area { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .toast {
-            background: rgba(15, 15, 31, 0.95);
-            border: 1px solid;
-            padding: 15px 25px;
-            border-radius: 8px;
-            min-width: 300px;
-            text-align: center;
-            font-weight: bold;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-            animation: slideIn 0.3s ease-out;
-            pointer-events: auto;
-            backdrop-filter: blur(5px);
+            background: rgba(15, 15, 31, 0.95); border: 1px solid; padding: 15px 25px;
+            border-radius: 8px; min-width: 300px; text-align: center; font-weight: bold;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5); animation: slideIn 0.3s ease-out;
+            pointer-events: auto; backdrop-filter: blur(5px);
         }
         .toast.success { border-color: var(--success); color: var(--success); box-shadow: 0 0 15px rgba(0, 242, 96, 0.2); }
         .toast.error { border-color: var(--danger); color: var(--danger); box-shadow: 0 0 15px rgba(245, 59, 87, 0.2); }
-        
         @keyframes slideIn { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         #confetti-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; background: transparent; }
 
-        /* --- HEADER --- */
+        /* --- HEADER & NAV --- */
         header { width: 100%; padding: 15px 5%; background: rgba(15, 15, 31, 0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; border-bottom: var(--glass-border); position: sticky; top: 0; z-index: 100; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
         h1 { margin: 0; font-size: 1.8rem; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; background: linear-gradient(to right, #fff, #7d5fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; white-space: nowrap; }
         .header-right { display: flex; gap: 10px; align-items: center; }
@@ -131,14 +81,12 @@
         button.nav-action-btn { background: transparent; border: 1px solid var(--moon-primary); color: white; padding: 8px 12px; font-weight: bold; border-radius: 4px; cursor: pointer; text-transform: uppercase; transition: 0.3s; font-size: 0.75rem; white-space: nowrap; }
         button.nav-action-btn:hover { background: var(--moon-primary); box-shadow: var(--glow); }
 
-        /* --- NAVIGATION --- */
         .nav-games { margin: 30px 20px; display: flex; gap: 8px; padding: 8px; background: var(--bg-panel); border-radius: 8px; border: var(--glass-border); flex-wrap: wrap; justify-content: center; }
         .nav-btn { background: transparent; border: 1px solid transparent; color: var(--text-dim); padding: 10px 20px; cursor: pointer; font-family: inherit; font-weight: 600; font-size: 1rem; transition: 0.3s; text-transform: uppercase; border-radius: 4px; }
         .nav-btn.active { color: var(--text-main); background: rgba(125, 95, 255, 0.1); border: 1px solid var(--moon-primary); text-shadow: 0 0 10px var(--moon-primary); }
 
         /* --- GAME CONTAINER --- */
         .game-container { background: var(--bg-panel); width: 95%; max-width: 850px; padding: 30px; border-radius: 12px; border: var(--glass-border); box-shadow: 0 20px 50px rgba(0,0,0,0.7); position: relative; min-height: 450px; display: flex; flex-direction: column; margin-bottom: 40px; }
-        
         .controls-bar { display: flex; gap: 20px; margin-bottom: 25px; align-items: flex-end; padding-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.05); flex-wrap: wrap; }
         .control-group { flex: 1; min-width: 150px; display: flex; flex-direction: column; gap: 8px; }
         label { color: var(--text-dim); font-size: 0.8rem; font-weight: 600; letter-spacing: 1px; }
@@ -151,33 +99,31 @@
 
         #game-area { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; padding: 20px 0; }
 
-        /* --- TOWER GAME STYLES --- */
-        .tower-wrapper { display: flex; gap: 15px; align-items: flex-end; }
+        /* --- TOWER GAME STYLES (UPDATED) --- */
         .tower-container { display: flex; flex-direction: column-reverse; gap: 8px; width: 100%; }
-        /* Grid ustawiany dynamicznie w JS */
         .tower-row { display: grid; gap: 8px; width: 100%; } 
         
         .tower-cell { 
-            height: 45px; background: #1a1a2e; border: 1px solid #333; 
+            height: 60px;
+            background: #1a1a2e; border: 1px solid #333; 
             border-radius: 6px; cursor: pointer; display: flex; justify-content: center; align-items: center;
-            font-size: 1.2rem; transition: 0.2s;
+            font-size: 1rem; font-weight: bold; color: #666; transition: 0.2s;
+            font-family: monospace;
         }
-        .tower-row.disabled .tower-cell { opacity: 0.2; pointer-events: none; border-color: transparent; }
-        .tower-row.active .tower-cell { background: #222; border-color: #555; }
-        .tower-row.active .tower-cell:hover { background: #2a2a40; border-color: var(--moon-primary); box-shadow: 0 0 10px rgba(125,95,255,0.3); }
         
-        .tower-cell.safe { background: var(--success); box-shadow: 0 0 15px rgba(0,242,96,0.3); border-color: var(--success); color: #000; }
-        .tower-cell.boom { background: var(--danger); box-shadow: 0 0 15px rgba(245,59,87,0.3); border-color: var(--danger); }
-        .tower-cell.revealed-gem { background: #333; color: #fff; opacity: 0.5; }
+        /* Disabled rows (not current) */
+        .tower-row.disabled .tower-cell { opacity: 0.3; pointer-events: none; border-color: transparent; }
+        
+        /* Active row (current level) */
+        .tower-row.active .tower-cell { background: #222; border-color: #555; color: white; cursor: pointer; }
+        .tower-row.active .tower-cell:hover { background: #2a2a40; border-color: var(--moon-primary); box-shadow: 0 0 10px rgba(125,95,255,0.4); }
+        
+        /* States */
+        .tower-cell.safe { background: var(--success) !important; box-shadow: 0 0 15px rgba(0,242,96,0.3); border-color: var(--success) !important; color: #000 !important; font-size: 1.5rem; }
+        .tower-cell.boom { background: var(--danger) !important; box-shadow: 0 0 15px rgba(245,59,87,0.3); border-color: var(--danger) !important; font-size: 1.5rem; color:white; }
+        .tower-cell.revealed-gem { background: #333 !important; color: #fff !important; opacity: 0.6; font-size: 1.5rem; }
 
-        .tower-mult-display {
-            font-family: monospace; font-size: 0.8rem; color: #666; display: flex; 
-            flex-direction: column-reverse; justify-content: space-around; gap: 8px; padding-bottom: 5px;
-        }
-        .tower-mult-row { height: 45px; display: flex; align-items: center; justify-content: flex-end; }
-        .tower-mult-row.current { color: var(--success); font-weight: bold; font-size: 1rem; text-shadow: 0 0 5px rgba(0,255,0,0.5); }
-
-        /* --- FAUCET & MODALS (Kept from V4) --- */
+        /* --- OTHER STYLES --- */
         .faucet-container { position: fixed; bottom: 20px; left: 20px; background: rgba(15,15,31,0.95); border: var(--glass-border); padding: 20px; border-radius: 8px; z-index: 90; display: flex; flex-direction: column; gap: 8px; width: 220px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
         .faucet-btn { background: var(--moon-secondary); border: none; color: #000; padding: 10px; font-weight: bold; cursor: pointer; border-radius: 4px; width: 100%; }
         .faucet-btn:disabled { background: #333; color: #555; cursor: default; }
@@ -465,9 +411,9 @@
                 <option value="medium">Medium (2 pola, 1 bezpieczne)</option>
                 <option value="hard">Hard (3 pola, 1 bezpieczne)</option>
             </select>`;
-            area.innerHTML = `<div style="display:flex; gap:10px;"><div id="tower-mults" class="tower-mult-display"></div><div id="tower-game" class="tower-container"></div></div>`;
+            area.innerHTML = `<div style="display:flex; gap:10px; width:100%; justify-content:center;"><div id="tower-game" class="tower-container"></div></div>`;
             acts.innerHTML = `<button class="action-btn" id="t-play" onclick="sfx.click(); playTower()">GRAJ</button><button class="action-btn cashout-btn" id="t-out" onclick="towerCashout()" disabled>WYPŁAĆ</button>`;
-            setTimeout(initTowerUI, 0); // Delay to ensure DOM exists
+            setTimeout(initTowerUI, 0); 
         } else if (currentGame === 'limbo') {
              ext.innerHTML = `<label>CEL (x)</label><input type="number" id="limbo-target" value="2.0" step="0.1">`;
              area.innerHTML = `<div id="limbo-res" style="font-size:4rem; font-weight:bold; color:#555">0.00x</div>`;
@@ -488,25 +434,23 @@
     };
 
     function initTowerUI() {
-        if(gameActive) return; // Zablokuj zmianę w trakcie gry
-        const diff = document.getElementById('tower-diff').value;
+        // Zawsze resetuj, nawet jak gra nie jest aktywna (do podglądu)
+        const diff = document.getElementById('tower-diff') ? document.getElementById('tower-diff').value : 'easy';
         const cfg = towerConfigs[diff];
         const cont = document.getElementById('tower-game');
-        const mCont = document.getElementById('tower-mults');
-        cont.innerHTML = ''; mCont.innerHTML = '';
+        if(!cont) return;
+        cont.innerHTML = '';
         
-        // Render rows
+        // Render rows bottom-up (visual order handled by CSS flex-direction: column-reverse)
         for(let r=9; r>=0; r--) {
             let row = document.createElement('div');
             row.className = 'tower-row disabled';
             row.style.gridTemplateColumns = `repeat(${cfg.cols}, 1fr)`;
             row.id = `row-${r}`;
             for(let c=0; c<cfg.cols; c++) {
-                row.innerHTML += `<div class="tower-cell" onclick="hitTower(${r}, ${c})">?</div>`;
+                row.innerHTML += `<div class="tower-cell" onclick="hitTower(${r}, ${c})">${cfg.mults[r]}x</div>`;
             }
             cont.appendChild(row);
-            // Multiplier preview
-            mCont.innerHTML += `<div class="tower-mult-row" id="mult-${r}">${cfg.mults[r]}x</div>`;
         }
     }
 
@@ -516,6 +460,9 @@
         document.getElementById('t-play').disabled = true; document.getElementById('t-out').disabled = true;
         document.getElementById('hash-display').innerText = "HASH: " + generateHash();
         
+        // RE-INIT UI TO CLEAR EMOJIS
+        initTowerUI();
+
         const diff = document.getElementById('tower-diff').value;
         const cfg = towerConfigs[diff];
         
@@ -535,12 +482,9 @@
     function renderTowerState() {
         for(let r=0; r<10; r++) {
             const rowEl = document.getElementById(`row-${r}`);
-            const mEl = document.getElementById(`mult-${r}`);
-            rowEl.classList.remove('active', 'disabled'); mEl.classList.remove('current');
+            rowEl.classList.remove('active', 'disabled');
             if(r === towerLevel) rowEl.classList.add('active');
             else if (r > towerLevel) rowEl.classList.add('disabled');
-            
-            if(r === towerLevel - 1) mEl.classList.add('current');
         }
         if(towerLevel > 0) document.getElementById('t-out').disabled = false;
     }
