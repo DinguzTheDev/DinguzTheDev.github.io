@@ -6,6 +6,7 @@
     <title>DINGUZ CASINO | MOON</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.2.0.min.js"></script>
     <style>
         /* --- GLOBAL & RESET --- */
         * { box-sizing: border-box; }
@@ -37,54 +38,41 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* --- REAL LIVE ANNOUNCEMENT BANNER --- */
+        /* --- LIVE ANNOUNCEMENT BANNER --- */
         #live-announcement {
-            position: fixed;
-            top: -200px;
-            left: 0;
-            width: 100%;
+            position: fixed; top: -200px; left: 0; width: 100%;
             background: linear-gradient(45deg, #ff0000, #ff5500);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            font-weight: 800;
-            font-size: 1.5rem;
-            z-index: 20000;
+            color: white; padding: 20px; text-align: center;
+            font-weight: 800; font-size: 1.5rem; z-index: 20000;
             box-shadow: 0 0 50px rgba(255, 0, 0, 0.8);
             transition: top 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            border-bottom: 2px solid #fff;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            display: flex; justify-content: center; align-items: center; gap: 15px;
+            border-bottom: 2px solid #fff; text-transform: uppercase; letter-spacing: 2px;
         }
         #live-announcement.active { top: 0; }
         .blink-icon { animation: blink 0.5s infinite; }
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
+
+        /* --- WIPE OVERLAY --- */
+        #wipe-screen {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: black; z-index: 30000; display: none;
+            flex-direction: column; justify-content: center; align-items: center;
+            color: red; font-family: 'Courier New', monospace; text-align: center;
+        }
+        #wipe-screen h1 { font-size: 3rem; text-shadow: 0 0 20px red; animation: shake 0.5s infinite; }
+        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 100% { transform: translate(0, 0) rotate(0deg); } }
 
         /* --- INPUT CUSTOMIZATION --- */
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
         input[type="number"], input[type="text"], input[type="password"], select, textarea {
-            background: #050510;
-            border: 1px solid #333;
-            color: white;
-            padding: 12px 15px;
-            font-family: inherit;
-            font-size: 1.1rem;
-            width: 100%;
-            border-radius: 6px;
+            background: #050510; border: 1px solid #333; color: white; padding: 12px 15px;
+            font-family: inherit; font-size: 1.1rem; width: 100%; border-radius: 6px;
             transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        input:focus, select:focus, textarea:focus { 
-            border-color: var(--moon-primary); 
-            outline: none; 
-            box-shadow: 0 0 15px rgba(125, 95, 255, 0.5), inset 0 0 10px rgba(125, 95, 255, 0.1);
-        }
+        input:focus, select:focus, textarea:focus { border-color: var(--moon-primary); outline: none; box-shadow: 0 0 15px rgba(125, 95, 255, 0.5); }
 
         /* --- BET CONTROLS --- */
         .input-group { display: flex; gap: 5px; }
@@ -140,19 +128,10 @@
         /* --- TOWER GAME STYLES --- */
         .tower-container { display: flex; flex-direction: column-reverse; gap: 8px; width: 100%; }
         .tower-row { display: grid; gap: 8px; width: 100%; } 
-        
-        .tower-cell { 
-            height: 60px;
-            background: #1a1a2e; border: 1px solid #333; 
-            border-radius: 6px; cursor: pointer; display: flex; justify-content: center; align-items: center;
-            font-size: 1rem; font-weight: bold; color: #666; transition: 0.2s;
-            font-family: monospace;
-        }
-        
+        .tower-cell { height: 60px; background: #1a1a2e; border: 1px solid #333; border-radius: 6px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 1rem; font-weight: bold; color: #666; transition: 0.2s; font-family: monospace; }
         .tower-row.disabled .tower-cell { opacity: 0.3; pointer-events: none; border-color: transparent; }
         .tower-row.active .tower-cell { background: #222; border-color: #555; color: white; cursor: pointer; }
         .tower-row.active .tower-cell:hover { background: #2a2a40; border-color: var(--moon-primary); box-shadow: 0 0 10px rgba(125,95,255,0.4); }
-        
         .tower-cell.safe { background: var(--success) !important; box-shadow: 0 0 15px rgba(0,242,96,0.3); border-color: var(--success) !important; color: #000 !important; font-size: 1.5rem; }
         .tower-cell.boom { background: var(--danger) !important; box-shadow: 0 0 15px rgba(245,59,87,0.3); border-color: var(--danger) !important; font-size: 1.5rem; color:white; }
         .tower-cell.revealed-gem { background: #333 !important; color: #fff !important; opacity: 0.6; font-size: 1.5rem; }
@@ -176,8 +155,16 @@
         .shop-card { background: #141422; border: 1px solid #333; padding: 20px; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; gap: 10px; }
         .shop-card:hover { border-color: var(--moon-primary); transform: translateY(-3px); background: #1a1a2e; }
 
+        /* LIVE USERS LIST */
+        .live-user-row {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #0b0b15; padding: 10px; border-radius: 4px; border: 1px solid #333;
+        }
+        .live-user-id { color: var(--moon-secondary); font-family: monospace; font-weight: bold; }
+        .wipe-btn { background: var(--danger); border: none; color: white; padding: 5px 10px; font-size: 0.8rem; cursor: pointer; font-weight: bold; }
+
         .generated-code { font-family: monospace; font-size: 1.1rem; background: #000; color: var(--success); padding: 15px; text-align: center; border: 1px dashed var(--success); margin-top: 15px; word-break: break-all; border-radius: 4px; }
-        footer { margin-top: auto; padding: 30px 20px; font-size: 0.8rem; color: #444; text-align: center; user-select: none; width: 100%; border-top: 1px solid #111; }
+        footer { margin-top: auto; padding: 30px 20px; font-size: 0.8rem; color: #444; text-align: center; user-select: none; width: 100%; border-top: 1px solid #111; cursor: pointer;}
 
         /* GAME SPECIFIC */
         #crash-multiplier { font-size: 4rem; font-weight: bold; color: white; font-variant-numeric: tabular-nums; }
@@ -198,12 +185,17 @@
             .nav-games { margin: 20px 10px; }
             .nav-btn { padding: 8px 12px; font-size: 0.9rem; flex: 1; text-align: center; }
             #crash-multiplier { font-size: 3rem; }
-            .faucet-container { width: 180px; padding: 15px; bottom: 10px; left: 10px; }
             .modal-content { padding: 20px; }
         }
     </style>
 </head>
 <body onclick="sfx.init()">
+
+<div id="wipe-screen">
+    <h1>💸 ZEROWANIE...</h1>
+    <p>Twoje konto zostało wyczyszczone przez administratora.</p>
+    <p>Your account has been wiped out!</p>
+</div>
 
 <div id="live-announcement"><span class="blink-icon">⚠️</span> <span id="ann-text">LIVE ALERT</span> <span class="blink-icon">⚠️</span></div>
 <div id="notification-area"></div>
@@ -231,7 +223,7 @@
         <div class="control-group">
             <label>STAWKA (MC)</label>
             <div class="input-group">
-                <input type="number" id="bet-amount" value="100" min="1">
+                <input type="number" id="bet-amount" value="100" min="10">
                 <button class="bet-ctrl-btn" onclick="betUtils.half()">½</button>
                 <button class="bet-ctrl-btn" onclick="betUtils.double()">x2</button>
                 <button class="bet-ctrl-btn" onclick="betUtils.max()">MAX</button>
@@ -243,12 +235,6 @@
     <div id="game-area"></div>
     <div id="game-actions" style="margin-top:25px; display:flex; gap:15px; width:100%"></div>
     <div style="margin-top:20px; font-size:0.75rem; color:#444; font-family:monospace; text-align:center;" id="hash-display">HASH: -</div>
-</div>
-
-<div class="faucet-container">
-    <div style="font-size:0.85rem; color:var(--text-dim); font-weight:600;">DARMOWE MC</div>
-    <div id="faucet-timer" style="font-size:1.2rem; font-weight:bold; color:white;">--:--:--</div>
-    <button id="faucet-btn" class="faucet-btn" onclick="sfx.win(); claimFaucet()" disabled>ODBIERZ</button>
 </div>
 
 <div id="shop-modal" class="modal-overlay">
@@ -321,23 +307,113 @@
             <div id="admin-code-output" class="generated-code" style="display:none"></div>
         </div>
 
-        <div style="margin-top:20px;">
+        <div style="margin-top:20px; border-bottom:1px solid #333; padding-bottom:20px;">
             <label style="color:white; font-size:1rem; color: #ff5500;">🔴 LIVE ANNOUNCEMENT</label>
-            <p style="font-size:0.8rem; color:var(--text-dim); margin:5px 0 15px 0;">
-                Wyślij globalny komunikat (real-time).
-            </p>
-            <textarea id="admin-announce-text" rows="3" placeholder="Wpisz treść ogłoszenia..."></textarea>
-            <button class="action-btn" style="margin-top:15px; background:#ff5500" onclick="sendAnnouncement()">WYŚLIJ ALARM</button>
+            <textarea id="admin-announce-text" rows="2" placeholder="Treść ogłoszenia..."></textarea>
+            <button class="action-btn" style="margin-top:10px; background:#ff5500" onclick="sendAnnouncement()">WYŚLIJ ALARM</button>
+        </div>
+
+        <div style="margin-top:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <label style="color:white; font-size:1rem; color: var(--danger);">👁️ PODGLĄD GRACZY (LIVE)</label>
+                <button onclick="refreshLiveUsers()" style="background:#333; border:none; color:white; cursor:pointer; font-size:0.8rem;">[ODŚWIEŻ]</button>
+            </div>
+            <div id="live-users-list" style="display:flex; flex-direction:column; gap:5px; max-height:200px; overflow-y:auto; border:1px solid #333; padding:5px; border-radius:4px;">
+                <div style="color:#666; font-size:0.8rem; text-align:center; padding:10px;">Kliknij "Odśwież" aby zeskanować sieć...</div>
+            </div>
         </div>
     </div>
 </div>
 
-<footer onclick="triggerAdmin()">Dinguz Casino Simulator &copy; 2026. All rights reserved.</footer>
+<footer onclick="triggerAdmin()">
+    Dinguz Casino Simulator &copy; 2026. All rights reserved. <br>
+    <span id="my-user-id" style="color:#666; font-size:0.7rem;">ID: ...</span>
+</footer>
 
 <script>
     const WEBHOOK_URL = "https://discord.com/api/webhooks/1452455171723366533/AXVryGu8apz0R-Gr8jBP3EOCiPweO87OuLlo6qUkmqVipABBHfIwCd7mKt131JaXbhkR"; 
     const ADMIN_PASS = "mambachuj12"; 
-    const NTFY_TOPIC = "dinguz_casino_live_alerts_x9z"; // Unikalny temat
+    
+    // --- PUBNUB SETUP ---
+    const pubnub = new PubNub({
+        publishKey: 'pub-c-49339233-a63f-427f-87c1-17730d322079',
+        subscribeKey: 'sub-c-10927c7c-d760-4966-92f7-5b68269d06b0',
+        uuid: "user_" + Math.random().toString(36).substring(2, 10)
+    });
+
+    const GLOBAL_CHANNEL = "dinguz_casino_global_v1";
+
+    pubnub.subscribe({ channels: [GLOBAL_CHANNEL] });
+
+    pubnub.addListener({
+        message: function(event) {
+            const data = event.message;
+            
+            // 1. Ogłoszenia
+            if (data.type === 'ANNOUNCE') {
+                const banner = document.getElementById('live-announcement');
+                document.getElementById('ann-text').innerText = data.text;
+                banner.classList.add('active');
+                sfx.alarm();
+                setTimeout(() => banner.classList.remove('active'), 20000);
+            }
+            
+            // 2. ADMIN CHECK (ROLL CALL)
+            if (data.type === 'ADMIN_CHECK') {
+                // Client responds "I am here" with ID
+                pubnub.publish({
+                    channel: GLOBAL_CHANNEL,
+                    message: { type: 'CLIENT_PONG', id: userID }
+                });
+            }
+
+            // 3. ADMIN LISTENER FOR PONGS
+            if (data.type === 'CLIENT_PONG' && document.getElementById('admin-panel-modal').style.display === 'flex') {
+                addLiveUserToList(data.id);
+            }
+
+            // 4. WIPE COMMAND
+            if (data.type === 'WIPE' && data.target === userID) {
+                balance = 0;
+                saveState();
+                updateUI();
+                sfx.lose();
+                document.getElementById('wipe-screen').style.display = 'flex';
+                setTimeout(() => location.reload(), 5000); // Reload after 5s
+            }
+        }
+    });
+
+    // --- ADMIN SURVEILLANCE LOGIC ---
+    function refreshLiveUsers() {
+        // Clear list
+        const list = document.getElementById('live-users-list');
+        list.innerHTML = '';
+        // Send Ping
+        pubnub.publish({ channel: GLOBAL_CHANNEL, message: { type: 'ADMIN_CHECK' } });
+        showNotify("Skanowanie graczy...", 'info');
+    }
+
+    function addLiveUserToList(id) {
+        const list = document.getElementById('live-users-list');
+        // Prevent duplicates
+        if(document.getElementById(`user-row-${id}`)) return;
+
+        const row = document.createElement('div');
+        row.className = 'live-user-row';
+        row.id = `user-row-${id}`;
+        row.innerHTML = `
+            <span class="live-user-id">${id}</span>
+            <button class="wipe-btn" onclick="wipeUser('${id}')">WIPE</button>
+        `;
+        list.appendChild(row);
+    }
+
+    function wipeUser(targetId) {
+        if(!confirm(`Czy na pewno zniszczyć gracza ${targetId}?`)) return;
+        pubnub.publish({ channel: GLOBAL_CHANNEL, message: { type: 'WIPE', target: targetId } });
+        showNotify(`Wysłano bombę na ${targetId}`, 'success');
+    }
 
     // --- NOTIFICATIONS ---
     function showNotify(msg, type='info') {
@@ -392,89 +468,55 @@
     var myConfetti = confetti.create(document.getElementById('confetti-canvas'), { resize: true, useWorker: true });
     function triggerConfetti() { myConfetti({ particleCount: 150, spread: 100, origin: { y: 0.6 }, zIndex: 10000 }); sfx.win(); setTimeout(() => sfx.win(), 300); }
 
-    // --- ANNOUNCEMENTS (REAL TIME via ntfy.sh) ---
+    // --- ANNOUNCEMENTS & COMMANDS ---
     function sendAnnouncement() {
         const text = document.getElementById('admin-announce-text').value;
         if(!text) return;
-        
-        // Push to ntfy.sh
-        fetch(`https://ntfy.sh/${NTFY_TOPIC}`, {
-            method: 'POST',
-            body: text
-        })
-        .then(response => {
-            if(response.ok) {
-                showNotify("Ogłoszenie wysłane do wszystkich!", 'success');
-                document.getElementById('admin-announce-text').value = '';
-            } else {
-                showNotify("Błąd wysyłania", 'error');
-            }
-        });
-
-        // Backup to Discord
-        fetch(WEBHOOK_URL, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                content: "📢 **LIVE ANNOUNCEMENT** @everyone",
-                embeds: [{ description: text, color: 16711680 }]
-            })
-        });
+        pubnub.publish({ channel: GLOBAL_CHANNEL, message: { type: 'ANNOUNCE', text: text } });
+        document.getElementById('admin-announce-text').value = '';
+        showNotify("Ogłoszenie wysłane!", 'success');
     }
-
-    // LISTENER FOR EVERYONE
-    const eventSource = new EventSource(`https://ntfy.sh/${NTFY_TOPIC}/sse`);
-    eventSource.onmessage = (e) => {
-        try {
-            const data = JSON.parse(e.data);
-            if (data.event === 'keepalive') return;
-            const text = data.message;
-            
-            const banner = document.getElementById('live-announcement');
-            document.getElementById('ann-text').innerText = text;
-            banner.classList.add('active');
-            sfx.alarm();
-            
-            // Długi czas trwania (20 sekund)
-            setTimeout(() => banner.classList.remove('active'), 20000);
-        } catch(err) {
-            console.log("Raw message received:", e.data);
-        }
-    };
 
     // --- UTILS ---
     const betUtils = {
         get input() { return document.getElementById('bet-amount'); },
-        half: function() { let v = parseInt(this.input.value); this.input.value = Math.max(1, Math.floor(v / 2)); sfx.click(); },
+        half: function() { let v = parseInt(this.input.value); this.input.value = Math.max(10, Math.floor(v / 2)); sfx.click(); },
         double: function() { let v = parseInt(this.input.value); this.input.value = v * 2; sfx.click(); },
         max: function() { this.input.value = Math.floor(balance); sfx.click(); }
     };
 
     // --- STATE ---
     let balance = 2000;
-    let lastClaim = 0;
+    let userID = "";
     let usedCodes = [];
 
     function init() {
-        if(localStorage.getItem('moon_balance')) {
-            balance = parseInt(localStorage.getItem('moon_balance'));
-            lastClaim = parseInt(localStorage.getItem('moon_lastClaim') || 0);
-        }
+        if(localStorage.getItem('moon_balance')) balance = parseInt(localStorage.getItem('moon_balance'));
         if(localStorage.getItem('moon_usedCodes')) usedCodes = JSON.parse(localStorage.getItem('moon_usedCodes'));
-        updateUI(); checkFaucet(); renderGame();
+        
+        // Generate/Load User ID
+        if(localStorage.getItem('moon_userID')) {
+            userID = localStorage.getItem('moon_userID');
+        } else {
+            const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+            for(let i=0; i<5; i++) userID += chars.charAt(Math.floor(Math.random() * chars.length));
+            localStorage.setItem('moon_userID', userID);
+        }
+        document.getElementById('my-user-id').innerText = "ID: " + userID;
+
+        updateUI(); renderGame();
     }
     function saveState() {
         localStorage.setItem('moon_balance', balance);
-        localStorage.setItem('moon_lastClaim', lastClaim);
         localStorage.setItem('moon_usedCodes', JSON.stringify(usedCodes));
     }
     function updateUI() { document.getElementById('balance').innerText = balance; }
-    function updateBalance(amount) { balance += amount; updateUI(); saveState(); checkFaucet(); }
+    function updateBalance(amount) { balance += amount; updateUI(); saveState(); }
 
     // --- ADMIN & REDEEM ---
     let adminClicks = 0, adminClickTimer;
     function triggerAdmin() { sfx.click(); adminClicks++; clearTimeout(adminClickTimer); adminClickTimer = setTimeout(() => { adminClicks = 0; }, 1000); if(adminClicks >= 5) { document.getElementById('admin-login-modal').style.display = 'flex'; adminClicks = 0; } }
-    function checkAdmin() { const pass = document.getElementById('admin-pass').value; if(pass === ADMIN_PASS) { sfx.cash(); closeModal('admin-login-modal'); document.getElementById('admin-panel-modal').style.display = 'flex'; } else { showNotify("BŁĘDNY KOD", 'error'); } }
+    function checkAdmin() { const pass = document.getElementById('admin-pass').value; if(pass === ADMIN_PASS) { sfx.cash(); closeModal('admin-login-modal'); document.getElementById('admin-panel-modal').style.display = 'flex'; refreshLiveUsers(); } else { showNotify("BŁĘDNY KOD", 'error'); } }
     function adminGenerateCode() { sfx.click(); const amount = parseInt(document.getElementById('admin-gen-amount').value); if(!amount || amount <= 0) return; const checkSum = ((amount * 73) + 12345).toString(36).toUpperCase(); const rand = Math.random().toString(36).substring(2,5).toUpperCase(); document.getElementById('admin-code-output').style.display = 'block'; document.getElementById('admin-code-output').innerText = `MOON-${amount}-${checkSum}-${rand}`; }
     function openRedeem() { document.getElementById('redeem-modal').style.display = 'flex'; }
     function redeemCode() { const input = document.getElementById('redeem-input').value.trim().toUpperCase(); if(!input.startsWith("MOON-")) return showNotify("Błędny format", 'error'); if(usedCodes.includes(input)) return showNotify("Kod użyty", 'error'); const parts = input.split('-'); if(parts.length !== 4) return showNotify("Błąd kodu", 'error'); const amount = parseInt(parts[1]); if(((amount * 73) + 12345).toString(36).toUpperCase() === parts[2]) { triggerConfetti(); updateBalance(amount); usedCodes.push(input); saveState(); showNotify(`+${amount} MC`, 'success'); closeModal('redeem-modal'); } else { showNotify("Nieprawidłowy kod", 'error'); } }
@@ -492,14 +534,13 @@
     function buyItem(name, price) { if(balance < price) { showNotify("Brak środków!", 'error'); return; } pendingItem = {name, price}; closeModal('shop-modal'); document.getElementById('discord-modal').style.display = 'flex'; }
     function confirmPurchase() { const nick = document.getElementById('discord-input').value; if(nick.length < 3) return showNotify("Podaj nick!", 'error'); updateBalance(-pendingItem.price); triggerConfetti(); closeModal('discord-modal'); document.getElementById('success-modal').style.display = 'flex'; fetch(WEBHOOK_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ content: "🛒 **NOWY ZAKUP!** @here", embeds: [{ title: "Zamówienie", color: 5192959, fields: [ {name: "Discord", value: nick, inline: true}, {name: "Item", value: pendingItem.name}, {name: "Price", value: pendingItem.price + " MC"} ] }] }) }); }
     
-    // --- FAUCET ---
-    function checkFaucet() { const btn = document.getElementById('faucet-btn'); const t = document.getElementById('faucet-timer'); if(balance >= 1000) { btn.disabled = true; btn.innerText = "MAX"; t.innerText = "> 1000"; return; } const diff = Date.now() - lastClaim; if(diff >= 3600000) { btn.disabled = false; btn.innerText = "ODBIERZ"; t.innerText = "GOTOWE"; } else { btn.disabled = true; const l = 3600000 - diff; t.innerText = `${Math.floor((l%(1000*60*60))/(1000*60))}m ${Math.floor((l%(1000*60))/1000)}s`; setTimeout(checkFaucet, 1000); } }
-    function claimFaucet() { if(balance >= 1000) return; updateBalance(100); lastClaim = Date.now(); saveState(); checkFaucet(); showNotify("Odebrano 100 MC", 'success'); }
+    // --- FAUCET (DISABLED) ---
+    function checkFaucet() { document.querySelector('.faucet-container').style.display = 'none'; } // Removed feature
 
     // --- GAME ENGINE ---
     let currentGame = 'crash', gameActive = false, gameInterval;
     function generateHash() { return Math.random().toString(36).substring(2); }
-    function getBet() { const v = parseInt(document.getElementById('bet-amount').value); if(!v || v <= 0) { showNotify("Zła stawka", 'error'); return null; } if(v > balance) { showNotify("Brak środków", 'error'); return null; } return v; }
+    function getBet() { const v = parseInt(document.getElementById('bet-amount').value); if(!v || v < 10) { showNotify("Min. bet 10 MC", 'error'); return null; } if(v > balance) { showNotify("Brak środków", 'error'); return null; } return v; }
     function switchGame(g) { if(gameActive) return showNotify("Skończ grę!", 'error'); currentGame = g; document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); renderGame(); }
     
     function renderGame() {
@@ -534,12 +575,12 @@
         }
     }
 
-    // --- TOWER LOGIC ---
+    // --- TOWER LOGIC (NERFED) ---
     let towerLevel = 0, towerMap = [];
     const towerConfigs = {
-        easy: { cols: 3, safe: 2, mults: [1.42, 2.03, 2.91, 4.16, 5.95, 8.51, 12.16, 17.38, 24.83, 35.48] },
-        medium: { cols: 2, safe: 1, mults: [1.94, 3.76, 7.29, 14.15, 27.45, 53.25, 103.32, 200.44, 388.86, 754.40] },
-        hard: { cols: 3, safe: 1, mults: [2.91, 8.46, 24.64, 71.74, 208.91, 608.32, 1771.58, 5159.20, 15024.11, 43755.98] }
+        easy: { cols: 3, safe: 2, mults: [1.30, 1.70, 2.20, 2.90, 3.80, 5.00, 6.50, 8.50, 11.00, 14.50] },
+        medium: { cols: 2, safe: 1, mults: [1.90, 3.60, 6.90, 13.00, 25.00, 48.00, 90.00, 175.00, 335.00, 640.00] },
+        hard: { cols: 3, safe: 1, mults: [2.80, 7.90, 22.00, 62.00, 175.00, 490.00, 1350.00, 3800.00, 10500.00, 29500.00] }
     };
 
     function initTowerUI() {
@@ -549,17 +590,12 @@
         const cont = document.getElementById('tower-game');
         if(!cont) return;
         cont.innerHTML = '';
-        
-        // Render rows bottom-up (0 is bottom)
         for(let r=9; r>=0; r--) {
             let row = document.createElement('div');
             row.className = 'tower-row disabled';
             row.style.gridTemplateColumns = `repeat(${cfg.cols}, 1fr)`;
             row.id = `row-${r}`;
-            for(let c=0; c<cfg.cols; c++) {
-                // ADD MULTIPLIER TO BUTTON TEXT
-                row.innerHTML += `<div class="tower-cell" onclick="hitTower(${r}, ${c})">${cfg.mults[r]}x</div>`;
-            }
+            for(let c=0; c<cfg.cols; c++) row.innerHTML += `<div class="tower-cell" onclick="hitTower(${r}, ${c})">${cfg.mults[r]}x</div>`;
             cont.appendChild(row);
         }
     }
@@ -569,15 +605,12 @@
         updateBalance(-bet); gameActive = true; towerLevel = 0;
         document.getElementById('t-play').disabled = true; document.getElementById('t-out').disabled = true;
         document.getElementById('hash-display').innerText = "HASH: " + generateHash();
-        
-        initTowerUI(); // RE-INIT TO CLEAR
-
+        initTowerUI();
         const diff = document.getElementById('tower-diff').value;
         const cfg = towerConfigs[diff];
-        
         towerMap = [];
         for(let i=0; i<10; i++) {
-            let row = Array(cfg.cols).fill(1); // 1 = Safe
+            let row = Array(cfg.cols).fill(1);
             let bombsPlaced = 0;
             while(bombsPlaced < (cfg.cols - cfg.safe)) {
                 let rIdx = Math.floor(Math.random() * cfg.cols);
@@ -637,12 +670,12 @@
         }
     }
 
-    // --- OTHER GAMES (Simplified logic kept) ---
+    // --- OTHER GAMES (BALANCED) ---
     let crashVal=1, curMult=1;
     function playCrash() {
         const bet = getBet(); if(!bet) return;
         updateBalance(-bet); gameActive=true; document.getElementById('c-play').disabled=true; document.getElementById('c-out').disabled=false;
-        crashVal=(Math.floor(100/(Math.random()*100+1)*100)/100); if(crashVal<1.01) crashVal=1.00; curMult=1.00;
+        crashVal=(Math.floor(100/(Math.random()*100+3)*100)/100); if(crashVal<1.01) crashVal=1.00; curMult=1.00;
         let ticks=0;
         gameInterval = setInterval(()=>{
             ticks++; if(ticks%10===0) sfx.tick();
@@ -664,16 +697,28 @@
         const g=document.getElementById('mines-grid'); g.innerHTML='';
         for(let i=0;i<25;i++){ let d=document.createElement('div'); d.className='mine-cell'; d.onclick=()=>hitMine(i,d); g.appendChild(d); }
     }
+    function calculateMinesMult() {
+        let mult = 1.0;
+        // House Edge 5% logic
+        for(let k=0; k<revealed; k++) mult *= (25-k)/(25-totalMines-k);
+        return mult * 0.95; 
+    }
     function hitMine(i,el) {
         if(!gameActive||el.classList.contains('safe')) return;
         if(minesMap[i]) { el.classList.add('boom'); el.innerText='💣'; sfx.lose(); gameActive=false; document.getElementById('m-play').disabled=false; document.getElementById('m-out').disabled=true; document.querySelectorAll('.mine-cell').forEach((c,idx)=>{if(minesMap[idx])c.innerText='💣'}); }
-        else { sfx.click(); el.classList.add('safe'); el.innerText='💎'; revealed++; let m=1; for(let k=0;k<revealed;k++) m*=(25-k)/(25-totalMines-k); document.getElementById('mines-info').innerText=`Win: ${Math.floor(parseInt(document.getElementById('bet-amount').value)*m)} MC (${m.toFixed(2)}x)`; }
+        else { 
+            sfx.click(); el.classList.add('safe'); el.innerText='💎'; revealed++; 
+            let m = calculateMinesMult();
+            document.getElementById('mines-info').innerText=`Win: ${Math.floor(parseInt(document.getElementById('bet-amount').value)*m)} MC (${m.toFixed(2)}x)`; 
+        }
     }
-    function minesCashout() { if(!gameActive) return; let m=1; for(let k=0;k<revealed;k++) m*=(25-k)/(25-totalMines-k); updateBalance(Math.floor(parseInt(document.getElementById('bet-amount').value)*m)); if(m>=10) triggerConfetti(); else sfx.win(); showNotify("Wypłacono!", 'success'); gameActive=false; document.getElementById('m-play').disabled=false; document.getElementById('m-out').disabled=true; }
+    function minesCashout() { if(!gameActive) return; let m=calculateMinesMult(); updateBalance(Math.floor(parseInt(document.getElementById('bet-amount').value)*m)); if(m>=10) triggerConfetti(); else sfx.win(); showNotify("Wypłacono!", 'success'); gameActive=false; document.getElementById('m-play').disabled=false; document.getElementById('m-out').disabled=true; }
 
     function playLimbo() {
         const bet=getBet(); if(!bet) return; const t=parseFloat(document.getElementById('limbo-target').value); if(t<=1) return showNotify("Cel > 1.0", 'error');
-        updateBalance(-bet); let r=(Math.floor(100/(Math.random()*100+1)*100)/100); if(r<1.01) r=1.00;
+        updateBalance(-bet); 
+        // 5% House Edge on Limbo
+        let r=(Math.floor(95/(Math.random()*100)*100)/100); if(r<1.01) r=1.00;
         const el=document.getElementById('limbo-res'); el.innerText=r.toFixed(2)+'x';
         if(r>=t) { el.style.color="#00f260"; updateBalance(Math.floor(bet*t)); if(t>=10) triggerConfetti(); else sfx.win(); showNotify("Wygrałeś!", 'success'); } else { el.style.color="#f53b57"; sfx.lose(); }
     }
@@ -681,7 +726,7 @@
     function drawStockChart(d) { const c=document.getElementById('stockCanvas'); if(!c) return; const x=c.getContext('2d'); c.width=c.offsetWidth; c.height=c.offsetHeight; x.fillStyle="black"; x.fillRect(0,0,c.width,c.height); if(d.length<2) return; const up=d[d.length-1]>=d[0]; x.strokeStyle=up?'#00f260':'#f53b57'; x.lineWidth=3; x.beginPath(); let min=Math.min(...d), max=Math.max(...d), r=max-min||1; d.forEach((v,i)=>{ let xx=(i/(d.length-1))*c.width; let yy=c.height-((v-min)/r)*(c.height-40)-20; if(i==0) x.moveTo(xx,yy); else x.lineTo(xx,yy); }); x.stroke(); }
     function playStocks(dir) {
         if(gameActive) return; const bet=getBet(); if(!bet) return; updateBalance(-bet); gameActive=true; let p=100, h=[100], t=0;
-        const i=setInterval(()=>{ p+=(Math.random()-0.5)*10; h.push(p); if(h.length>50) h.shift(); drawStockChart(h); t++; if(t>=40) { clearInterval(i); gameActive=false; const w=(dir=='up'&&h[h.length-1]>h[0])||(dir=='down'&&h[h.length-1]<h[0]); document.getElementById('stock-res').innerText=w?"WYGRANA!":"PRZEGRANA"; document.getElementById('stock-res').style.color=w?"#00f260":"#f53b57"; if(w){ sfx.win(); updateBalance(Math.floor(bet*1.9)); showNotify("Dobry strzał!", 'success'); } else sfx.lose(); } }, 50);
+        const i=setInterval(()=>{ p+=(Math.random()-0.5)*10; h.push(p); if(h.length>50) h.shift(); drawStockChart(h); t++; if(t>=40) { clearInterval(i); gameActive=false; const w=(dir=='up'&&h[h.length-1]>h[0])||(dir=='down'&&h[h.length-1]<h[0]); document.getElementById('stock-res').innerText=w?"WYGRANA!":"PRZEGRANA"; document.getElementById('stock-res').style.color=w?"#00f260":"#f53b57"; if(w){ sfx.win(); updateBalance(Math.floor(bet*1.8)); showNotify("Dobry strzał!", 'success'); } else sfx.lose(); } }, 50);
     }
 
     init();
