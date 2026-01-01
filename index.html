@@ -316,12 +316,6 @@
     let currentGame = 'crash', gameActive = false;
 
     function init() {
-        if (!localStorage.getItem('birthday_wipe_v1')) {
-            localStorage.setItem('bd_balance', 0); // Zeruje nowy balans
-            localStorage.setItem('moon_balance', 0); // Zeruje stary balans (v8)
-            localStorage.setItem('birthday_wipe_v1', 'true'); // Flaga, żeby nie zerowało przy każdym odświeżeniu
-            balance = 0;
-        }
         
         if(localStorage.getItem('bd_balance')) balance = parseInt(localStorage.getItem('bd_balance'));
         if(localStorage.getItem('bd_startTime')) gameStartTime = parseInt(localStorage.getItem('bd_startTime'));
