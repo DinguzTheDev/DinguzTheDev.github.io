@@ -40,12 +40,12 @@
         /* --- REAL LIVE ANNOUNCEMENT BANNER --- */
         #live-announcement {
             position: fixed;
-            top: -150px;
+            top: -200px;
             left: 0;
             width: 100%;
             background: linear-gradient(45deg, #ff0000, #ff5500);
             color: white;
-            padding: 15px;
+            padding: 20px;
             text-align: center;
             font-weight: 800;
             font-size: 1.5rem;
@@ -332,7 +332,7 @@
     </div>
 </div>
 
-<footer onclick="triggerAdmin()">Dinguz Casino Simulator &copy; 2024. All rights reserved.</footer>
+<footer onclick="triggerAdmin()">Dinguz Casino Simulator &copy; 2026. All rights reserved.</footer>
 
 <script>
     const WEBHOOK_URL = "https://discord.com/api/webhooks/1452455171723366533/AXVryGu8apz0R-Gr8jBP3EOCiPweO87OuLlo6qUkmqVipABBHfIwCd7mKt131JaXbhkR"; 
@@ -372,7 +372,7 @@
         },
         click: function() { this.playOsc(800, 'sine', 0.05, 0.1); },
         win: function() { this.playOsc(523.25, 'triangle', 0.2, 0.2); setTimeout(() => this.playOsc(659.25, 'triangle', 0.2, 0.2), 100); setTimeout(() => this.playOsc(783.99, 'triangle', 0.4, 0.2), 200); },
-        lose: function() { this.playOsc(150, 'sawtooth', 0.3, 0.2, 50); },
+        lose: function() { this.playOsc(150, 'sawtooth', 0.3, 0.2); },
         tick: function() { this.playOsc(1200, 'square', 0.03, 0.05); },
         cash: function() { this.playOsc(1200, 'sine', 0.1, 0.2); setTimeout(()=>this.playOsc(1800, 'sine', 0.3, 0.2), 80); },
         alarm: function() { 
@@ -397,7 +397,7 @@
         const text = document.getElementById('admin-announce-text').value;
         if(!text) return;
         
-        // Push to ntfy.sh (Public subscribe topic)
+        // Push to ntfy.sh
         fetch(`https://ntfy.sh/${NTFY_TOPIC}`, {
             method: 'POST',
             body: text
@@ -425,12 +425,21 @@
     // LISTENER FOR EVERYONE
     const eventSource = new EventSource(`https://ntfy.sh/${NTFY_TOPIC}/sse`);
     eventSource.onmessage = (e) => {
-        const text = e.data;
-        const banner = document.getElementById('live-announcement');
-        document.getElementById('ann-text').innerText = text;
-        banner.classList.add('active');
-        sfx.alarm();
-        setTimeout(() => banner.classList.remove('active'), 6000);
+        try {
+            const data = JSON.parse(e.data);
+            if (data.event === 'keepalive') return;
+            const text = data.message;
+            
+            const banner = document.getElementById('live-announcement');
+            document.getElementById('ann-text').innerText = text;
+            banner.classList.add('active');
+            sfx.alarm();
+            
+            // Długi czas trwania (20 sekund)
+            setTimeout(() => banner.classList.remove('active'), 20000);
+        } catch(err) {
+            console.log("Raw message received:", e.data);
+        }
     };
 
     // --- UTILS ---
