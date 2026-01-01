@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DINGUZ CASINO | MOON</title>
+    <title>DINGUZ CASINO</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         /* --- GLOBAL & RESET --- */
-        * {
-            box-sizing: border-box; /* Kluczowe dla paddingów */
-        }
+        * { box-sizing: border-box; }
 
         :root {
             --bg-main: #050510;
@@ -34,13 +32,13 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            overflow-x: hidden; /* Zapobiega poziomemu przewijaniu */
+            overflow-x: hidden;
         }
 
         /* --- HEADER --- */
         header {
             width: 100%;
-            padding: 15px 5%; /* Procentowy padding dla responsywności */
+            padding: 15px 5%;
             background: rgba(15, 15, 31, 0.95);
             backdrop-filter: blur(10px);
             display: flex;
@@ -65,11 +63,7 @@
             white-space: nowrap;
         }
 
-        .header-right { 
-            display: flex; 
-            gap: 10px; 
-            align-items: center; 
-        }
+        .header-right { display: flex; gap: 10px; align-items: center; }
 
         .balance-box {
             background: linear-gradient(90deg, rgba(125,95,255,0.1), transparent);
@@ -100,14 +94,14 @@
 
         /* --- NAVIGATION --- */
         .nav-games {
-            margin: 30px 20px; /* Margines góra/dół i bezpieczny bok */
+            margin: 30px 20px;
             display: flex;
             gap: 8px;
             padding: 8px;
             background: var(--bg-panel);
             border-radius: 8px;
             border: var(--glass-border);
-            flex-wrap: wrap; /* Zawijanie na małych ekranach */
+            flex-wrap: wrap;
             justify-content: center;
         }
 
@@ -135,9 +129,9 @@
         /* --- GAME CONTAINER --- */
         .game-container {
             background: var(--bg-panel);
-            width: 95%; /* Bezpieczna szerokość */
+            width: 95%;
             max-width: 850px;
-            padding: 30px; /* Wewnętrzny odstęp */
+            padding: 30px;
             border-radius: 12px;
             border: var(--glass-border);
             box-shadow: 0 20px 50px rgba(0,0,0,0.7);
@@ -155,16 +149,10 @@
             align-items: flex-end;
             padding-bottom: 25px;
             border-bottom: 1px solid rgba(255,255,255,0.05);
-            flex-wrap: wrap; /* Responsywność */
+            flex-wrap: wrap;
         }
 
-        .control-group {
-            flex: 1;
-            min-width: 150px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+        .control-group { flex: 1; min-width: 150px; display: flex; flex-direction: column; gap: 8px; }
 
         label { color: var(--text-dim); font-size: 0.8rem; font-weight: 600; letter-spacing: 1px; }
 
@@ -172,7 +160,7 @@
             background: #050510;
             border: 1px solid #333;
             color: white;
-            padding: 12px 15px; /* Większy padding w polach */
+            padding: 12px 15px;
             font-family: inherit;
             font-size: 1.1rem;
             width: 100%;
@@ -184,7 +172,7 @@
         /* --- ACTION BUTTONS --- */
         button.action-btn {
             width: 100%;
-            padding: 18px; /* Wygodny klik */
+            padding: 18px;
             background: linear-gradient(135deg, var(--moon-primary), var(--moon-secondary));
             border: none;
             color: white;
@@ -203,15 +191,7 @@
         button.cashout-btn { background: var(--success); color: #000; }
         button.put-btn { background: var(--danger); color: #fff; }
 
-        #game-area { 
-            flex-grow: 1; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-            align-items: center; 
-            width: 100%;
-            padding: 20px 0;
-        }
+        #game-area { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; padding: 20px 0; }
 
         /* --- FAUCET --- */
         .faucet-container {
@@ -251,35 +231,38 @@
             display: none;
             justify-content: center;
             align-items: center;
-            padding: 20px; /* Padding, żeby modal nie dotykał krawędzi ekranu */
+            padding: 20px;
         }
         .modal-content {
             background: var(--bg-panel);
             width: 100%;
-            max-width: 600px;
+            max-width: 700px;
             border: var(--glass-border);
             border-radius: 12px;
-            padding: 30px; /* Padding wewnątrz modala */
+            padding: 30px;
             display: flex;
             flex-direction: column;
             gap: 20px;
             box-shadow: 0 0 50px rgba(125,95,255,0.3);
             position: relative;
-            max-height: 90vh; /* Żeby nie wyjechało poza ekran */
+            max-height: 90vh;
             overflow-y: auto;
         }
         .close-modal { position: absolute; top: 15px; right: 20px; background: none; border: none; color: white; font-size: 2rem; cursor: pointer; line-height: 1; }
         .modal-title { font-size: 1.5rem; color: var(--moon-primary); font-weight: 700; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 15px; }
 
-        /* SHOP GRID */
+        /* SHOP TABS & GRID */
+        .shop-tabs { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+        .shop-tab { flex: 1; padding: 12px; background: #1a1a2e; border: 1px solid #333; color: #888; cursor: pointer; border-radius: 6px; transition: 0.2s; font-weight: bold; text-align: center; white-space: nowrap; }
+        .shop-tab.active { background: var(--moon-primary); color: white; border-color: var(--moon-primary); }
+        .shop-tab:hover:not(.active) { background: #222; }
+
         .shop-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
         .shop-card { background: #141422; border: 1px solid #333; padding: 20px; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; gap: 10px; }
         .shop-card:hover { border-color: var(--moon-primary); transform: translateY(-3px); background: #1a1a2e; }
 
-        /* Admin Generated Code */
         .generated-code { font-family: monospace; font-size: 1.1rem; background: #000; color: var(--success); padding: 15px; text-align: center; border: 1px dashed var(--success); margin-top: 15px; word-break: break-all; border-radius: 4px; }
 
-        /* FOOTER */
         footer { margin-top: auto; padding: 30px 20px; font-size: 0.8rem; color: #444; text-align: center; user-select: none; width: 100%; border-top: 1px solid #111; }
 
         /* GAME SPECIFIC */
@@ -293,7 +276,7 @@
         .mine-cell.safe { background: var(--success); color: #000; border-color: var(--success); box-shadow: 0 0 15px rgba(0,242,96,0.4); }
         .mine-cell.boom { background: var(--danger); border-color: var(--danger); box-shadow: 0 0 15px rgba(245,59,87,0.4); }
 
-        /* MEDIA QUERIES (MOBILE FIXES) */
+        /* MEDIA QUERIES */
         @media (max-width: 600px) {
             h1 { font-size: 1.4rem; }
             header { padding: 15px; flex-direction: column; gap: 10px; }
@@ -335,9 +318,7 @@
     </div>
     
     <div id="game-area"></div>
-    
     <div id="game-actions" style="margin-top:25px; display:flex; gap:15px; width:100%"></div>
-    
     <div style="margin-top:20px; font-size:0.75rem; color:#444; font-family:monospace; text-align:center;" id="hash-display">HASH: -</div>
 </div>
 
@@ -351,6 +332,13 @@
     <div class="modal-content">
         <button class="close-modal" onclick="closeModal('shop-modal')">&times;</button>
         <div class="modal-title">Sklep z nagrodami</div>
+        
+        <div class="shop-tabs">
+            <div class="shop-tab active" onclick="filterShop('games', this)">GAMES</div>
+            <div class="shop-tab" onclick="filterShop('gifts', this)">GIFTS</div>
+            <div class="shop-tab" onclick="filterShop('giftcards', this)">GIFT CARDS</div>
+        </div>
+
         <div class="shop-items" id="shop-container"></div>
     </div>
 </div>
@@ -405,12 +393,14 @@
 
 <footer onclick="triggerAdmin()">
     DISCLAIMER: This is a virtual simulator using "MoonCoins". No real money involved.<br>
+    Click here 5 times for debug info.
 </footer>
 
 <script>
     // --- CONFIG ---
+    // PAMIĘTAJ ŻEBY WKLEIĆ LINK PONOWNIE!
     const WEBHOOK_URL = "WKLEJ_TUTAJ_SWOJ_LINK_DO_WEBHOOKA"; 
-    const ADMIN_PASS = "mambachuj12"; 
+    const ADMIN_PASS = "admin123"; 
 
     // --- STATE ---
     let balance = 2000;
@@ -526,29 +516,51 @@
         document.getElementById(id).style.display = 'none';
     }
 
-    // --- SHOP ---
-    const shopData = [
-        { name: "Gra Steam do 20PLN", price: 15000, desc: "Key/Gift" },
-        { name: "Roblox Gift Card (800 R$)", price: 25000, desc: "Kod Cyfrowy" },
-        { name: "VIP Ranga Discord", price: 5000, desc: "Na serwerze" },
-        { name: "Mystery Box", price: 2000, desc: "Losowa nagroda" }
-    ];
+    // --- SHOP SYSTEM (RESTORED) ---
+    const shopData = {
+        games: [
+            { name: "Wybrana gra (do 10PLN)", price: 10000, desc: "Steam Key / Gift" },
+            { name: "Wybrana gra (do 20PLN)", price: 18000, desc: "Steam Key / Gift" }
+        ],
+        gifts: [
+            { name: "Gamepass Gift Roblox", price: 5000, desc: "Max. 80 Robux" },
+            { name: "Gamepass Gift Roblox", price: 22000, desc: "Max. 400 Robux" }
+        ],
+        giftcards: [
+            { name: "BloxGame Card 1000", price: 8000, desc: "1000 Coins Value" },
+            { name: "BloxGame Card 2000", price: 15000, desc: "2000 Coins Value" }
+        ]
+    };
+
     let pendingItem = null;
 
     function openShop() {
-        const c = document.getElementById('shop-container');
-        c.innerHTML = '';
-        shopData.forEach(item => {
-            c.innerHTML += `
-                <div class="shop-card">
-                    <h3 style="margin:0; color:var(--moon-secondary); font-size:1.1rem;">${item.name}</h3>
-                    <div style="font-size:0.9rem; color:#888">${item.desc}</div>
-                    <div style="font-size:1.4rem; font-weight:bold; margin:5px 0">${item.price} MC</div>
-                    <button class="nav-action-btn" style="width:100%; margin-top:auto;" onclick="buyItem('${item.name}', ${item.price})">WYMIEŃ</button>
-                </div>
-            `;
-        });
         document.getElementById('shop-modal').style.display = 'flex';
+        // Domyślnie otwórz 'games'
+        filterShop('games', document.querySelector('.shop-tab')); 
+    }
+
+    function filterShop(category, btnElement) {
+        // Reset active class
+        document.querySelectorAll('.shop-tab').forEach(b => b.classList.remove('active'));
+        if(btnElement) btnElement.classList.add('active');
+        else document.querySelector('.shop-tab').classList.add('active'); // fallback
+
+        const container = document.getElementById('shop-container');
+        container.innerHTML = '';
+
+        if(shopData[category]) {
+            shopData[category].forEach(item => {
+                container.innerHTML += `
+                    <div class="shop-card">
+                        <h3 style="margin:0; color:var(--moon-secondary); font-size:1.1rem;">${item.name}</h3>
+                        <div style="font-size:0.9rem; color:#888">${item.desc}</div>
+                        <div style="font-size:1.4rem; font-weight:bold; margin:5px 0">${item.price} MC</div>
+                        <button class="nav-action-btn" style="width:100%; margin-top:auto;" onclick="buyItem('${item.name}', ${item.price})">WYMIEŃ</button>
+                    </div>
+                `;
+            });
+        }
     }
 
     function buyItem(name, price) {
