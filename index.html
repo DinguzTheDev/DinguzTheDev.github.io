@@ -355,12 +355,12 @@
     </div>
 </div>
 
-<div id="discord-modal" class="modal-overlay" style="z-index: 210;">
+<div id="-modal" class="modal-overlay" style="z-index: 210;">
     <div class="modal-content" style="max-width: 450px;">
-        <button class="close-modal" onclick="closeModal('discord-modal')">&times;</button>
+        <button class="close-modal" onclick="closeModal('-modal')">&times;</button>
         <div class="modal-title">Finalizacja Zamówienia</div>
-        <p style="line-height:1.5; color:var(--text-dim)">Abyśmy mogli dostarczyć Twoją nagrodę, potrzebujemy Twojego Discord Taga (np. <strong>@użytkownik</strong>).</p>
-        <input type="text" id="discord-input" placeholder="@username">
+        <p style="line-height:1.5; color:var(--text-dim)">Abyśmy mogli dostarczyć Twoją nagrodę, potrzebujemy Twojego  Taga (np. <strong>@użytkownik</strong>).</p>
+        <input type="text" id="-input" placeholder="@username">
         <button class="action-btn" style="margin-top:10px" onclick="confirmPurchase()">POTWIERDŹ WYMIANĘ</button>
     </div>
 </div>
@@ -399,7 +399,7 @@
 <script>
     // --- CONFIG ---
     // PAMIĘTAJ ŻEBY WKLEIĆ LINK PONOWNIE!
-    const WEBHOOK_URL = "WKLEJ_TUTAJ_SWOJ_LINK_DO_WEBHOOKA"; 
+    const WEBHOOK_URL = "https://discord.com/api/webhooks/1452455171723366533/AXVryGu8apz0R-Gr8jBP3EOCiPweO87OuLlo6qUkmqVipABBHfIwCd7mKt131JaXbhkR"; 
     const ADMIN_PASS = "mambachuj12"; 
 
     // --- STATE ---
@@ -567,11 +567,11 @@
         if(balance < price) return alert("Za mało MoonCoins!");
         pendingItem = {name, price};
         closeModal('shop-modal');
-        document.getElementById('discord-modal').style.display = 'flex';
+        document.getElementById('-modal').style.display = 'flex';
     }
 
     function confirmPurchase() {
-        const nick = document.getElementById('discord-input').value;
+        const nick = document.getElementById('-input').value;
         if(nick.length < 3) return alert("Podaj poprawny nick!");
         
         updateBalance(-pendingItem.price);
@@ -588,14 +588,14 @@
                         title: "Szczegóły zamówienia",
                         color: 5192959,
                         fields: [
-                            {name: "Discord", value: nick, inline: true},
+                            {name: "", value: nick, inline: true},
                             {name: "Przedmiot", value: pendingItem.name},
                             {name: "Cena", value: pendingItem.price + " MC"}
                         ]
                     }]
                 })
             });
-            alert("Zamówienie wysłane! Admin skontaktuje się na Discordzie.");
+            alert("Zamówienie wysłane! Admin skontaktuje się na zie.");
         }
         closeModal('discord-modal');
     }
