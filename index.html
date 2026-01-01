@@ -34,6 +34,19 @@
             align-items: center;
             min-height: 100vh;
             overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* --- CONFETTI CANVAS FIX --- */
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none; /* Myszka klika "przez" canvas */
+            z-index: 9999;
+            background: transparent;
         }
 
         /* --- HEADER --- */
@@ -277,7 +290,6 @@
         .mine-cell.safe { background: var(--success); color: #000; border-color: var(--success); box-shadow: 0 0 15px rgba(0,242,96,0.4); }
         .mine-cell.boom { background: var(--danger); border-color: var(--danger); box-shadow: 0 0 15px rgba(245,59,87,0.4); }
 
-        /* MEDIA QUERIES */
         @media (max-width: 600px) {
             h1 { font-size: 1.4rem; }
             header { padding: 15px; flex-direction: column; gap: 10px; }
@@ -292,6 +304,8 @@
     </style>
 </head>
 <body onclick="sfx.init()">
+
+<canvas id="confetti-canvas"></canvas>
 
 <header>
     <h1>DINGUZ <span style="font-weight:300; font-size:1.2rem; color:var(--text-dim)">CASINO</span></h1>
@@ -402,73 +416,85 @@
     const WEBHOOK_URL = "https://discord.com/api/webhooks/1452455171723366533/AXVryGu8apz0R-Gr8jBP3EOCiPweO87OuLlo6qUkmqVipABBHfIwCd7mKt131JaXbhkR"; 
     const ADMIN_PASS = "mambachuj12"; 
 
-    // --- SOUND SYSTEM (AudioContext) ---
+    // --- SOUND SYSTEM V2 (Retro Synth) ---
     const sfx = {
         ctx: null,
         init: function() {
+            // Próba uruchomienia kontekstu audio przy pierwszym kliknięciu
             if (!this.ctx) {
-                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                this.ctx = new AudioContext();
             } else if (this.ctx.state === 'suspended') {
                 this.ctx.resume();
             }
         },
-        playTone: function(freq, type, duration, vol=0.1) {
+        // Funkcja do grania pojedynczego tonu
+        playOsc: function(freq, type, duration, vol=0.1, slideTo=null) {
             if(!this.ctx) return;
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
-            osc.type = type;
+            
+            osc.type = type; // sine, square, sawtooth, triangle
             osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-            gain.gain.setValueAtTime(vol, this.ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+            
+            if(slideTo) {
+                osc.frequency.exponentialRampToValueAtTime(slideTo, this.ctx.currentTime + duration);
+            }
+
+            // Envelope (ADSR - Attack/Decay uproszczone)
+            gain.gain.setValueAtTime(0, this.ctx.currentTime);
+            gain.gain.linearRampToValueAtTime(vol, this.ctx.currentTime + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+
             osc.connect(gain);
             gain.connect(this.ctx.destination);
+            
             osc.start();
             osc.stop(this.ctx.currentTime + duration);
         },
-        click: function() { this.playTone(800, 'sine', 0.1); },
+        click: function() { 
+            // Krótki, wysoki "klik"
+            this.playOsc(800, 'sine', 0.05, 0.1); 
+        },
         win: function() { 
-            this.playTone(600, 'sine', 0.1);
-            setTimeout(() => this.playTone(800, 'sine', 0.1), 100);
-            setTimeout(() => this.playTone(1200, 'sine', 0.2), 200);
+            // Akord C-Major (szybkie arpeggio)
+            let now = 0;
+            this.playOsc(523.25, 'triangle', 0.2, 0.2); // C5
+            setTimeout(() => this.playOsc(659.25, 'triangle', 0.2, 0.2), 100); // E5
+            setTimeout(() => this.playOsc(783.99, 'triangle', 0.4, 0.2), 200); // G5
         },
         lose: function() {
-            this.playTone(150, 'sawtooth', 0.4, 0.2);
+            // Niskie tąpnięcie zjazdem w dół
+            this.playOsc(150, 'sawtooth', 0.3, 0.2, 50); 
         },
         tick: function() {
-            this.playTone(1000, 'square', 0.05, 0.05);
+            // Bardzo krótki "blip"
+            this.playOsc(1200, 'square', 0.03, 0.05);
         },
         cash: function() {
-            this.playTone(1200, 'sine', 0.1);
-            setTimeout(()=>this.playTone(1600, 'sine', 0.3), 50);
+            // Dźwięk monety (dwa szybkie tony)
+            this.playOsc(1200, 'sine', 0.1, 0.2);
+            setTimeout(()=>this.playOsc(1800, 'sine', 0.3, 0.2), 80);
         }
     };
 
+    // --- CONFETTI SYSTEM FIXED ---
+    var myConfetti = confetti.create(document.getElementById('confetti-canvas'), {
+        resize: true,
+        useWorker: true
+    });
+
     function triggerConfetti() {
-        // Efekt Konfetti
-        var duration = 3000;
-        var end = Date.now() + duration;
-
-        (function frame() {
-            confetti({
-                particleCount: 5,
-                angle: 60,
-                spread: 55,
-                origin: { x: 0 },
-                colors: ['#7d5fff', '#4facfe', '#00f260']
-            });
-            confetti({
-                particleCount: 5,
-                angle: 120,
-                spread: 55,
-                origin: { x: 1 },
-                colors: ['#7d5fff', '#4facfe', '#00f260']
-            });
-
-            if (Date.now() < end) {
-                requestAnimationFrame(frame);
-            }
-        }());
-        sfx.win(); // Dodatkowy dźwięk wygranej
+        // Konfetti strzelające ze środka
+        myConfetti({
+            particleCount: 150,
+            spread: 100,
+            origin: { y: 0.6 },
+            zIndex: 10000
+        });
+        // Fanfary
+        sfx.win();
+        setTimeout(() => sfx.win(), 300);
     }
 
 
@@ -612,15 +638,13 @@
 
     function openShop() {
         document.getElementById('shop-modal').style.display = 'flex';
-        // Domyślnie otwórz 'games'
         filterShop('games', document.querySelector('.shop-tab')); 
     }
 
     function filterShop(category, btnElement) {
-        // Reset active class
         document.querySelectorAll('.shop-tab').forEach(b => b.classList.remove('active'));
         if(btnElement) btnElement.classList.add('active');
-        else document.querySelector('.shop-tab').classList.add('active'); // fallback
+        else document.querySelector('.shop-tab').classList.add('active'); 
 
         const container = document.getElementById('shop-container');
         container.innerHTML = '';
@@ -778,7 +802,7 @@
         let ticks = 0;
         gameInterval = setInterval(()=>{
             ticks++;
-            if(ticks % 10 === 0) sfx.tick(); // Dźwięk tykania
+            if(ticks % 10 === 0) sfx.tick(); 
             
             curMult += 0.01+(curMult*0.004);
             document.getElementById('crash-multiplier').innerText = curMult.toFixed(2)+'x';
@@ -836,7 +860,7 @@
             document.getElementById('mines-info').innerText="BOOM!";
             document.querySelectorAll('.mine-cell').forEach((c,idx)=>{if(minesMap[idx])c.innerText='💣'});
         } else {
-            sfx.click(); // gem sound
+            sfx.click(); 
             el.classList.add('safe'); el.innerText='💎'; revealed++;
             let m=1; for(let k=0;k<revealed;k++) m*=(25-k)/(25-totalMines-k);
             document.getElementById('mines-info').innerText = `Win: ${Math.floor(parseInt(document.getElementById('bet-amount').value)*m)} MC (${m.toFixed(2)}x)`;
