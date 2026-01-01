@@ -37,16 +37,54 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        /* --- REAL LIVE ANNOUNCEMENT BANNER --- */
+        #live-announcement {
+            position: fixed;
+            top: -150px;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(45deg, #ff0000, #ff5500);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 1.5rem;
+            z-index: 20000;
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.8);
+            transition: top 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 2px solid #fff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        #live-announcement.active { top: 0; }
+        .blink-icon { animation: blink 0.5s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
+
         /* --- INPUT CUSTOMIZATION --- */
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
-        input[type="number"], input[type="text"], input[type="password"], select {
-            background: #050510; border: 1px solid #333; color: white; padding: 12px 15px;
-            font-family: inherit; font-size: 1.1rem; width: 100%; border-radius: 6px;
+        input[type="number"], input[type="text"], input[type="password"], select, textarea {
+            background: #050510;
+            border: 1px solid #333;
+            color: white;
+            padding: 12px 15px;
+            font-family: inherit;
+            font-size: 1.1rem;
+            width: 100%;
+            border-radius: 6px;
             transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        input:focus, select:focus { border-color: var(--moon-primary); outline: none; box-shadow: 0 0 15px rgba(125, 95, 255, 0.5); }
+
+        input:focus, select:focus, textarea:focus { 
+            border-color: var(--moon-primary); 
+            outline: none; 
+            box-shadow: 0 0 15px rgba(125, 95, 255, 0.5), inset 0 0 10px rgba(125, 95, 255, 0.1);
+        }
 
         /* --- BET CONTROLS --- */
         .input-group { display: flex; gap: 5px; }
@@ -99,7 +137,7 @@
 
         #game-area { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; padding: 20px 0; }
 
-        /* --- TOWER GAME STYLES (UPDATED) --- */
+        /* --- TOWER GAME STYLES --- */
         .tower-container { display: flex; flex-direction: column-reverse; gap: 8px; width: 100%; }
         .tower-row { display: grid; gap: 8px; width: 100%; } 
         
@@ -111,19 +149,15 @@
             font-family: monospace;
         }
         
-        /* Disabled rows (not current) */
         .tower-row.disabled .tower-cell { opacity: 0.3; pointer-events: none; border-color: transparent; }
-        
-        /* Active row (current level) */
         .tower-row.active .tower-cell { background: #222; border-color: #555; color: white; cursor: pointer; }
         .tower-row.active .tower-cell:hover { background: #2a2a40; border-color: var(--moon-primary); box-shadow: 0 0 10px rgba(125,95,255,0.4); }
         
-        /* States */
         .tower-cell.safe { background: var(--success) !important; box-shadow: 0 0 15px rgba(0,242,96,0.3); border-color: var(--success) !important; color: #000 !important; font-size: 1.5rem; }
         .tower-cell.boom { background: var(--danger) !important; box-shadow: 0 0 15px rgba(245,59,87,0.3); border-color: var(--danger) !important; font-size: 1.5rem; color:white; }
         .tower-cell.revealed-gem { background: #333 !important; color: #fff !important; opacity: 0.6; font-size: 1.5rem; }
 
-        /* --- OTHER STYLES --- */
+        /* --- OTHER --- */
         .faucet-container { position: fixed; bottom: 20px; left: 20px; background: rgba(15,15,31,0.95); border: var(--glass-border); padding: 20px; border-radius: 8px; z-index: 90; display: flex; flex-direction: column; gap: 8px; width: 220px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
         .faucet-btn { background: var(--moon-secondary); border: none; color: #000; padding: 10px; font-weight: bold; cursor: pointer; border-radius: 4px; width: 100%; }
         .faucet-btn:disabled { background: #333; color: #555; cursor: default; }
@@ -171,6 +205,7 @@
 </head>
 <body onclick="sfx.init()">
 
+<div id="live-announcement"><span class="blink-icon">⚠️</span> <span id="ann-text">LIVE ALERT</span> <span class="blink-icon">⚠️</span></div>
 <div id="notification-area"></div>
 <canvas id="confetti-canvas"></canvas>
 
@@ -275,23 +310,34 @@
     <div class="modal-content">
         <button class="close-modal" onclick="closeModal('admin-panel-modal')">&times;</button>
         <div class="modal-title" style="color:var(--danger)">PANEL STEROWANIA</div>
-        <div style="margin-top:10px;">
+        
+        <div style="margin-top:10px; border-bottom:1px solid #333; padding-bottom:20px;">
             <label style="color:white; font-size:1rem;">Generator Kodów</label>
-            <p style="font-size:0.8rem; color:var(--text-dim); margin:5px 0 15px 0; line-height:1.4;">
-                Wygeneruj unikalny kod zasilający. Skopiuj go i wyślij graczowi.
+            <p style="font-size:0.8rem; color:var(--text-dim); margin:5px 0 15px 0;">
+                Wygeneruj unikalny kod zasilający.
             </p>
             <input type="number" id="admin-gen-amount" placeholder="Kwota (np. 5000)">
             <button class="action-btn" style="margin-top:15px; background:var(--moon-primary)" onclick="adminGenerateCode()">GENERUJ KOD</button>
             <div id="admin-code-output" class="generated-code" style="display:none"></div>
         </div>
+
+        <div style="margin-top:20px;">
+            <label style="color:white; font-size:1rem; color: #ff5500;">🔴 LIVE ANNOUNCEMENT</label>
+            <p style="font-size:0.8rem; color:var(--text-dim); margin:5px 0 15px 0;">
+                Wyślij globalny komunikat (real-time).
+            </p>
+            <textarea id="admin-announce-text" rows="3" placeholder="Wpisz treść ogłoszenia..."></textarea>
+            <button class="action-btn" style="margin-top:15px; background:#ff5500" onclick="sendAnnouncement()">WYŚLIJ ALARM</button>
+        </div>
     </div>
 </div>
 
-<footer onclick="triggerAdmin()">Dinguz Casino Simulator &copy; 2026. All rights reserved.</footer>
+<footer onclick="triggerAdmin()">Dinguz Casino Simulator &copy; 2024. All rights reserved.</footer>
 
 <script>
     const WEBHOOK_URL = "https://discord.com/api/webhooks/1452455171723366533/AXVryGu8apz0R-Gr8jBP3EOCiPweO87OuLlo6qUkmqVipABBHfIwCd7mKt131JaXbhkR"; 
     const ADMIN_PASS = "mambachuj12"; 
+    const NTFY_TOPIC = "dinguz_casino_live_alerts_x9z"; // Unikalny temat
 
     // --- NOTIFICATIONS ---
     function showNotify(msg, type='info') {
@@ -312,11 +358,12 @@
             if (!this.ctx) { const AudioContext = window.AudioContext || window.webkitAudioContext; this.ctx = new AudioContext(); } 
             else if (this.ctx.state === 'suspended') this.ctx.resume();
         },
-        playOsc: function(freq, type, duration, vol=0.1) {
+        playOsc: function(freq, type, duration, vol=0.1, slideTo=null) {
             if(!this.ctx) return;
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
             osc.type = type; osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+            if(slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, this.ctx.currentTime + duration);
             gain.gain.setValueAtTime(0, this.ctx.currentTime);
             gain.gain.linearRampToValueAtTime(vol, this.ctx.currentTime + 0.01);
             gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
@@ -325,13 +372,66 @@
         },
         click: function() { this.playOsc(800, 'sine', 0.05, 0.1); },
         win: function() { this.playOsc(523.25, 'triangle', 0.2, 0.2); setTimeout(() => this.playOsc(659.25, 'triangle', 0.2, 0.2), 100); setTimeout(() => this.playOsc(783.99, 'triangle', 0.4, 0.2), 200); },
-        lose: function() { this.playOsc(150, 'sawtooth', 0.3, 0.2); },
+        lose: function() { this.playOsc(150, 'sawtooth', 0.3, 0.2, 50); },
         tick: function() { this.playOsc(1200, 'square', 0.03, 0.05); },
-        cash: function() { this.playOsc(1200, 'sine', 0.1, 0.2); setTimeout(()=>this.playOsc(1800, 'sine', 0.3, 0.2), 80); }
+        cash: function() { this.playOsc(1200, 'sine', 0.1, 0.2); setTimeout(()=>this.playOsc(1800, 'sine', 0.3, 0.2), 80); },
+        alarm: function() { 
+            const now = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(440, now);
+            osc.frequency.linearRampToValueAtTime(880, now + 0.5);
+            osc.frequency.linearRampToValueAtTime(440, now + 1.0);
+            gain.gain.value = 0.1;
+            osc.connect(gain); gain.connect(this.ctx.destination);
+            osc.start(); osc.stop(now + 2);
+        }
     };
 
     var myConfetti = confetti.create(document.getElementById('confetti-canvas'), { resize: true, useWorker: true });
     function triggerConfetti() { myConfetti({ particleCount: 150, spread: 100, origin: { y: 0.6 }, zIndex: 10000 }); sfx.win(); setTimeout(() => sfx.win(), 300); }
+
+    // --- ANNOUNCEMENTS (REAL TIME via ntfy.sh) ---
+    function sendAnnouncement() {
+        const text = document.getElementById('admin-announce-text').value;
+        if(!text) return;
+        
+        // Push to ntfy.sh (Public subscribe topic)
+        fetch(`https://ntfy.sh/${NTFY_TOPIC}`, {
+            method: 'POST',
+            body: text
+        })
+        .then(response => {
+            if(response.ok) {
+                showNotify("Ogłoszenie wysłane do wszystkich!", 'success');
+                document.getElementById('admin-announce-text').value = '';
+            } else {
+                showNotify("Błąd wysyłania", 'error');
+            }
+        });
+
+        // Backup to Discord
+        fetch(WEBHOOK_URL, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                content: "📢 **LIVE ANNOUNCEMENT** @everyone",
+                embeds: [{ description: text, color: 16711680 }]
+            })
+        });
+    }
+
+    // LISTENER FOR EVERYONE
+    const eventSource = new EventSource(`https://ntfy.sh/${NTFY_TOPIC}/sse`);
+    eventSource.onmessage = (e) => {
+        const text = e.data;
+        const banner = document.getElementById('live-announcement');
+        document.getElementById('ann-text').innerText = text;
+        banner.classList.add('active');
+        sfx.alarm();
+        setTimeout(() => banner.classList.remove('active'), 6000);
+    };
 
     // --- UTILS ---
     const betUtils = {
@@ -434,20 +534,21 @@
     };
 
     function initTowerUI() {
-        // Zawsze resetuj, nawet jak gra nie jest aktywna (do podglądu)
-        const diff = document.getElementById('tower-diff') ? document.getElementById('tower-diff').value : 'easy';
+        if(gameActive) return; 
+        const diff = document.getElementById('tower-diff').value;
         const cfg = towerConfigs[diff];
         const cont = document.getElementById('tower-game');
         if(!cont) return;
         cont.innerHTML = '';
         
-        // Render rows bottom-up (visual order handled by CSS flex-direction: column-reverse)
+        // Render rows bottom-up (0 is bottom)
         for(let r=9; r>=0; r--) {
             let row = document.createElement('div');
             row.className = 'tower-row disabled';
             row.style.gridTemplateColumns = `repeat(${cfg.cols}, 1fr)`;
             row.id = `row-${r}`;
             for(let c=0; c<cfg.cols; c++) {
+                // ADD MULTIPLIER TO BUTTON TEXT
                 row.innerHTML += `<div class="tower-cell" onclick="hitTower(${r}, ${c})">${cfg.mults[r]}x</div>`;
             }
             cont.appendChild(row);
@@ -460,8 +561,7 @@
         document.getElementById('t-play').disabled = true; document.getElementById('t-out').disabled = true;
         document.getElementById('hash-display').innerText = "HASH: " + generateHash();
         
-        // RE-INIT UI TO CLEAR EMOJIS
-        initTowerUI();
+        initTowerUI(); // RE-INIT TO CLEAR
 
         const diff = document.getElementById('tower-diff').value;
         const cfg = towerConfigs[diff];
