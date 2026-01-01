@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DINGUZ CASINO</title>
+    <title>DINGUZ CASINO | MOON</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         /* --- GLOBAL & RESET --- */
         * { box-sizing: border-box; }
@@ -290,22 +291,22 @@
         }
     </style>
 </head>
-<body>
+<body onclick="sfx.init()">
 
 <header>
     <h1>DINGUZ <span style="font-weight:300; font-size:1.2rem; color:var(--text-dim)">CASINO</span></h1>
     <div class="header-right">
         <div class="balance-box"><span id="balance">0</span> MC</div>
-        <button class="nav-action-btn" onclick="openRedeem()">🎁 KOD</button>
-        <button class="nav-action-btn" onclick="openShop()">🛍️ SKLEP</button>
+        <button class="nav-action-btn" onclick="sfx.click(); openRedeem()">🎁 KOD</button>
+        <button class="nav-action-btn" onclick="sfx.click(); openShop()">🛍️ SKLEP</button>
     </div>
 </header>
 
 <div class="nav-games">
-    <button class="nav-btn active" onclick="switchGame('crash')">Crash</button>
-    <button class="nav-btn" onclick="switchGame('mines')">Mines</button>
-    <button class="nav-btn" onclick="switchGame('limbo')">Limbo</button>
-    <button class="nav-btn" onclick="switchGame('stocks')">Stocks</button>
+    <button class="nav-btn active" onclick="sfx.click(); switchGame('crash')">Crash</button>
+    <button class="nav-btn" onclick="sfx.click(); switchGame('mines')">Mines</button>
+    <button class="nav-btn" onclick="sfx.click(); switchGame('limbo')">Limbo</button>
+    <button class="nav-btn" onclick="sfx.click(); switchGame('stocks')">Stocks</button>
 </div>
 
 <div class="game-container">
@@ -325,7 +326,7 @@
 <div class="faucet-container">
     <div style="font-size:0.85rem; color:var(--text-dim); font-weight:600;">DARMOWE MC</div>
     <div id="faucet-timer" style="font-size:1.2rem; font-weight:bold; color:white;">--:--:--</div>
-    <button id="faucet-btn" class="faucet-btn" onclick="claimFaucet()" disabled>ODBIERZ</button>
+    <button id="faucet-btn" class="faucet-btn" onclick="sfx.win(); claimFaucet()" disabled>ODBIERZ</button>
 </div>
 
 <div id="shop-modal" class="modal-overlay">
@@ -334,9 +335,9 @@
         <div class="modal-title">Sklep z nagrodami</div>
         
         <div class="shop-tabs">
-            <div class="shop-tab active" onclick="filterShop('games', this)">GAMES</div>
-            <div class="shop-tab" onclick="filterShop('gifts', this)">GIFTS</div>
-            <div class="shop-tab" onclick="filterShop('giftcards', this)">GIFT CARDS</div>
+            <div class="shop-tab active" onclick="sfx.click(); filterShop('games', this)">GAMES</div>
+            <div class="shop-tab" onclick="sfx.click(); filterShop('gifts', this)">GIFTS</div>
+            <div class="shop-tab" onclick="sfx.click(); filterShop('giftcards', this)">GIFT CARDS</div>
         </div>
 
         <div class="shop-items" id="shop-container"></div>
@@ -351,17 +352,17 @@
             <label>Wpisz swój kod poniżej:</label>
             <input type="text" id="redeem-input" placeholder="np. MOON-5000-XYZ">
         </div>
-        <button class="action-btn" style="margin-top:10px" onclick="redeemCode()">ZREALIZUJ ŚRODKI</button>
+        <button class="action-btn" style="margin-top:10px" onclick="sfx.click(); redeemCode()">ZREALIZUJ ŚRODKI</button>
     </div>
 </div>
 
-<div id="-modal" class="modal-overlay" style="z-index: 210;">
+<div id="discord-modal" class="modal-overlay" style="z-index: 210;">
     <div class="modal-content" style="max-width: 450px;">
-        <button class="close-modal" onclick="closeModal('-modal')">&times;</button>
+        <button class="close-modal" onclick="closeModal('discord-modal')">&times;</button>
         <div class="modal-title">Finalizacja Zamówienia</div>
-        <p style="line-height:1.5; color:var(--text-dim)">Abyśmy mogli dostarczyć Twoją nagrodę, potrzebujemy Twojego  Taga (np. <strong>@użytkownik</strong>).</p>
-        <input type="text" id="-input" placeholder="@username">
-        <button class="action-btn" style="margin-top:10px" onclick="confirmPurchase()">POTWIERDŹ WYMIANĘ</button>
+        <p style="line-height:1.5; color:var(--text-dim)">Abyśmy mogli dostarczyć Twoją nagrodę, potrzebujemy Twojego Discord Taga (np. <strong>@użytkownik</strong>).</p>
+        <input type="text" id="discord-input" placeholder="@username">
+        <button class="action-btn" style="margin-top:10px" onclick="sfx.click(); confirmPurchase()">POTWIERDŹ WYMIANĘ</button>
     </div>
 </div>
 
@@ -398,9 +399,78 @@
 
 <script>
     // --- CONFIG ---
-    // PAMIĘTAJ ŻEBY WKLEIĆ LINK PONOWNIE!
     const WEBHOOK_URL = "https://discord.com/api/webhooks/1452455171723366533/AXVryGu8apz0R-Gr8jBP3EOCiPweO87OuLlo6qUkmqVipABBHfIwCd7mKt131JaXbhkR"; 
     const ADMIN_PASS = "mambachuj12"; 
+
+    // --- SOUND SYSTEM (AudioContext) ---
+    const sfx = {
+        ctx: null,
+        init: function() {
+            if (!this.ctx) {
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            } else if (this.ctx.state === 'suspended') {
+                this.ctx.resume();
+            }
+        },
+        playTone: function(freq, type, duration, vol=0.1) {
+            if(!this.ctx) return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+            gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start();
+            osc.stop(this.ctx.currentTime + duration);
+        },
+        click: function() { this.playTone(800, 'sine', 0.1); },
+        win: function() { 
+            this.playTone(600, 'sine', 0.1);
+            setTimeout(() => this.playTone(800, 'sine', 0.1), 100);
+            setTimeout(() => this.playTone(1200, 'sine', 0.2), 200);
+        },
+        lose: function() {
+            this.playTone(150, 'sawtooth', 0.4, 0.2);
+        },
+        tick: function() {
+            this.playTone(1000, 'square', 0.05, 0.05);
+        },
+        cash: function() {
+            this.playTone(1200, 'sine', 0.1);
+            setTimeout(()=>this.playTone(1600, 'sine', 0.3), 50);
+        }
+    };
+
+    function triggerConfetti() {
+        // Efekt Konfetti
+        var duration = 3000;
+        var end = Date.now() + duration;
+
+        (function frame() {
+            confetti({
+                particleCount: 5,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 },
+                colors: ['#7d5fff', '#4facfe', '#00f260']
+            });
+            confetti({
+                particleCount: 5,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 },
+                colors: ['#7d5fff', '#4facfe', '#00f260']
+            });
+
+            if (Date.now() < end) {
+                requestAnimationFrame(frame);
+            }
+        }());
+        sfx.win(); // Dodatkowy dźwięk wygranej
+    }
+
 
     // --- STATE ---
     let balance = 2000;
@@ -444,6 +514,7 @@
     let adminClickTimer;
 
     function triggerAdmin() {
+        sfx.click();
         adminClicks++;
         clearTimeout(adminClickTimer);
         adminClickTimer = setTimeout(() => { adminClicks = 0; }, 1000); 
@@ -457,14 +528,17 @@
     function checkAdmin() {
         const pass = document.getElementById('admin-pass').value;
         if(pass === ADMIN_PASS) {
+            sfx.cash();
             closeModal('admin-login-modal');
             document.getElementById('admin-panel-modal').style.display = 'flex';
         } else {
+            sfx.lose();
             alert("BŁĘDNY KOD / ACCESS DENIED");
         }
     }
 
     function adminGenerateCode() {
+        sfx.click();
         const amount = parseInt(document.getElementById('admin-gen-amount').value);
         if(!amount || amount <= 0) return;
 
@@ -501,12 +575,14 @@
         const expectedChecksum = expectedCheckSumVal.toString(36).toUpperCase();
 
         if(providedChecksum === expectedChecksum) {
+            sfx.cash();
             updateBalance(amount);
             usedCodes.push(input);
             saveState();
             alert(`Sukces! Dodano ${amount} MC do konta.`);
             closeModal('redeem-modal');
         } else {
+            sfx.lose();
             alert("Kod nieprawidłowy lub sfałszowany.");
         }
     }
@@ -516,7 +592,7 @@
         document.getElementById(id).style.display = 'none';
     }
 
-    // --- SHOP SYSTEM (RESTORED) ---
+    // --- SHOP SYSTEM ---
     const shopData = {
         games: [
             { name: "Wybrana gra (do 10PLN)", price: 10000, desc: "Steam Key / Gift" },
@@ -556,7 +632,7 @@
                         <h3 style="margin:0; color:var(--moon-secondary); font-size:1.1rem;">${item.name}</h3>
                         <div style="font-size:0.9rem; color:#888">${item.desc}</div>
                         <div style="font-size:1.4rem; font-weight:bold; margin:5px 0">${item.price} MC</div>
-                        <button class="nav-action-btn" style="width:100%; margin-top:auto;" onclick="buyItem('${item.name}', ${item.price})">WYMIEŃ</button>
+                        <button class="nav-action-btn" style="width:100%; margin-top:auto;" onclick="sfx.click(); buyItem('${item.name}', ${item.price})">WYMIEŃ</button>
                     </div>
                 `;
             });
@@ -564,39 +640,36 @@
     }
 
     function buyItem(name, price) {
-        if(balance < price) return alert("Za mało MoonCoins!");
+        if(balance < price) { sfx.lose(); return alert("Za mało MoonCoins!"); }
         pendingItem = {name, price};
         closeModal('shop-modal');
-        document.getElementById('-modal').style.display = 'flex';
+        document.getElementById('discord-modal').style.display = 'flex';
     }
 
     function confirmPurchase() {
-        const nick = document.getElementById('-input').value;
+        const nick = document.getElementById('discord-input').value;
         if(nick.length < 3) return alert("Podaj poprawny nick!");
         
         updateBalance(-pendingItem.price);
+        sfx.cash();
         
-        if(WEBHOOK_URL.includes("WKLEJ")) {
-            alert("ADMIN: Skonfiguruj Webhooka w kodzie!");
-        } else {
-            fetch(WEBHOOK_URL, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    content: "🛒 **NOWY ZAKUP!**",
-                    embeds: [{
-                        title: "Szczegóły zamówienia",
-                        color: 5192959,
-                        fields: [
-                            {name: "", value: nick, inline: true},
-                            {name: "Przedmiot", value: pendingItem.name},
-                            {name: "Cena", value: pendingItem.price + " MC"}
-                        ]
-                    }]
-                })
-            });
-            alert("Zamówienie wysłane! Admin skontaktuje się na zie.");
-        }
+        fetch(WEBHOOK_URL, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                content: "🛒 **NOWY ZAKUP!**",
+                embeds: [{
+                    title: "Szczegóły zamówienia",
+                    color: 5192959,
+                    fields: [
+                        {name: "Discord", value: nick, inline: true},
+                        {name: "Przedmiot", value: pendingItem.name},
+                        {name: "Cena", value: pendingItem.price + " MC"}
+                    ]
+                }]
+            })
+        });
+        alert("Zamówienie wysłane! Admin skontaktuje się na Discordzie.");
         closeModal('discord-modal');
     }
 
@@ -671,19 +744,19 @@
 
         if(currentGame === 'crash') {
             area.innerHTML = `<div id="crash-multiplier">1.00x</div>`;
-            actions.innerHTML = `<button class="action-btn" id="c-play" onclick="playCrash()">GRAJ</button><button class="action-btn cashout-btn" id="c-out" onclick="crashOut()" disabled>WYPŁAĆ</button>`;
+            actions.innerHTML = `<button class="action-btn" id="c-play" onclick="sfx.click(); playCrash()">GRAJ</button><button class="action-btn cashout-btn" id="c-out" onclick="crashOut()" disabled>WYPŁAĆ</button>`;
         } else if (currentGame === 'mines') {
             extra.innerHTML = `<label>MINY (1-24)</label><input type="number" id="mines-cnt" value="3" min="1" max="24">`;
             area.innerHTML = `<div class="mines-grid" id="mines-grid"></div><div id="mines-info" style="margin-top:15px; font-weight:bold; font-size:1.1rem; color:white;"></div>`;
-            actions.innerHTML = `<button class="action-btn" id="m-play" onclick="playMines()">GRAJ</button><button class="action-btn cashout-btn" id="m-out" onclick="minesCashout()" disabled>WYPŁAĆ</button>`;
+            actions.innerHTML = `<button class="action-btn" id="m-play" onclick="sfx.click(); playMines()">GRAJ</button><button class="action-btn cashout-btn" id="m-out" onclick="minesCashout()" disabled>WYPŁAĆ</button>`;
             initMines();
         } else if (currentGame === 'limbo') {
              extra.innerHTML = `<label>CEL (x)</label><input type="number" id="limbo-target" value="2.0" step="0.1">`;
              area.innerHTML = `<div id="limbo-res" style="font-size:4rem; font-weight:bold; color:#555">0.00x</div>`;
-             actions.innerHTML = `<button class="action-btn" onclick="playLimbo()">GRAJ</button>`;
+             actions.innerHTML = `<button class="action-btn" onclick="sfx.click(); playLimbo()">GRAJ</button>`;
         } else if (currentGame === 'stocks') {
              area.innerHTML = `<canvas id="stockCanvas"></canvas><div id="stock-res" style="margin-top:10px; font-weight:bold">RYNEK ZAMKNIĘTY</div>`;
-             actions.innerHTML = `<button class="action-btn" style="background:#00f260; color:black" onclick="playStocks('up')">UP ↗</button><button class="action-btn" style="background:#f53b57; color:white" onclick="playStocks('down')">DOWN ↘</button>`;
+             actions.innerHTML = `<button class="action-btn" style="background:#00f260; color:black" onclick="sfx.click(); playStocks('up')">UP ↗</button><button class="action-btn" style="background:#f53b57; color:white" onclick="sfx.click(); playStocks('down')">DOWN ↘</button>`;
              drawStockChart([]);
         }
     }
@@ -702,11 +775,16 @@
         crashVal = (Math.floor(100/(Math.random()*100+1)*100)/100); if(crashVal<1.01) crashVal=1.00;
         curMult = 1.00;
         
+        let ticks = 0;
         gameInterval = setInterval(()=>{
+            ticks++;
+            if(ticks % 10 === 0) sfx.tick(); // Dźwięk tykania
+            
             curMult += 0.01+(curMult*0.004);
             document.getElementById('crash-multiplier').innerText = curMult.toFixed(2)+'x';
             if(curMult >= crashVal) {
                 clearInterval(gameInterval);
+                sfx.lose();
                 document.getElementById('crash-multiplier').innerText = "CRASH @ " + crashVal.toFixed(2)+"x";
                 document.getElementById('crash-multiplier').classList.add('crashed');
                 gameActive = false;
@@ -719,6 +797,10 @@
         clearInterval(gameInterval);
         const bet = parseInt(document.getElementById('bet-amount').value);
         updateBalance(Math.floor(bet*curMult));
+        
+        if(curMult >= 10.0) triggerConfetti();
+        else sfx.win();
+
         gameActive = false;
         document.getElementById('c-play').disabled = false; document.getElementById('c-out').disabled = true;
     }
@@ -748,11 +830,13 @@
         if(!gameActive || el.classList.contains('safe')) return;
         if(minesMap[i]) {
             el.classList.add('boom'); el.innerText='💣';
+            sfx.lose();
             gameActive=false;
             document.getElementById('m-play').disabled=false; document.getElementById('m-out').disabled=true;
             document.getElementById('mines-info').innerText="BOOM!";
             document.querySelectorAll('.mine-cell').forEach((c,idx)=>{if(minesMap[idx])c.innerText='💣'});
         } else {
+            sfx.click(); // gem sound
             el.classList.add('safe'); el.innerText='💎'; revealed++;
             let m=1; for(let k=0;k<revealed;k++) m*=(25-k)/(25-totalMines-k);
             document.getElementById('mines-info').innerText = `Win: ${Math.floor(parseInt(document.getElementById('bet-amount').value)*m)} MC (${m.toFixed(2)}x)`;
@@ -762,6 +846,10 @@
         if(!gameActive) return;
         let m=1; for(let k=0;k<revealed;k++) m*=(25-k)/(25-totalMines-k);
         updateBalance(Math.floor(parseInt(document.getElementById('bet-amount').value)*m));
+        
+        if(m >= 10.0) triggerConfetti();
+        else sfx.win();
+
         gameActive=false;
         document.getElementById('m-play').disabled=false; document.getElementById('m-out').disabled=true;
     }
@@ -774,8 +862,16 @@
         updateBalance(-bet);
         let r = (Math.floor(100/(Math.random()*100+1)*100)/100); if(r<1.01) r=1.00;
         const el = document.getElementById('limbo-res'); el.innerText=r.toFixed(2)+'x';
-        if(r>=target) { el.style.color="#00f260"; updateBalance(Math.floor(bet*target)); }
-        else el.style.color="#f53b57";
+        if(r>=target) { 
+            el.style.color="#00f260"; 
+            updateBalance(Math.floor(bet*target));
+            if(target >= 10.0) triggerConfetti();
+            else sfx.win();
+        }
+        else { 
+            el.style.color="#f53b57"; 
+            sfx.lose();
+        }
     }
 
     // STOCKS
@@ -809,7 +905,12 @@
                 const w = (dir=='up' && h[h.length-1]>h[0]) || (dir=='down' && h[h.length-1]<h[0]);
                 document.getElementById('stock-res').innerText = w ? "WYGRANA!" : "PRZEGRANA";
                 document.getElementById('stock-res').style.color = w ? "#00f260" : "#f53b57";
-                if(w) updateBalance(Math.floor(bet*1.9));
+                if(w) {
+                    sfx.win();
+                    updateBalance(Math.floor(bet*1.9));
+                } else {
+                    sfx.lose();
+                }
             }
         }, 50);
     }
