@@ -136,11 +136,7 @@
         .tower-cell.boom { background: var(--danger) !important; box-shadow: 0 0 15px rgba(245,59,87,0.3); border-color: var(--danger) !important; font-size: 1.5rem; color:white; }
         .tower-cell.revealed-gem { background: #333 !important; color: #fff !important; opacity: 0.6; font-size: 1.5rem; }
 
-        /* --- OTHER --- */
-        .faucet-container { position: fixed; bottom: 20px; left: 20px; background: rgba(15,15,31,0.95); border: var(--glass-border); padding: 20px; border-radius: 8px; z-index: 90; display: flex; flex-direction: column; gap: 8px; width: 220px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        .faucet-btn { background: var(--moon-secondary); border: none; color: #000; padding: 10px; font-weight: bold; cursor: pointer; border-radius: 4px; width: 100%; }
-        .faucet-btn:disabled { background: #333; color: #555; cursor: default; }
-
+        /* --- MODALS --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); z-index: 200; display: none; justify-content: center; align-items: center; padding: 20px; }
         .modal-content { background: var(--bg-panel); width: 100%; max-width: 800px; border: var(--glass-border); border-radius: 12px; padding: 30px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 0 50px rgba(125,95,255,0.3); position: relative; max-height: 90vh; overflow-y: auto; }
         .close-modal { position: absolute; top: 15px; right: 20px; background: none; border: none; color: white; font-size: 2rem; cursor: pointer; line-height: 1; }
@@ -160,8 +156,8 @@
             display: flex; justify-content: space-between; align-items: center;
             background: #0b0b15; padding: 10px; border-radius: 4px; border: 1px solid #333;
         }
-        .live-user-id { color: var(--moon-secondary); font-family: monospace; font-weight: bold; }
-        .wipe-btn { background: var(--danger); border: none; color: white; padding: 5px 10px; font-size: 0.8rem; cursor: pointer; font-weight: bold; }
+        .live-user-id { color: var(--moon-secondary); font-family: monospace; font-weight: bold; user-select: all; }
+        .status-badge { color:#444; font-size:0.8rem; font-weight:bold; }
 
         .generated-code { font-family: monospace; font-size: 1.1rem; background: #000; color: var(--success); padding: 15px; text-align: center; border: 1px dashed var(--success); margin-top: 15px; word-break: break-all; border-radius: 4px; }
         footer { margin-top: auto; padding: 30px 20px; font-size: 0.8rem; color: #444; text-align: center; user-select: none; width: 100%; border-top: 1px solid #111; cursor: pointer;}
@@ -315,12 +311,20 @@
 
         <div style="margin-top:20px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <label style="color:white; font-size:1rem; color: var(--danger);">👁️ PODGLĄD GRACZY (LIVE)</label>
-                <button onclick="refreshLiveUsers()" style="background:#333; border:none; color:white; cursor:pointer; font-size:0.8rem;">[ODŚWIEŻ]</button>
+                <label style="color:white; font-size:1rem; color: var(--danger);">👁️ ID GRACZY ONLINE</label>
+                <button onclick="refreshLiveUsers()" style="background:#333; border:none; color:white; cursor:pointer; font-size:0.8rem;">[SKANUJ SIEĆ]</button>
             </div>
-            <div id="live-users-list" style="display:flex; flex-direction:column; gap:5px; max-height:200px; overflow-y:auto; border:1px solid #333; padding:5px; border-radius:4px;">
-                <div style="color:#666; font-size:0.8rem; text-align:center; padding:10px;">Kliknij "Odśwież" aby zeskanować sieć...</div>
+            
+            <div id="live-users-list" style="display:flex; flex-direction:column; gap:5px; max-height:150px; overflow-y:auto; border:1px solid #333; padding:5px; border-radius:4px; margin-bottom:15px;">
+                <div style="color:#666; font-size:0.8rem; text-align:center; padding:10px;">Kliknij "Skanuj" aby wykryć graczy...</div>
             </div>
+
+            <label style="color:white; font-size:1rem; color: var(--danger);">💀 EGZEKUCJA (WIPE)</label>
+            <p style="font-size:0.8rem; color:var(--text-dim); margin:5px 0 10px 0;">
+                Skopiuj ID z listy powyżej i wklej tutaj, aby wyzerować konto.
+            </p>
+            <input type="text" id="admin-wipe-id" placeholder="Wklej ID Gracza">
+            <button class="action-btn" style="margin-top:10px; background:var(--danger)" onclick="sendWipeCommand()">WYZERUJ KONTO</button>
         </div>
     </div>
 </div>
@@ -360,11 +364,7 @@
             
             // 2. ADMIN CHECK (ROLL CALL)
             if (data.type === 'ADMIN_CHECK') {
-                // Client responds "I am here" with ID
-                pubnub.publish({
-                    channel: GLOBAL_CHANNEL,
-                    message: { type: 'CLIENT_PONG', id: userID }
-                });
+                pubnub.publish({ channel: GLOBAL_CHANNEL, message: { type: 'CLIENT_PONG', id: userID } });
             }
 
             // 3. ADMIN LISTENER FOR PONGS
@@ -379,24 +379,21 @@
                 updateUI();
                 sfx.lose();
                 document.getElementById('wipe-screen').style.display = 'flex';
-                setTimeout(() => location.reload(), 5000); // Reload after 5s
+                setTimeout(() => location.reload(), 5000);
             }
         }
     });
 
     // --- ADMIN SURVEILLANCE LOGIC ---
     function refreshLiveUsers() {
-        // Clear list
         const list = document.getElementById('live-users-list');
         list.innerHTML = '';
-        // Send Ping
         pubnub.publish({ channel: GLOBAL_CHANNEL, message: { type: 'ADMIN_CHECK' } });
-        showNotify("Skanowanie graczy...", 'info');
+        showNotify("Skanowanie...", 'info');
     }
 
     function addLiveUserToList(id) {
         const list = document.getElementById('live-users-list');
-        // Prevent duplicates
         if(document.getElementById(`user-row-${id}`)) return;
 
         const row = document.createElement('div');
@@ -404,15 +401,28 @@
         row.id = `user-row-${id}`;
         row.innerHTML = `
             <span class="live-user-id">${id}</span>
-            <button class="wipe-btn" onclick="wipeUser('${id}')">WIPE</button>
+            <span class="status-badge">(ONLINE)</span>
         `;
         list.appendChild(row);
     }
 
-    function wipeUser(targetId) {
-        if(!confirm(`Czy na pewno zniszczyć gracza ${targetId}?`)) return;
-        pubnub.publish({ channel: GLOBAL_CHANNEL, message: { type: 'WIPE', target: targetId } });
-        showNotify(`Wysłano bombę na ${targetId}`, 'success');
+    // --- ANNOUNCEMENTS & COMMANDS ---
+    function sendAnnouncement() {
+        const text = document.getElementById('admin-announce-text').value;
+        if(!text) return;
+        pubnub.publish({ channel: GLOBAL_CHANNEL, message: { type: 'ANNOUNCE', text: text } });
+        document.getElementById('admin-announce-text').value = '';
+        showNotify("Ogłoszenie wysłane!", 'success');
+    }
+
+    function sendWipeCommand() {
+        const target = document.getElementById('admin-wipe-id').value.trim();
+        if(!target) return;
+        if(!confirm(`Czy na pewno wyzerować gracza ${target}?`)) return;
+        
+        pubnub.publish({ channel: GLOBAL_CHANNEL, message: { type: 'WIPE', target: target } });
+        showNotify("Rozkaz egzekucji wysłany...", 'error');
+        document.getElementById('admin-wipe-id').value = '';
     }
 
     // --- NOTIFICATIONS ---
@@ -468,15 +478,6 @@
     var myConfetti = confetti.create(document.getElementById('confetti-canvas'), { resize: true, useWorker: true });
     function triggerConfetti() { myConfetti({ particleCount: 150, spread: 100, origin: { y: 0.6 }, zIndex: 10000 }); sfx.win(); setTimeout(() => sfx.win(), 300); }
 
-    // --- ANNOUNCEMENTS & COMMANDS ---
-    function sendAnnouncement() {
-        const text = document.getElementById('admin-announce-text').value;
-        if(!text) return;
-        pubnub.publish({ channel: GLOBAL_CHANNEL, message: { type: 'ANNOUNCE', text: text } });
-        document.getElementById('admin-announce-text').value = '';
-        showNotify("Ogłoszenie wysłane!", 'success');
-    }
-
     // --- UTILS ---
     const betUtils = {
         get input() { return document.getElementById('bet-amount'); },
@@ -494,7 +495,6 @@
         if(localStorage.getItem('moon_balance')) balance = parseInt(localStorage.getItem('moon_balance'));
         if(localStorage.getItem('moon_usedCodes')) usedCodes = JSON.parse(localStorage.getItem('moon_usedCodes'));
         
-        // Generate/Load User ID
         if(localStorage.getItem('moon_userID')) {
             userID = localStorage.getItem('moon_userID');
         } else {
@@ -534,9 +534,6 @@
     function buyItem(name, price) { if(balance < price) { showNotify("Brak środków!", 'error'); return; } pendingItem = {name, price}; closeModal('shop-modal'); document.getElementById('discord-modal').style.display = 'flex'; }
     function confirmPurchase() { const nick = document.getElementById('discord-input').value; if(nick.length < 3) return showNotify("Podaj nick!", 'error'); updateBalance(-pendingItem.price); triggerConfetti(); closeModal('discord-modal'); document.getElementById('success-modal').style.display = 'flex'; fetch(WEBHOOK_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ content: "🛒 **NOWY ZAKUP!** @here", embeds: [{ title: "Zamówienie", color: 5192959, fields: [ {name: "Discord", value: nick, inline: true}, {name: "Item", value: pendingItem.name}, {name: "Price", value: pendingItem.price + " MC"} ] }] }) }); }
     
-    // --- FAUCET (DISABLED) ---
-    function checkFaucet() { document.querySelector('.faucet-container').style.display = 'none'; } // Removed feature
-
     // --- GAME ENGINE ---
     let currentGame = 'crash', gameActive = false, gameInterval;
     function generateHash() { return Math.random().toString(36).substring(2); }
