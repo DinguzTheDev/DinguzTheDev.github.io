@@ -183,7 +183,7 @@
 <div id="lockdown-overlay">
     <div class="lock-title">SYSTEM LOCKED</div>
     <div class="countdown-big" id="lock-timer">00:00:00:00</div>
-    <div class="lock-msg">WAIT FOR AUTHORIZATION (JAN 16 18:00)</div>
+    <div class="lock-msg">WAIT FOR AUTHORIZATION (JAN 03 01:00)</div>
 </div>
 
 <div id="notify"></div>
@@ -306,13 +306,14 @@
         { id: 1, name: "Karta Podarunkowa 800 R$", price: 0, desc: "Delivery time - instant", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Roblox_player_icon_black.svg/1200px-Roblox_player_icon_black.svg.png" },
         { id: 2, name: "Wybrana Gra Steam do 60ZŁ", price: 0, desc: "Gift/Klucz [Delivery time - instant]", img: "https://cdn-icons-png.flaticon.com/512/220/220223.png" },
         { id: 3, name: "Pokrowce IkarVR (Quest 2)", price: 0, desc: "Delivery time - 2 dni", img: "https://i.postimg.cc/mD9VXsGM/image-removebg-preview-(57).png" },
-        { id: 4, name: "Tajemniczy Prezent (100zł)", price: 0, desc: "Delivery time - ???", img: "https://cdn-icons-png.flaticon.com/512/5726/5726775.png" }
+        { id: 4, name: "Xbox Game Pass ULTIMATE [1 Miesiąc]", price: 0, desc: "Delivery time - instant", img: "https://cms-assets.xboxservices.com/assets/d1/3c/d13c81f4-48c4-429e-b630-23bc1a2e913c.svg?n=2241698_Image-0_Ultimate_200x200.svg" },
+        { id: 5, name: "Tajemniczy Prezent (100zł)", price: 0, desc: "Delivery time - ???", img: "https://cdn-icons-png.flaticon.com/512/5726/5726775.png" }
     ];
 
     // --- LOGIC ---
-    const TARGET_DATE = new Date('2026-01-16T18:00:00').getTime(); 
+    const TARGET_DATE = new Date('2026-01-03T01:00:00').getTime(); 
     const GAME_DURATION = 60 * 60 * 1000;
-    let balance = 2000, gameStartTime = null, hasPurchased = false, userID = "";
+    let balance = 3000, gameStartTime = null, hasPurchased = false, userID = "";
     let currentGame = 'crash', gameActive = false;
 
     function init() {
