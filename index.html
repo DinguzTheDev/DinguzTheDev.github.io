@@ -307,12 +307,26 @@
         { id: 2, name: "Wybrana Gra Steam do 60ZŁ", price: 0, desc: "Gift/Klucz [Delivery time - instant]", img: "https://cdn-icons-png.flaticon.com/512/220/220223.png" },
         { id: 3, name: "Pokrowce IkarVR (Quest 2)", price: 0, desc: "Delivery time - 2 dni", img: "https://i.postimg.cc/mD9VXsGM/image-removebg-preview-(57).png" },
         { id: 4, name: "Xbox Game Pass ULTIMATE [1 Miesiąc]", price: 0, desc: "Delivery time - instant", img: "https://cms-assets.xboxservices.com/assets/d1/3c/d13c81f4-48c4-429e-b630-23bc1a2e913c.svg?n=2241698_Image-0_Ultimate_200x200.svg" },
-        { id: 5, name: "juz nie tajemniczy prezent", price: 0, desc: "Delivery time - 2dni", img: "https://i.ibb.co/Ngfyr4nJ/image-removebg-preview-57.png" }
+        { id: 5, name: "Kamerka BLOW HD", price: 0, desc: "Delivery time - 2 dni", img: "https://i.ibb.co/Ngfyr4nJ/image-removebg-preview-57.png" },
+        { id: 6, name: "Pokrowiec IkarVR (Quest 2)", price: 0, desc: "Delivery time - 2 dni", img: "https://i.ibb.co/hF2M2BCZ/image-removebg-preview-58.png" },
+        { id: 7, name: "Pokrowiec IkarVR PIKACHU (Quest 2)", price: 0, desc: "Delivery time - 2 dni", img: "https://i.ibb.co/DHXXCQ8P/image-removebg-preview-59.png" },
+        { id: 8, name: "Kabel PCVR [5M, ŁADOWANIE 18W PODCZAS GRANIA ŁADUJE ZAMIAST SPADA, 6GBPS]", price: 0, desc: "Delivery time - 2 dni", img: "https://i.ibb.co/27gxWcRX/image-removebg-preview-60.png" },
+        { id: 9, name: "Gunstock Quest 2", price: 0, desc: "Delivery time - 7 dni", img: "https://i.ibb.co/TBW8GpTF/image-removebg-preview-61.png" },
+        { id: 10, name: "Mata MIMIMIMI", price: 0, desc: "Delivery time - 7 dni", img: "https://i.ibb.co/6K8wTcB/image.png" },
+        { id: 11, name: "Zabawkowy GLOCK", price: 0, desc: "Delivery time - 7 dni", img: "https://i.ibb.co/RkmLJCVW/image.png" },
+        { id: 12, name: "Obraz Minecraft SKULL", price: 0, desc: "Delivery time - 7 dni", img: "https://i.ibb.co/0RvCL2TD/image.png" },
+        { id: 13, name: "Case z zapalarką na szlugi [OP]", price: 0, desc: "Delivery time - 7 dni", img: "https://i.ibb.co/tpSznP5c/image.png" },
+        { id: 14, name: "Karty brainrot 10PACK [80 kart]", price: 0, desc: "Delivery time - 7 dni", img: "https://i.ibb.co/b5LWtmbG/image-removebg-preview-62.png" },
+        { id: 15, name: "Replika BMW M4 CSL 1:36", price: 0, desc: "Delivery time - 7 dni", img: "https://i.ibb.co/YwmVVZ0/image-removebg-preview-63.png" },
+        { id: 16, name: "Sztyft do nosa [Mentol, Peach, Grape, Watermelon]", price: 0, desc: "Delivery time - 7 dni", img: "https://i.ibb.co/JjcMG1xn/image.png" },
+        { id: 17, name: "MEGA SIGMA BLOWER 3000", price: 0, desc: "Delivery time - 7 dni", img: "https://i.ibb.co/tMwrTRmR/image.png" },
+        { id: 18, name: "Figet Toy Blue Switch", price: 0, desc: "Delivery time - 7 dni", img: "https://i.ibb.co/rR2pB1tW/image-removebg-preview-64.png" },
+
     ];
 
     // --- LOGIC ---
     const TARGET_DATE = new Date('2026-01-03T01:00:00').getTime(); 
-    const GAME_DURATION = 2400000;
+    const GAME_DURATION = 60 * 60 * 1000;
     let balance = 3000, gameStartTime = null, hasPurchased = false, userID = "";
     let currentGame = 'crash', gameActive = false;
 
