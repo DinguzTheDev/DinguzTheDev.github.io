@@ -3,290 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PROJECT: BIRTHDAY</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>PROJECT: BIRTHDAY | MGMT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
-        /* --- GLOBAL & RESET --- */
-        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
-
         :root {
-            --bg-main: #020b14;
-            --bg-panel: #051421;
+            --bg-main: #020810;
+            --bg-panel: rgba(13, 25, 41, 0.85);
             --accent: #00d2ff;
-            --accent-dim: #005f73;
-            --text-main: #e0f7fa;
-            --text-dim: #546e7a;
+            --accent-glow: rgba(0, 210, 255, 0.4);
             --success: #00ff9d;
+            --success-glow: rgba(0, 255, 157, 0.3);
             --danger: #ff0055;
-            --glass-border: 1px solid rgba(0, 210, 255, 0.15);
-            --glow: 0 0 15px rgba(0, 210, 255, 0.3);
+            --text-main: #f0f9ff;
+            --text-dim: #708ea0;
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
         }
+
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
 
         body {
-            background: radial-gradient(circle at 50% 0%, #0a1f30 0%, var(--bg-main) 80%);
+            background: radial-gradient(circle at top center, #0a1f38 0%, var(--bg-main) 70%);
             color: var(--text-main);
             font-family: 'Rajdhani', sans-serif;
-            margin: 0; padding: 0;
+            min-height: 100vh;
             display: flex; flex-direction: column; align-items: center;
-            min-height: 100vh; overflow-x: hidden;
         }
 
-        /* --- LOCKDOWN & WIPE SCREENS --- */
-        #lockdown-overlay, #wipe-screen {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #000; z-index: 999999;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            color: var(--accent);
+        /* --- FANCY BUTTONS --- */
+        .btn-glow {
+            background: linear-gradient(135deg, var(--accent), #00a2ff);
+            color: #000; border: none; padding: 12px 24px;
+            font-weight: 700; text-transform: uppercase; border-radius: 6px;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px var(--accent-glow); letter-spacing: 1px;
         }
-        #wipe-screen { z-index: 1000000; display: none; color: var(--danger); text-align: center;}
-        .lock-title { font-size: 2rem; letter-spacing: 5px; opacity: 0.7; margin-bottom: 20px; }
-        .countdown-big { font-size: 4rem; font-weight: 800; text-shadow: 0 0 30px var(--accent); font-variant-numeric: tabular-nums; text-align: center;}
-        .lock-msg { color: #444; margin-top: 20px; font-size: 0.9rem; }
+        .btn-glow:hover { transform: translateY(-3px); box-shadow: 0 8px 25px var(--accent-glow); filter: brightness(1.1); }
+        .btn-success { background: linear-gradient(135deg, var(--success), #00cc7d); box-shadow: 0 4px 15px var(--success-glow); }
 
-        /* --- HEADER --- */
+        /* --- HEADER (NO TOP SPACING) --- */
         header {
-            width: 100%; padding: 15px 5%;
-            background: rgba(5, 20, 33, 0.95); backdrop-filter: blur(10px);
+            width: 100%; padding: 10px 5%;
+            background: rgba(2, 8, 16, 0.9); backdrop-filter: blur(15px);
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: var(--glass-border); position: sticky; top: 0; z-index: 100;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            border-bottom: var(--glass-border); position: sticky; top: 0; z-index: 1000;
         }
-        .event-timer {
-            font-size: 1.5rem; font-weight: 800; color: var(--danger);
-            text-shadow: 0 0 10px rgba(255, 0, 85, 0.5); border: 1px solid var(--danger);
-            padding: 5px 15px; border-radius: 4px; animation: pulse 1s infinite;
-        }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-        .balance-box { 
-            background: linear-gradient(90deg, rgba(0, 210, 255, 0.1), transparent); 
-            padding: 8px 20px; border-radius: 4px; border-left: 3px solid var(--accent); 
-            font-size: 1.2rem; font-weight: 700; color: var(--accent); 
-        }
+        .balance-display { background: rgba(0, 210, 255, 0.1); border: 1px solid var(--accent); padding: 5px 15px; border-radius: 50px; font-weight: 700; color: var(--accent); }
 
-        /* --- GAME UI --- */
-        .game-wrapper { width: 100%; display: flex; flex-direction: column; align-items: center; }
-        .nav-games { margin: 20px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-        .nav-btn { background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--text-dim); padding: 10px 25px; cursor: pointer; font-weight: 600; transition: 0.3s; text-transform: uppercase; border-radius: 4px; }
-        .nav-btn.active { color: var(--text-main); border-color: var(--accent); background: rgba(0, 210, 255, 0.1); box-shadow: var(--glow); }
+        /* --- MAIN CONTENT --- */
+        .main-wrapper { display: flex; width: 100%; max-width: 1400px; padding: 15px 20px; gap: 20px; }
 
-        .game-container {
-            background: var(--bg-panel); width: 95%; max-width: 800px; padding: 30px;
-            border-radius: 12px; border: var(--glass-border);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.7); position: relative; min-height: 450px;
-            display: flex; flex-direction: column;
+        #cart-sidebar {
+            width: 350px; background: var(--bg-panel); backdrop-filter: blur(10px);
+            border: var(--glass-border); border-radius: 12px; padding: 20px;
+            display: flex; flex-direction: column; position: sticky; top: 80px;
+            height: calc(100vh - 100px); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
+        .cart-title { font-size: 1.5rem; font-weight: 700; color: white; margin-bottom: 15px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;}
+        #cart-items-list { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .cart-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .remove-btn { color: var(--danger); cursor: pointer; font-weight: bold; padding: 0 5px; }
 
-        /* --- CONTROLS --- */
-        .controls-bar { display: flex; gap: 15px; margin-bottom: 25px; align-items: flex-end; flex-wrap: wrap; }
-        .control-group { flex: 1; display: flex; flex-direction: column; min-width: 150px; }
-        label { color: var(--text-dim); font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; }
+        #shop-phase-container { display: none; width: 100%; flex-direction: column; }
+        .gift-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+        .gift-card { background: var(--bg-panel); border: var(--glass-border); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; transition: 0.3s; }
+        .gift-card:hover { transform: translateY(-5px); border-color: var(--accent); }
+        .gift-img-box { width: 100%; height: 160px; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; padding: 10px; }
+        .gift-img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .gift-info { padding: 15px; display: flex; flex-direction: column; gap: 10px; flex-grow: 1; }
+        .gift-title { font-size: 1.1rem; font-weight: 600; color: white; min-height: 2.8rem; }
+
+        /* --- GAME PANEL --- */
+        .game-panel { background: var(--bg-panel); backdrop-filter: blur(10px); width: 100%; max-width: 800px; padding: 30px; border-radius: 15px; border: var(--glass-border); }
+        .nav-games { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+        .game-tab { background: rgba(255,255,255,0.05); padding: 10px 20px; border-radius: 6px; cursor: pointer; color: var(--text-dim); font-weight: 600; font-size: 0.9rem; }
+        .game-tab.active { background: rgba(0, 210, 255, 0.1); border: 1px solid var(--accent); color: white; }
+
+        /* --- OVERLAYS --- */
+        #lockdown-overlay { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .countdown-big { font-size: 5rem; font-weight: 800; color: var(--accent); text-shadow: 0 0 30px var(--accent-glow); }
+
+        #notify { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; padding: 12px 25px; border-radius: 6px; font-weight: 700; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         
-        input, select {
-            background: #020b14; border: 1px solid #1e3a52; color: var(--accent);
-            padding: 12px; font-family: inherit; font-size: 1.2rem; width: 100%; border-radius: 4px;
-            appearance: none; transition: 0.3s;
-        }
-        select {
-            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2300d2ff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-            background-repeat: no-repeat; background-position: right .7em top 50%; background-size: .65em auto;
-        }
-        input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: var(--glow); }
-
-        button.action-btn {
-            width: 100%; padding: 15px; background: var(--accent); border: none;
-            color: #000; font-weight: 800; font-size: 1.2rem; cursor: pointer;
-            text-transform: uppercase; border-radius: 4px; box-shadow: var(--glow);
-            transition: 0.2s; margin-top: auto;
-        }
-        button.action-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.2); }
-        button.action-btn:disabled { background: #1e3a52; color: #555; box-shadow: none; cursor: not-allowed; }
-        button.cashout-btn { background: var(--success); }
-
-        /* --- GAME AREAS --- */
-        #game-area { width: 100%; display: flex; flex-direction: column; align-items: center; min-height: 300px; justify-content: center; }
-        
-        .mines-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-        .mines-grid.disabled { opacity: 0.5; pointer-events: none; }
-        .mine-cell { width: 55px; height: 55px; background: #0f2a40; border: 1px solid #1e3a52; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; transition: 0.2s; }
-        .mine-cell:hover { border-color: var(--accent); }
-        .mine-cell.safe { background: var(--success); color: #000; box-shadow: 0 0 15px var(--success); }
-        .mine-cell.boom { background: var(--danger); box-shadow: 0 0 15px var(--danger); }
-
-        .tower-container { display: flex; flex-direction: column-reverse; gap: 5px; width: 100%; max-width: 500px; }
-        .tower-row { display: grid; gap: 5px; }
-        .tower-row.disabled { opacity: 0.3; pointer-events: none; }
-        .tower-cell { height: 50px; background: #0f2a40; border: 1px solid #1e3a52; cursor: pointer; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #546e7a; transition: 0.2s; }
-        .tower-row.active .tower-cell { background: #163a56; color: white; border-color: var(--accent); }
-        .tower-row.active .tower-cell:hover { background: var(--accent); color: black; box-shadow: var(--glow); }
-        .tower-cell.safe { background: var(--success) !important; color: black !important; }
-        .tower-cell.boom { background: var(--danger) !important; color: white !important; }
-
-        .big-number-display { font-size: 4rem; font-weight: 800; color: #555; text-shadow: 0 0 10px rgba(0,0,0,0.5); font-variant-numeric: tabular-nums; }
-        .big-number-display.win { color: var(--success); text-shadow: 0 0 30px var(--success); }
-        .big-number-display.lose { color: var(--danger); text-shadow: 0 0 30px var(--danger); }
-
-        /* SHOP - SPECIAL EDITION */
-        #shop-phase-container { display: none; width: 100%; max-width: 1000px; padding: 20px; flex-direction: column; align-items: center; }
-        .shop-header { text-align: center; margin-bottom: 30px; animation: fadeIn 1s; }
-        .shop-header h2 { font-size: 1.5rem; color: var(--text-main); font-weight: 400; line-height: 1.5; border: 1px solid var(--accent); padding: 20px; border-radius: 8px; background: rgba(0, 210, 255, 0.05); }
-        
-        .gift-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; width: 100%; }
-        .gift-card { background: #0a1f30; border: 1px solid #1e3a52; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; transition: 0.3s; position: relative; }
-        .gift-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 0 30px rgba(0, 210, 255, 0.2); }
-        .gift-img { width: 100%; height: 200px; object-fit: contain; background: #051421; padding: 20px; }
-        .gift-info { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; gap: 10px; }
-        .gift-title { font-size: 1.3rem; font-weight: bold; color: white; }
-        .gift-desc { color: var(--success); font-size: 0.9rem; font-family: monospace; }
-        .gift-price { font-size: 1.5rem; color: var(--accent); font-weight: 800; text-transform: uppercase; margin-top: 5px; }
-        .gift-btn { margin-top: auto; padding: 15px; background: var(--accent); color: #000; border: none; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 1.1rem; transition:0.3s; }
-        .gift-btn:hover { background: white; box-shadow: 0 0 20px white; }
-
-        /* LIVE USERS LIST */
-        .live-user-row { display: flex; justify-content: space-between; align-items: center; background: #0b0b15; padding: 10px; border-radius: 4px; border: 1px solid #333; margin-bottom: 5px; }
-        .live-user-id { color: var(--accent); font-family: monospace; font-weight: bold; user-select: all; }
-        .status-badge { color:var(--success); font-size:0.8rem; font-weight:bold; }
-
-        /* ADMIN & MISC */
-        #notify { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; padding: 10px 20px; border-radius: 4px; font-weight: bold; display: none; z-index: 5000; }
-        .faucet-box { position: fixed; bottom: 20px; right: 20px; background: rgba(0,0,0,0.9); border: 1px solid var(--success); padding: 15px; border-radius: 8px; display: none; z-index: 200; }
-        footer { margin-top: auto; padding: 20px; font-size: 0.7rem; color: #333; cursor: pointer; }
-        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9000; display:none; justify-content:center; align-items:center; }
-        .modal-content { background:var(--bg-panel); border:1px solid var(--accent); padding:30px; border-radius:10px; max-width:500px; width:90%; color:white; }
-        
-        #live-announcement { position: fixed; top: -200px; left: 0; width: 100%; background: linear-gradient(45deg, #ff0000, #ff5500); color: white; padding: 20px; text-align: center; font-weight: 800; font-size: 1.5rem; z-index: 20000; transition: 0.5s; }
-        #live-announcement.active { top: 0; }
-
-        @media (max-width: 600px) {
-            h1 { font-size: 1.4rem; }
-            header { padding: 15px; flex-direction: column; gap: 10px; }
-            .header-right { width: 100%; justify-content: center; }
-            .game-container { padding: 20px; width: 95%; margin-top: 10px; }
-            .nav-games { margin: 20px 10px; }
-            .nav-btn { padding: 8px 12px; font-size: 0.9rem; flex: 1; text-align: center; }
-            #crash-multiplier { font-size: 3rem; }
-            .modal-content { padding: 20px; }
-        }
+        @media (max-width: 900px) { .main-wrapper { flex-direction: column; } #cart-sidebar { width: 100%; height: auto; position: relative; top: 0; } }
     </style>
 </head>
-<body oncontextmenu="return false;">
+<body>
 
-<div id="wipe-screen">
-    <h1 style="color:var(--danger)">💸 ZEROWANIE...</h1>
-    <p>Twoje konto zostało wyczyszczone przez administratora.</p>
+<div id="wipe-screen" style="position:fixed; inset:0; background:black; z-index:100000; display:none; flex-direction:column; align-items:center; justify-content:center; color:red;">
+    <h1>TERMINATED</h1>
 </div>
 
 <div id="lockdown-overlay">
-    <div class="lock-title">SYSTEM LOCKED</div>
+    <div style="letter-spacing: 5px; color: #444; margin-bottom: 10px;">ENCRYPTED SESSION</div>
     <div class="countdown-big" id="lock-timer">00:00:00:00</div>
-    <div class="lock-msg">WAIT FOR AUTHORIZATION (JAN 03 01:00)</div>
 </div>
 
 <div id="notify"></div>
-<canvas id="confetti-canvas" style="position:fixed;top:0;left:0;pointer-events:none;z-index:9999"></canvas>
+<canvas id="confetti-canvas" style="position:fixed; inset:0; pointer-events:none; z-index:9998;"></canvas>
 
 <header id="main-header" style="display:none;">
-    <h1>PROJECT: <span style="color:var(--accent)">BIRTHDAY</span></h1>
-    <div style="display:flex; gap:20px; align-items:center;">
-        <div id="game-timer-display" class="event-timer" style="display:none">00:00:00</div>
-        <div class="balance-box"><span id="balance">0</span> MC</div>
+    <div style="font-weight: 800; font-size: 1.2rem;">PROJECT:<span style="color:var(--accent)">BIRTHDAY</span></div>
+    <div style="display:flex; align-items:center; gap:20px;">
+        <div id="game-timer-display" style="color:var(--danger); font-weight:700; font-family: monospace;">01:00</div>
+        <div class="balance-display"><span id="balance">0</span> MC</div>
     </div>
 </header>
 
-<div id="game-phase-container" class="game-wrapper" style="display:none;">
-    <div class="nav-games">
-        <button class="nav-btn active" onclick="switchGame('crash')">Crash</button>
-        <button class="nav-btn" onclick="switchGame('mines')">Mines</button>
-        <button class="nav-btn" onclick="switchGame('tower')">Tower</button>
-        <button class="nav-btn" onclick="switchGame('limbo')">Limbo</button>
-        <button class="nav-btn" onclick="switchGame('stocks')">Stocks</button>
-    </div>
-
-    <div class="game-container">
-        <div class="controls-bar">
-            <div class="control-group">
-                <label>STAWKA</label>
-                <input type="number" id="bet-amount" value="100" min="10">
-            </div>
-            <div id="extra-controls" class="control-group"></div>
+<div class="main-wrapper">
+    <div id="game-phase-container" style="display:none; width:100%; flex-direction:column; align-items:center;">
+        <div class="nav-games">
+            <div class="game-tab active" onclick="switchGame('crash', this)">CRASH</div>
+            <div class="game-tab" onclick="switchGame('mines', this)">MINES</div>
         </div>
-        <div id="game-area"></div>
-        <div id="game-actions" style="margin-top:20px; display:flex; gap:10px; width:100%"></div>
-    </div>
-    
-    <div id="faucet-box" class="faucet-box">
-        <div style="color:white; font-weight:bold; margin-bottom:5px;">BRAK ŚRODKÓW?</div>
-        <button onclick="claimFaucet()" style="width:100%; background:var(--success); border:none; padding:8px; font-weight:bold; cursor:pointer;">DOŁADUJ 100 MC</button>
-    </div>
-</div>
-
-<div id="shop-phase-container">
-    <div class="shop-header">
-        <h2>Myślisz, że na serio bym ci prezent zablokował jakimiś głupimi mooncoinami?<br>Wybieraj co chcesz, ale masz tylko jedną szanse...</h2>
-    </div>
-    <div class="gift-grid" id="gift-grid"></div>
-</div>
-
-<div id="final-screen" style="display:none; text-align:center; padding:50px;">
-    <h1 style="color:var(--success); font-size:4rem;">WSZYSTKIEGO NAJLEPSZEGO!</h1>
-    <p style="font-size:1.5rem;">Prezent zamówiony.</p>
-</div>
-
-<div id="admin-login-modal" class="modal-overlay">
-    <div class="modal-content">
-        <h3>ADMIN AUTH</h3>
-        <input type="password" id="admin-pass" placeholder="Password">
-        <button onclick="checkAdmin()" class="action-btn" style="margin-top:10px">LOGIN</button>
-        <button onclick="closeModal('admin-login-modal')" style="background:none; border:none; color:#666; margin-top:10px; cursor:pointer;">Close</button>
-    </div>
-</div>
-
-<div id="admin-panel-modal" class="modal-overlay">
-    <div class="modal-content">
-        <h3 style="color:var(--danger)">CONTROL PANEL</h3>
-        
-        <label>LIVE ALERT</label>
-        <textarea id="admin-announce-text" placeholder="Message..." style="width:100%; margin-bottom:10px;"></textarea>
-        <button onclick="sendAnnouncement()" class="action-btn" style="background:var(--danger);">BROADCAST</button>
-        
-        <label style="margin-top:15px; display:block;">ADD BALANCE (LOCAL)</label>
-        <input type="number" id="admin-add-bal" placeholder="Amount">
-        <button onclick="adminAddBal()" class="action-btn" style="margin-top:5px;">ADD</button>
-
-        <div style="margin-top:20px; padding-top:20px; border-top:1px solid #333;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <label style="color:var(--accent);">👁️ ID GRACZY ONLINE</label>
-                <button onclick="refreshLiveUsers()" style="background:#333; border:none; color:white; cursor:pointer; font-size:0.8rem;">[SKANUJ]</button>
+        <div class="game-panel">
+            <div style="display:flex; gap:15px; margin-bottom:20px;">
+                <div style="flex:1">
+                    <label style="font-size:0.7rem; color:var(--text-dim); margin-bottom:5px; display:block;">STAWKA</label>
+                    <input type="number" id="bet-amount" value="100" style="width:100%; background:rgba(0,0,0,0.5); border:1px solid #1e3a52; color:white; padding:10px; border-radius:4px;">
+                </div>
+                <div id="extra-controls" style="flex:1"></div>
             </div>
-            
-            <div id="live-users-list" style="display:flex; flex-direction:column; gap:5px; max-height:150px; overflow-y:auto; border:1px solid #333; padding:5px; border-radius:4px; margin-bottom:15px;">
-                <div style="color:#666; font-size:0.8rem; text-align:center; padding:10px;">Kliknij "Skanuj"...</div>
-            </div>
-
-            <label style="color:var(--danger);">💀 EGZEKUCJA (WIPE)</label>
-            <input type="text" id="admin-wipe-id" placeholder="Wklej ID Gracza">
-            <button class="action-btn" style="margin-top:5px; background:var(--danger)" onclick="sendWipeCommand()">WYZERUJ KONTO</button>
+            <div id="game-area" style="min-height:220px; display:flex; justify-content:center; align-items:center;"></div>
+            <div id="game-actions" style="display:flex; gap:10px; margin-top:20px;"></div>
         </div>
+    </div>
 
-        <label style="color:red; margin-top:20px; display:block; border-top:1px solid #333; padding-top:10px;">DEV ZONE</label>
-        <button onclick="devReset()" class="action-btn" style="background:transparent; border:1px solid red; color:red;">HARD RESET (CLEAR DATA)</button>
+    <div id="shop-phase-container">
+        <div style="text-align:center; margin-bottom:25px;">
+            <h2 style="font-size:1.8rem;">MARKETPLACE</h2>
+            <p style="color:var(--text-dim); font-size:0.9rem;">Wybierz prezenty. Masz ograniczony budżet.</p>
+        </div>
+        <div class="gift-grid" id="gift-grid"></div>
+    </div>
 
-        <button onclick="closeModal('admin-panel-modal')" style="background:none; border:none; color:#666; margin-top:20px; cursor:pointer; width:100%">Close Panel</button>
+    <div id="cart-sidebar" style="display:none;">
+        <div class="cart-title">KOSZYK</div>
+        <div id="cart-items-list"></div>
+        <button class="btn-glow btn-success" style="width:100%; margin-top:20px; padding:15px;" onclick="finalizeOrder()">ZAMÓW PREZENTY</button>
     </div>
 </div>
 
-<div id="live-announcement" style="top:-200px">⚠️ <span id="ann-text">ALERT</span> ⚠️</div>
+<div id="final-screen" style="display:none; text-align:center; width:100%; padding-top:100px;">
+    <h1 style="color:var(--success); font-size:4rem; text-shadow: 0 0 20px var(--success-glow);">SUKCES!</h1>
+    <p>Zamówienie zostało przekazane.</p>
+</div>
 
-<footer onclick="triggerAdmin()">
-    SECURE CONNECTION 2026 <br> <span id="my-user-id" style="color:#444;font-size:0.6rem"></span>
+<div id="admin-login-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:10000; align-items:center; justify-content:center;">
+    <div style="background:#051421; padding:30px; border-radius:10px; border:1px solid var(--accent); width:300px;">
+        <h3>ADMIN ACCESS</h3>
+        <input type="password" id="admin-pass" style="width:100%; padding:10px; margin:15px 0; background:#000; border:1px solid #333; color:white;">
+        <button class="btn-glow" style="width:100%" onclick="checkAdmin()">LOGIN</button>
+    </div>
+</div>
+
+<footer onclick="triggerAdmin()" style="margin-top:auto; padding:20px; color:#223e57; font-size:0.7rem; text-align:center;">
+    SECURE CONNECTION 2026 | NODE: <span id="my-user-id"></span>
 </footer>
 
 <script>
-    // --- FIREBASE & CONFIG ---
+    // --- FIREBASE ---
     const firebaseConfig = {
         apiKey: "AIzaSyDJDQU7KDdUfhir0zU3qDZw9o7G8ZMjkYM",
         authDomain: "dinguzcasino.firebaseapp.com",
@@ -294,76 +174,62 @@
         projectId: "dinguzcasino",
         storageBucket: "dinguzcasino.firebasestorage.app",
         messagingSenderId: "852367818280",
-        appId: "1:852367818280:web:d028016fe2b75ae63f7f1d",
-        measurementId: "G-3E8GQ6JRYF"
+        appId: "1:852367818280:web:d028016fe2b75ae63f7f1d"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const WEBHOOK_URL = "https://discord.com/api/webhooks/1452455171723366533/AXVryGu8apz0R-Gr8jBP3EOCiPweO87OuLlo6qUkmqVipABBHfIwCd7mKt131JaXbhkR";
 
-    // --- GIFTS CONFIG ---
+    // --- FULL PRODUCTS LIST ---
     const birthdayGifts = [
-        { id: 1, name: "Karta Podarunkowa 800 R$", price: 0, desc: "Delivery time - instant", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Roblox_player_icon_black.svg/1200px-Roblox_player_icon_black.svg.png" },
-        { id: 2, name: "Wybrana Gra Steam do 60ZŁ", price: 0, desc: "Gift/Klucz [Delivery time - instant]", img: "https://cdn-icons-png.flaticon.com/512/220/220223.png" },
-        { id: 3, name: "Pokrowce IkarVR (Quest 2)", price: 0, desc: "Delivery time - 2 dni", img: "https://i.postimg.cc/mD9VXsGM/image-removebg-preview-(57).png" },
-        { id: 4, name: "Xbox Game Pass ULTIMATE [1 Miesiąc]", price: 0, desc: "Delivery time - instant", img: "https://cms-assets.xboxservices.com/assets/d1/3c/d13c81f4-48c4-429e-b630-23bc1a2e913c.svg?n=2241698_Image-0_Ultimate_200x200.svg" },
-        { id: 5, name: "Kamerka BLOW HD", price: 0, desc: "Delivery time - 2 dni", img: "https://i.ibb.co/Ngfyr4nJ/image-removebg-preview-57.png" },
-        { id: 6, name: "Pokrowiec IkarVR (Quest 2)", price: 0, desc: "Delivery time - 2 dni", img: "https://i.ibb.co/hF2M2BCZ/image-removebg-preview-58.png" },
-        { id: 7, name: "Pokrowiec IkarVR PIKACHU (Quest 2)", price: 0, desc: "Delivery time - 2 dni", img: "https://i.ibb.co/DHXXCQ8P/image-removebg-preview-59.png" },
-        { id: 8, name: "Kabel PCVR [5M, ŁADOWANIE 18W PODCZAS GRANIA ŁADUJE ZAMIAST SPADA, 6GBPS]", price: 0, desc: "Delivery time - 2 dni", img: "https://i.ibb.co/27gxWcRX/image-removebg-preview-60.png" },
-        { id: 9, name: "Gunstock Quest 2", price: 0, desc: "Delivery time - 7 dni", img: "https://i.ibb.co/TBW8GpTF/image-removebg-preview-61.png" },
-        { id: 10, name: "Mata MIMIMIMI", price: 0, desc: "Delivery time - 7 dni", img: "https://i.ibb.co/6K8wTcB/image.png" },
-        { id: 11, name: "Zabawkowy GLOCK", price: 0, desc: "Delivery time - 7 dni", img: "https://i.ibb.co/RkmLJCVW/image.png" },
-        { id: 12, name: "Obraz Minecraft SKULL", price: 0, desc: "Delivery time - 7 dni", img: "https://i.ibb.co/0RvCL2TD/image.png" },
-        { id: 13, name: "Case z zapalarką na szlugi [OP]", price: 0, desc: "Delivery time - 7 dni", img: "https://i.ibb.co/tpSznP5c/image.png" },
-        { id: 14, name: "Karty brainrot 10PACK [80 kart]", price: 0, desc: "Delivery time - 7 dni", img: "https://i.ibb.co/b5LWtmbG/image-removebg-preview-62.png" },
-        { id: 15, name: "Replika BMW M4 CSL 1:36", price: 0, desc: "Delivery time - 7 dni", img: "https://i.ibb.co/YwmVVZ0/image-removebg-preview-63.png" },
-        { id: 16, name: "Sztyft do nosa [Mentol, Peach, Grape, Watermelon]", price: 0, desc: "Delivery time - 7 dni", img: "https://i.ibb.co/JjcMG1xn/image.png" },
-        { id: 17, name: "MEGA SIGMA BLOWER 3000", price: 0, desc: "Delivery time - 7 dni", img: "https://i.ibb.co/tMwrTRmR/image.png" },
-        { id: 18, name: "Figet Toy Blue Switch", price: 0, desc: "Delivery time - 7 dni", img: "https://i.ibb.co/rR2pB1tW/image-removebg-preview-64.png" },
-
+        { id: 1, name: "Karta Podarunkowa 800 R$", valPLN: 63, desc: "Instant", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Roblox_player_icon_black.svg/1200px-Roblox_player_icon_black.svg.png" },
+        { id: 2, name: "Gra Steam do 60ZŁ", valPLN: 60, desc: "Gift/Klucz", img: "https://cdn-icons-png.flaticon.com/512/220/220223.png" },
+        { id: 3, name: "Pokrowce IkarVR (Quest 2)", valPLN: 45, desc: "2 dni", img: "https://i.postimg.cc/mD9VXsGM/image-removebg-preview-(57).png" },
+        { id: 4, name: "Xbox Game Pass ULTIMATE", valPLN: 62, desc: "Miesiąc", img: "https://cms-assets.xboxservices.com/assets/d1/3c/d13c81f4-48c4-429e-b630-23bc1a2e913c.svg" },
+        { id: 5, name: "Kamerka BLOW HD", valPLN: 73, desc: "2 dni", img: "https://i.ibb.co/Ngfyr4nJ/image-removebg-preview-57.png" },
+        { id: 6, name: "Pokrowiec IkarVR (Quest 2)", valPLN: 35, desc: "2 dni", img: "https://i.ibb.co/hF2M2BCZ/image-removebg-preview-58.png" },
+        { id: 7, name: "Pokrowiec IkarVR PIKACHU [NIEDOSTEPNY!]", valPLN: 120, desc: "2 dni", img: "https://i.ibb.co/DHXXCQ8P/image-removebg-preview-59.png" },
+        { id: 8, name: "Kabel PCVR 5M", valPLN: 100, desc: "Wersja Pro", img: "https://i.ibb.co/27gxWcRX/image-removebg-preview-60.png" },
+        { id: 9, name: "Gunstock Quest 2", valPLN: 80, desc: "7 dni", img: "https://i.ibb.co/TBW8GpTF/image-removebg-preview-61.png" },
+        { id: 10, name: "Mata MIMIMIMI", valPLN: 20, desc: "7 dni", img: "https://i.ibb.co/6K8wTcB/image.png" },
+        { id: 11, name: "Zabawkowy GLOCK", valPLN: 24, desc: "7 dni", img: "https://i.ibb.co/RkmLJCVW/image.png" },
+        { id: 12, name: "Obraz Minecraft SKULL", valPLN: 28, desc: "7 dni", img: "https://i.ibb.co/0RvCL2TD/image.png" },
+        { id: 13, name: "Case z zapalarką", valPLN: 15, desc: "7 dni", img: "https://i.ibb.co/tpSznP5c/image.png" },
+        { id: 14, name: "Karty brainrot 10PACK", valPLN: 12, desc: "80 kart", img: "https://i.ibb.co/b5LWtmbG/image-removebg-preview-62.png" },
+        { id: 15, name: "Replika BMW M4 CSL", valPLN: 30, desc: "Skala 1:36", img: "https://i.ibb.co/YwmVVZ0/image-removebg-preview-63.png" },
+        { id: 16, name: "Sztyft do nosa", valPLN: 4, desc: "7 dni", img: "https://i.ibb.co/JjcMG1xn/image.png" },
+        { id: 17, name: "MEGA SIGMA BLOWER", valPLN: 55, desc: "7 dni", img: "https://i.ibb.co/tMwrTRmR/image.png" },
+        { id: 18, name: "Figet Toy Blue Switch", valPLN: 6, desc: "7 dni", img: "https://i.ibb.co/rR2pB1tW/image-removebg-preview-64.png" }
     ];
 
-    // --- LOGIC ---
-    const TARGET_DATE = new Date('2026-01-03T01:00:00').getTime(); 
-    const GAME_DURATION = 60 * 60 * 1000;
+    // --- ENGINE ---
     let balance = 3000, gameStartTime = null, hasPurchased = false, userID = "";
-    let currentGame = 'crash', gameActive = false;
+    let cart = [], currentGame = 'crash', gameActive = false;
+    const TARGET_DATE = new Date('2026-01-03T00:00:00').getTime(); 
+    const GAME_DURATION = 60 * 1000;
 
     function init() {
-        
-        if(localStorage.getItem('bd_balance')) balance = parseInt(localStorage.getItem('bd_balance'));
-        if(localStorage.getItem('bd_startTime')) gameStartTime = parseInt(localStorage.getItem('bd_startTime'));
-        if(localStorage.getItem('bd_purchased')) hasPurchased = true;
-        
-        // USER ID FOR ADMIN
-        if(localStorage.getItem('moon_userID')) {
-            userID = localStorage.getItem('moon_userID');
-        } else {
-            const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-            for(let i=0; i<5; i++) userID += chars.charAt(Math.floor(Math.random() * chars.length));
-            localStorage.setItem('moon_userID', userID);
-        }
-        document.getElementById('my-user-id').innerText = "ID: " + userID;
-
-        updateBalance(0);
-        setInterval(checkPhase, 1000); checkPhase();
-        setupFirebaseListeners();
+        let b = localStorage.getItem('bd_balance');
+        balance = (b && b !== "NaN") ? parseInt(b) : 3000;
+        gameStartTime = localStorage.getItem('bd_startTime') ? parseInt(localStorage.getItem('bd_startTime')) : null;
+        hasPurchased = localStorage.getItem('bd_purchased') === 'true';
+        userID = localStorage.getItem('moon_userID') || Math.random().toString(36).substring(2, 7).toUpperCase();
+        localStorage.setItem('moon_userID', userID);
+        document.getElementById('my-user-id').innerText = userID;
+        updateUI();
+        setInterval(checkPhase, 1000);
+        setupFirebase();
     }
 
     function checkPhase() {
         const now = Date.now();
         if(now < TARGET_DATE) {
-            const d = TARGET_DATE - now;
-            const text = new Date(d).toISOString().substr(11, 8); 
-            document.getElementById('lock-timer').innerText = Math.floor(d/(1000*60*60*24)) + "d " + text;
+            document.getElementById('lock-timer').innerText = new Date(TARGET_DATE - now).toISOString().substr(11, 8);
             return;
         }
         document.getElementById('lockdown-overlay').style.display = 'none';
         document.getElementById('main-header').style.display = 'flex';
-        
         if(!gameStartTime) { gameStartTime = now; localStorage.setItem('bd_startTime', gameStartTime); }
-        
         if(hasPurchased || (now - gameStartTime > GAME_DURATION)) showShop();
         else showGame(now);
     }
@@ -371,186 +237,88 @@
     function showGame(now) {
         document.getElementById('game-phase-container').style.display = 'flex';
         document.getElementById('shop-phase-container').style.display = 'none';
-        const left = GAME_DURATION - (now - gameStartTime);
-        document.getElementById('game-timer-display').style.display = 'block';
-        document.getElementById('game-timer-display').innerText = Math.floor(left/60000) + "m " + Math.floor((left%60000)/1000) + "s";
-        document.getElementById('faucet-box').style.display = (balance < 1000) ? 'block' : 'none';
-        if(document.getElementById('game-area').innerHTML === '') renderGame();
+        let l = Math.max(0, GAME_DURATION - (now - gameStartTime));
+        document.getElementById('game-timer-display').innerText = "00:" + String(Math.floor(l/1000)).padStart(2,'0');
+        if(!document.getElementById('game-area').innerHTML) renderGame();
     }
 
     function showShop() {
         document.getElementById('game-phase-container').style.display = 'none';
-        document.getElementById('game-timer-display').style.display = 'none';
-        if(hasPurchased) {
-            document.getElementById('shop-phase-container').style.display = 'none';
-            document.getElementById('final-screen').style.display = 'block';
-        } else {
-            document.getElementById('shop-phase-container').style.display = 'flex';
-            if(document.getElementById('gift-grid').children.length === 0) {
-                renderShop();
-            }
-        }
+        if(hasPurchased) { document.getElementById('shop-phase-container').style.display = 'none'; document.getElementById('cart-sidebar').style.display = 'none'; document.getElementById('final-screen').style.display = 'block'; }
+        else { document.getElementById('shop-phase-container').style.display = 'flex'; document.getElementById('cart-sidebar').style.display = 'flex'; if(!document.getElementById('gift-grid').innerHTML) renderMarket(); }
     }
 
-    function renderShop() {
-        const grid = document.getElementById('gift-grid');
-        grid.innerHTML = '';
+    function renderMarket() {
+        const grid = document.getElementById('gift-grid'); grid.innerHTML = '';
         birthdayGifts.forEach(g => {
-            grid.innerHTML += `
-                <div class="gift-card">
-                    <img src="${g.img}" class="gift-img">
-                    <div class="gift-info">
-                        <div class="gift-title">${g.name}</div>
-                        <div class="gift-desc">${g.desc}</div>
-                        <div class="gift-price">PREZENT</div>
-                        <button class="gift-btn" onclick="buyGift('${g.name}')">WYBIERAM</button>
-                    </div>
-                </div>`;
+            grid.innerHTML += `<div class="gift-card"><div class="gift-img-box"><img src="${g.img}" class="gift-img"></div><div class="gift-info"><div class="gift-title">${g.name}</div><button class="btn-glow" onclick="addToCart(${g.id})">WYBIERAM</button></div></div>`;
         });
     }
 
-    function buyGift(n) {
-        if(!confirm(`Czy na pewno wybierasz: ${n}? Masz tylko jedną szansę!`)) return;
-        updateBalance(0); hasPurchased = true; localStorage.setItem('bd_purchased','true');
-        fetch(WEBHOOK_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({content: `🎁 **URODZINOWY WYBÓR:** ${n} @everyone`})});
-        showShop(); launchConfetti();
+    function addToCart(id) {
+        const item = birthdayGifts.find(x => x.id === id);
+        const total = cart.reduce((s, i) => s + i.valPLN, 0);
+        if(total + item.valPLN > 100) return notify("Ten przedmiot nie zmieści się już w limicie!", "error");
+        cart.push(item); updateCartUI(); notify("Dodano!", "success");
     }
 
-    // --- GAME LOGIC ---
-    function switchGame(g) { if(gameActive) return notify("Dokończ grę!", "error"); currentGame=g; document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active')); event.target.classList.add('active'); renderGame(); }
-    
+    function updateCartUI() {
+        const l = document.getElementById('cart-items-list'); l.innerHTML = cart.length ? '' : 'Pusto';
+        cart.forEach((it, idx) => { l.innerHTML += `<div class="cart-item"><span>${it.name}</span><span class="remove-btn" onclick="removeFromCart(${idx})">&times;</span></div>`; });
+    }
+
+    function removeFromCart(idx) { cart.splice(idx, 1); updateCartUI(); }
+
+    function finalizeOrder() {
+        if(!cart.length) return;
+        if(!confirm("To Twój ostateczny wybór?")) return;
+        hasPurchased = true; localStorage.setItem('bd_purchased', 'true');
+        fetch(WEBHOOK_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({content:`🎁 **NOWE ZAMÓWIENIE (ID: ${userID}):**\n${cart.map(i=>i.name).join(", ")}`})});
+        showShop(); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+    }
+
+    // --- GAMES ---
+    function switchGame(g, el) { currentGame = g; document.querySelectorAll('.game-tab').forEach(t=>t.classList.remove('active')); el.classList.add('active'); renderGame(); }
     function renderGame() {
-        const area=document.getElementById('game-area'), acts=document.getElementById('game-actions'), ext=document.getElementById('extra-controls');
-        area.innerHTML=''; acts.innerHTML=''; ext.innerHTML='';
-        if(currentGame==='crash') {
-            area.innerHTML=`<div id="crash-multiplier">1.00x</div>`;
-            acts.innerHTML=`<button class="action-btn" id="c-play" onclick="playCrash()">GRAJ</button><button class="action-btn cashout-btn" id="c-out" onclick="crashOut()" disabled>WYPŁAĆ</button>`;
-        } else if(currentGame==='mines') {
-            ext.innerHTML=`<label>MINY</label><input type="number" id="mines-cnt" value="3" min="1" max="24">`;
-            area.innerHTML=`<div class="mines-grid" id="mines-grid"></div>`;
-            acts.innerHTML=`<button class="action-btn" id="m-play" onclick="playMines()">GRAJ</button><button class="action-btn cashout-btn" id="m-out" onclick="minesCashout()" disabled>WYPŁAĆ</button>`;
-            initMines();
-        } else if(currentGame==='tower') {
-            ext.innerHTML=`<label>TRUDNOŚĆ</label><select id="tower-diff" onchange="initTower()"><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select>`;
-            area.innerHTML=`<div class="tower-container" id="tower-game"></div>`;
-            acts.innerHTML=`<button class="action-btn" id="t-play" onclick="playTower()">GRAJ</button><button class="action-btn cashout-btn" id="t-out" onclick="towerCashout()" disabled>WYPŁAĆ</button>`;
-            setTimeout(initTower,0);
-        } else if(currentGame==='limbo') {
-            ext.innerHTML=`<label>CEL (x)</label><input type="number" id="limbo-target" value="2.0" step="0.1">`;
-            area.innerHTML=`<div id="limbo-res" class="big-number-display">0.00x</div>`;
-            acts.innerHTML=`<button class="action-btn" onclick="playLimbo()">GRAJ</button>`;
-        } else if(currentGame==='stocks') {
-            area.innerHTML=`<canvas id="stockCanvas" style="width:100%;height:250px;background:black;border:1px solid #333"></canvas><div id="stock-res" style="font-weight:bold;margin-top:10px;">MARKET</div>`;
-            acts.innerHTML=`<button class="action-btn" style="background:var(--success)" onclick="playStocks('up')">UP ↗</button><button class="action-btn" style="background:var(--danger)" onclick="playStocks('down')">DOWN ↘</button>`;
+        const a = document.getElementById('game-area'), s = document.getElementById('game-actions'); a.innerHTML = ''; s.innerHTML = '';
+        if(currentGame === 'crash') { a.innerHTML = '<div id="crash-m" style="font-size:4rem; font-weight:800">1.00x</div>'; s.innerHTML = '<button class="btn-glow" onclick="playCrash()">START</button>'; }
+        else { a.innerHTML = '<div id="mines-grid" style="display:grid; grid-template-columns:repeat(5,1fr); gap:8px;"></div>'; s.innerHTML = '<button class="btn-glow" onclick="playMines()">START</button>'; initMinesGrid(); }
+    }
+
+    function initMinesGrid() { const g = document.getElementById('mines-grid'); for(let i=0;i<25;i++) g.innerHTML += '<div style="width:45px;height:45px;background:rgba(255,255,255,0.05);border-radius:4px;"></div>'; }
+
+    let mm=[], mr=0;
+    function playMines() {
+        const b = parseInt(document.getElementById('bet-amount').value); if(b > balance) return notify("Brak środków", "error");
+        updateBalance(-b); gameActive = true; mr = 0; mm = Array(25).fill(0);
+        for(let i=0; i<3; i++) mm[Math.floor(Math.random()*25)] = 1;
+        const g = document.getElementById('mines-grid'); g.innerHTML = '';
+        for(let i=0; i<25; i++) {
+            let d = document.createElement('div'); d.style = "width:45px;height:45px;background:#162a42;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:1.2rem;";
+            d.onclick = () => {
+                if(!gameActive || d.innerText) return;
+                if(mm[i]) { d.innerText = '💣'; d.style.background = '#ff0055'; gameActive = false; document.getElementById('game-actions').innerHTML = '<button class="btn-glow" onclick="renderGame()">RETRY</button>'; }
+                else { d.innerText = '💎'; d.style.background = '#00ff9d'; d.style.color = '#000'; mr++; }
+            };
+            g.appendChild(d);
         }
+        document.getElementById('game-actions').innerHTML = '<button class="btn-glow btn-success" onclick="minesCashout()">WYPŁAĆ</button>';
     }
 
-    // --- GAME IMPLEMENTATIONS ---
-    function getBet() { const v=parseInt(document.getElementById('bet-amount').value); if(!v||v<10) {notify("Min 10 MC","error"); return null;} if(v>balance) {notify("Brak środków","error"); return null;} return v; }
+    function minesCashout() {
+        if(!gameActive) return;
+        let m = 1; for(let k=0;k<mr;k++) m *= (25-k)/(22-k);
+        updateBalance(Math.floor(parseInt(document.getElementById('bet-amount').value) * m * 1.5));
+        gameActive = false; notify("Wypłacono!", "success"); renderGame();
+    }
+
+    function updateBalance(a){ balance += a; updateUI(); localStorage.setItem('bd_balance', balance); }
+    function updateUI(){ document.getElementById('balance').innerText = balance.toLocaleString(); }
+    function notify(m,t){ const n=document.getElementById('notify'); n.innerText=m; n.style.display='block'; n.style.background=t==='success'?'#00ff9d':'#fff'; n.style.color='#000'; setTimeout(()=>n.style.display='none',2000); }
     
-    // CRASH
-    let cm=1, ci; function playCrash(){ const b=getBet(); if(!b)return; updateBalance(-b); document.getElementById('c-play').disabled=true; document.getElementById('c-out').disabled=false; cm=1; gameActive=true; let cv=(Math.floor(100/(Math.random()*100+3)*100)/100); if(cv<1.01)cv=1; 
-    ci=setInterval(()=>{ cm+=0.01+cm*0.004; document.getElementById('crash-multiplier').innerText=cm.toFixed(2)+'x'; if(cm>=cv){clearInterval(ci); document.getElementById('crash-multiplier').style.color='var(--danger)'; gameActive=false; document.getElementById('c-play').disabled=false; document.getElementById('c-out').disabled=true;} },50); }
-    function crashOut(){ if(!gameActive)return; clearInterval(ci); const b=parseInt(document.getElementById('bet-amount').value); updateBalance(Math.floor(b*cm)); gameActive=false; notify("WIN!", "success"); document.getElementById('c-play').disabled=false; document.getElementById('c-out').disabled=true; }
-
-    // MINES
-    let mm=[], mr=0, mt=3; 
-    function initMines(){ const g=document.getElementById('mines-grid'); g.innerHTML=''; g.classList.add('disabled'); for(let i=0;i<25;i++) g.innerHTML+=`<div class="mine-cell" style="opacity:0.3"></div>`; }
-    function playMines(){ const b=getBet(); if(!b)return; updateBalance(-b); gameActive=true; mt=parseInt(document.getElementById('mines-cnt').value); mr=0; document.getElementById('m-play').disabled=true; document.getElementById('m-out').disabled=false; mm=Array(25).fill(0); let p=0; while(p<mt){let x=Math.floor(Math.random()*25); if(mm[x]==0){mm[x]=1;p++;}} 
-    const g=document.getElementById('mines-grid'); g.innerHTML=''; g.classList.remove('disabled'); for(let i=0;i<25;i++){ let d=document.createElement('div'); d.className='mine-cell'; d.onclick=()=>hitMine(i,d); g.appendChild(d); }}
-    function hitMine(i,el){ if(!gameActive||el.classList.contains('safe')||el.classList.contains('boom'))return; if(mm[i]){ el.classList.add('boom'); el.innerText='💣'; gameActive=false; document.getElementById('m-play').disabled=false; document.getElementById('m-out').disabled=true; document.getElementById('mines-grid').classList.add('disabled'); } else { el.classList.add('safe'); el.innerText='💎'; mr++; } }
-    // MINES BUFFED (No house edge)
-    function minesCashout(){ if(!gameActive)return; let m=1; for(let k=0;k<mr;k++) m*=(25-k)/(25-mt-k); updateBalance(Math.floor(parseInt(document.getElementById('bet-amount').value)*m)); gameActive=false; notify("WIN!", "success"); document.getElementById('m-play').disabled=false; document.getElementById('m-out').disabled=true; document.getElementById('mines-grid').classList.add('disabled'); }
-
-    // TOWER
-    let tl=0, tm=[]; const tCfg={easy:{c:3,s:2,m:[1.3,1.7,2.2,2.9,3.8,5,6.5,8.5,11,14.5]},medium:{c:2,s:1,m:[1.9,3.6,6.9,13,25,48,90,175,335,640]},hard:{c:3,s:1,m:[2.8,7.9,22,62,175,490,1350,3800,10500,29500]}};
-    function initTower(){ const d=document.getElementById('tower-diff').value; const c=document.getElementById('tower-game'); c.innerHTML=''; for(let r=9;r>=0;r--){ let row=document.createElement('div'); row.className='tower-row disabled'; row.style.gridTemplateColumns=`repeat(${tCfg[d].c},1fr)`; row.id=`tr-${r}`; for(let k=0;k<tCfg[d].c;k++) row.innerHTML+=`<div class="tower-cell">${tCfg[d].m[r]}x</div>`; c.appendChild(row); } }
-    function playTower(){ const b=getBet(); if(!b)return; updateBalance(-b); gameActive=true; tl=0; document.getElementById('t-play').disabled=true; document.getElementById('t-out').disabled=false; initTower(); const d=document.getElementById('tower-diff').value; tm=[]; for(let i=0;i<10;i++){ let r=Array(tCfg[d].c).fill(1); let bp=0; while(bp<(tCfg[d].c-tCfg[d].s)){ let x=Math.floor(Math.random()*tCfg[d].c); if(r[x]==1){r[x]=0;bp++;}} tm.push(r); } updTower(); }
-    function updTower(){ for(let r=0;r<10;r++){ const el=document.getElementById(`tr-${r}`); el.classList.remove('active','disabled'); if(r===tl) el.classList.add('active'); else if(r>tl) el.classList.add('disabled'); for(let c=0;c<el.children.length;c++) el.children[c].onclick=()=>hitTower(r,c); } if(tl>0)document.getElementById('t-out').disabled=false; }
-    function hitTower(r,c){ if(!gameActive||r!==tl)return; const el=document.getElementById(`tr-${r}`).children[c]; if(tm[r][c]){ el.classList.add('safe'); el.innerText='💎'; tl++; if(tl>=10) towerCashout(); else updTower(); } else { el.classList.add('boom'); el.innerText='💣'; gameActive=false; document.getElementById('t-play').disabled=false; document.getElementById('t-out').disabled=true; } }
-    function towerCashout(){ if(!gameActive)return; const d=document.getElementById('tower-diff').value; const m=tCfg[d].m[tl-1]; updateBalance(Math.floor(parseInt(document.getElementById('bet-amount').value)*m)); gameActive=false; notify("WIN!", "success"); document.getElementById('t-play').disabled=false; document.getElementById('t-out').disabled=true; }
-
-    // LIMBO
-    function playLimbo() {
-        const bet=getBet(); if(!bet) return; const t=parseFloat(document.getElementById('limbo-target').value); if(t<=1.0) return notify("Cel > 1.0", "error");
-        updateBalance(-bet);
-        let result=(Math.floor(95/(Math.random()*100)*100)/100); if(result<1.01) result=1.00;
-        const el=document.getElementById('limbo-res'); el.innerText=result.toFixed(2)+'x';
-        if(result>=t){ el.className="big-number-display win"; updateBalance(Math.floor(bet*t)); notify("WIN!","success"); } else el.className="big-number-display lose";
-    }
-
-    // STOCKS
-    function playStocks(d){ const b=getBet(); if(!b)return; updateBalance(-b); gameActive=true; let p=100, h=[100], t=0; const c=document.getElementById('stockCanvas').getContext('2d');
-    const i=setInterval(()=>{ p+=(Math.random()-0.5)*10; h.push(p); if(h.length>50)h.shift(); 
-    c.fillStyle='black'; c.fillRect(0,0,3000,300); c.strokeStyle=h[h.length-1]>=h[0]?'#00ff9d':'#ff0055'; c.lineWidth=3; c.beginPath(); h.forEach((v,k)=>k==0?c.moveTo(k*10,150-(v-100)):c.lineTo(k*10,150-(v-100))); c.stroke();
-    t++; if(t>40){ clearInterval(i); gameActive=false; const w=(d=='up'&&h[h.length-1]>h[0])||(d=='down'&&h[h.length-1]<h[0]); if(w){updateBalance(Math.floor(b*1.8)); notify("WIN!", "success");} else notify("Loss", "error"); }}, 50); }
-
-    // --- FIREBASE LISTENERS (WIPE & SCAN) ---
-    function setupFirebaseListeners() {
-        // 1. Announcements
-        db.ref('announce').on('value', snap => {
-            const val = snap.val();
-            if(val && Date.now() - val.ts < 10000) showAnnounce(val.text);
-        });
-
-        // 2. Wipe Command
-        db.ref('system/wipe').on('child_added', (snapshot) => {
-            const data = snapshot.val();
-            if(data.target === userID && Date.now() - data.timestamp < 30000) {
-                balance = 0; saveState(); updateUI();
-                document.getElementById('wipe-screen').style.display = 'flex';
-                setTimeout(() => location.reload(), 5000);
-            }
-        });
-
-        // 3. Admin Scan Request
-        db.ref('system/scan').on('value', (snapshot) => {
-            const data = snapshot.val();
-            if(data && Date.now() - data.timestamp < 5000) {
-                db.ref('system/online/' + userID).set({ id: userID, timestamp: firebase.database.ServerValue.TIMESTAMP });
-            }
-        });
-    }
-
-    // --- ADMIN ---
-    let ac=0, at; function triggerAdmin(){ ac++; clearTimeout(at); at=setTimeout(()=>ac=0,1000); if(ac>=5) document.getElementById('admin-login-modal').style.display='flex'; }
-    function checkAdmin(){ if(document.getElementById('admin-pass').value==='mambachuj12'){ closeModal('admin-login-modal'); document.getElementById('admin-panel-modal').style.display='flex'; } else notify("WRONG","error"); }
-    function closeModal(id){ document.getElementById(id).style.display='none'; }
-    function sendAnnouncement(){ const t=document.getElementById('admin-announce-text').value; db.ref('announce').set({text:t, ts:Date.now()}); notify("Sent","success"); }
-    function showAnnounce(t){ const b=document.getElementById('live-announcement'); b.innerText=t; b.classList.add('active'); setTimeout(()=>b.classList.remove('active'),10000); }
-    function adminAddBal(){ updateBalance(parseInt(document.getElementById('admin-add-bal').value)); notify("Added","success"); }
-    function devReset(){ localStorage.clear(); location.reload(); }
-    
-    function refreshLiveUsers() {
-        const list = document.getElementById('live-users-list'); list.innerHTML = 'Skanowanie...';
-        db.ref('system/scan').set({ timestamp: firebase.database.ServerValue.TIMESTAMP });
-        setTimeout(() => {
-            db.ref('system/online').once('value').then((snapshot) => {
-                list.innerHTML = '';
-                const users = snapshot.val();
-                if(!users) { list.innerHTML = 'Brak graczy online.'; return; }
-                Object.values(users).forEach(u => {
-                    if(Date.now() - u.timestamp < 15000) {
-                        list.innerHTML += `<div class="live-user-row"><span class="live-user-id">${u.id}</span><span class="status-badge" style="color:var(--success)">ONLINE</span></div>`;
-                    }
-                });
-            });
-        }, 2000);
-    }
-
-    function sendWipeCommand() {
-        const target = document.getElementById('admin-wipe-id').value.trim();
-        if(!target || !confirm(`Wyzerować: ${target}?`)) return;
-        db.ref('system/wipe').push({ target: target, timestamp: firebase.database.ServerValue.TIMESTAMP });
-        notify("Rozkaz wysłany", 'error');
-    }
-
-    // --- UTILS ---
-    function updateBalance(a){ balance+=a; document.getElementById('balance').innerText=fmt(balance); localStorage.setItem('bd_balance', balance); if(balance<1000) document.getElementById('faucet-box').style.display='block'; else document.getElementById('faucet-box').style.display='none'; }
-    function claimFaucet() { updateBalance(100); notify("Odebrano!", "success"); }
-    function notify(m,t){ const n=document.getElementById('notify'); n.innerText=m; n.style.display='block'; n.style.background=t=='success'?'var(--success)':'var(--danger)'; setTimeout(()=>n.style.display='none',2000); }
-    function fmt(n){ return n.toLocaleString(); }
-    function launchConfetti() { var m=confetti.create(document.getElementById('confetti-canvas'),{resize:true}); m({particleCount:150,spread:100,origin:{y:0.6}}); }
+    let ac=0; function triggerAdmin(){ ac++; if(ac>=5){ document.getElementById('admin-login-modal').style.display='flex'; ac=0; } }
+    function checkAdmin(){ if(document.getElementById('admin-pass').value==='mambachuj12') alert("Admin OK - Wipe command active in console."); }
+    function setupFirebase() { db.ref('system/wipe').on('child_added', s => { if(s.val().target === userID) { balance=0; updateUI(); document.getElementById('wipe-screen').style.display='flex'; } }); }
 
     init();
 </script>
