@@ -54,10 +54,9 @@ nav {
     z-index: 100;
 }
 
-.logo {
-    font-weight: 900;
-    font-size: 24px;
-    letter-spacing: -1px;
+.nav-logo {
+    height: 40px;
+    width: auto;
 }
 
 .nav-links {
@@ -101,15 +100,6 @@ nav {
     box-sizing: border-box;
 }
 
-.logo-large {
-    font-size: 120px;
-    font-weight: 900;
-    margin-bottom: 20px;
-    background: linear-gradient(to bottom right, #fff, #888);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 30px rgba(125, 95, 255, 0.3));
-}
 
 h1 {
     font-size: 64px;
