@@ -186,3 +186,31 @@ h1 {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* --- 3D TILT EFFECT --- */
+.tilt-wrapper {
+    margin-top: 60px;
+    perspective: 1000px; /* Kluczowe dla efektu 3D */
+    display: flex;
+    justify-content: center;
+    padding-bottom: 40px;
+}
+
+.tilt-card {
+    width: 800px;
+    max-width: 90%;
+    border-radius: 24px;
+    transform-style: preserve-3d;
+    transform: rotateX(0) rotateY(0);
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--glass-border);
+    background: rgba(0,0,0,0.2);
+}
+
+.tilt-image {
+    width: 100%;
+    height: auto;
+    border-radius: 24px;
+    display: block;
+    pointer-events: none; /* Żeby myszka nie "gubiła" kontenera na obrazku */
+}
