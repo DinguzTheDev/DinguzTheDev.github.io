@@ -46,7 +46,7 @@ nav {
     padding: 0 40px;
     height: 80px;
     position: fixed;
-    top: 20px;
+    : 20px;
     left: 50%;
     transform: translateX(-50%);
     width: 90%;
@@ -100,7 +100,7 @@ nav {
     justify-content: flex-start;
     align-items: center;
     text-align: center;
-    padding-top: 220px;
+    padding-top: 110px;
     padding-bottom: 80px;
     box-sizing: border-box;
 }
