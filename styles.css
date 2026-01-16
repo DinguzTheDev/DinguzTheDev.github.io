@@ -7,6 +7,10 @@
     --text-dim: #888888;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -86,12 +90,15 @@ nav {
 
 /* --- HERO SECTION --- */
 .hero {
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: flex-start;
     align-items: center;
     text-align: center;
-    padding-top: 120px;
+    padding-top: 220px;
+    padding-bottom: 80px;
+    box-sizing: border-box;
 }
 
 .logo-large {
