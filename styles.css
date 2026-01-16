@@ -41,7 +41,7 @@ body.visible {
 /* --- NAVBAR --- */
 nav {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     padding: 15px 40px;
     position: fixed;
@@ -54,7 +54,11 @@ nav {
     z-index: 100;
 }
 
-.nav-logo {
+.center-logo {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
     height: 40px;
     width: auto;
 }
