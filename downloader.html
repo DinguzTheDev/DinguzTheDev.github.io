@@ -3,163 +3,416 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YTDL Hybrid</title>
+    <title>Dinguz YT Downloader</title>
     <style>
+        /* --- RESET & VARIABLES --- */
         :root {
-            --bg: #09090b; --card: #18181b; --primary: #3b82f6; --text: #fff;
+            --bg-dark: #09090b;
+            --card-dark: #121214;
+            --element-bg: #1c1c21;
+            --primary: #3b82f6; /* Niebieski */
+            --primary-glow: rgba(59, 130, 246, 0.4);
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --radius: 24px;
         }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
         body {
-            background: var(--bg); color: var(--text); display: flex; 
-            justify-content: center; align-items: center; min-height: 100vh; font-family: sans-serif; margin: 0;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             overflow: hidden;
         }
-        /* Glow tła */
-        body::before {
-            content: ''; position: absolute; width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
-            z-index: -1; animation: pulse 10s infinite alternate;
+
+        /* --- TŁO (Delikatny Glow) --- */
+        .background-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            pointer-events: none;
         }
-        @keyframes pulse { 0% {transform:scale(1);} 100% {transform:scale(1.1);} }
 
-        .container { width: 100%; max-width: 500px; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .container {
+            width: 100%;
+            max-width: 650px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
 
-        /* Input Group */
+        /* --- GŁÓWNY INPUT --- */
         .input-group {
-            background: var(--card); border-radius: 30px; padding: 5px; display: flex; align-items: center;
-            border: 1px solid rgba(255,255,255,0.05); transition: 0.3s;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            position: relative;
+            width: 100%;
+            background: var(--element-bg);
+            border-radius: 50px;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.05), 0 10px 30px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
         }
-        .input-group:focus-within { border-color: var(--primary); box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+
+        .input-group:focus-within {
+            box-shadow: 0 0 0 1px var(--primary), 0 0 25px var(--primary-glow);
+            transform: translateY(-2px);
+        }
 
         input {
-            flex: 1; background: transparent; border: none; outline: none; color: #fff; padding: 15px 20px; font-size: 16px;
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: white;
+            padding: 16px 24px;
+            font-size: 16px;
+            width: 100%;
         }
 
-        /* Download Button z PNG */
+        input::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* --- DOWNLOAD BUTTON --- */
         .dl-btn {
-            background: var(--primary); border: none; width: 48px; height: 48px; border-radius: 50%;
-            cursor: pointer; margin-right: 2px; transition: 0.3s; display: flex; align-items: center; justify-content: center;
+            background: var(--primary);
+            border: none;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-right: 4px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
         }
-        .dl-btn:hover { transform: scale(1.1); box-shadow: 0 0 15px var(--primary); }
-        .dl-btn img { width: 24px; height: 24px; object-fit: contain; }
-        
-        /* Dropdown */
-        .dropdown { position: relative; z-index: 10; }
-        .dd-head {
-            background: var(--card); border-radius: 20px; padding: 12px 20px; cursor: pointer;
-            display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); font-size: 14px; color: #aaa;
-        }
-        .dd-menu {
-            position: absolute; top: 110%; left: 0; width: 100%; background: #121214; border-radius: 15px;
-            overflow: hidden; opacity: 0; visibility: hidden; transition: 0.2s; transform: translateY(-10px);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .dd-menu.show { opacity: 1; visibility: visible; transform: translateY(0); }
-        .opt { padding: 12px 20px; cursor: pointer; color: #aaa; font-size: 14px; transition: 0.2s; }
-        .opt:hover { background: rgba(255,255,255,0.05); color: #fff; }
-        .opt.selected { color: var(--primary); background: rgba(59, 130, 246, 0.1); }
 
-        .status { text-align: center; font-size: 13px; margin-top: 10px; opacity: 0; transition: 0.3s; color: #aaa;}
+        .dl-btn:hover {
+            transform: scale(1.1);
+            background: #2563eb;
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+        
+        .dl-btn:active {
+            transform: scale(0.95);
+        }
+
+        .dl-btn img {
+            width: 19px;
+            height: 19px;
+            object-fit: contain;
+        }
+
+        /* --- CUSTOM DROPDOWN --- */
+        .dropdown-container {
+            position: relative;
+            width: 240px;
+            z-index: 10;
+        }
+
+        .dropdown-selected {
+            background: var(--element-bg);
+            border-radius: var(--radius);
+            padding: 14px 20px;
+            color: var(--text-main);
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .dropdown-selected:hover {
+            background: #232329;
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        .dropdown-selected.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .arrow {
+            font-size: 10px;
+            color: var(--primary);
+            transition: transform 0.3s;
+        }
+
+        .dropdown-selected.active .arrow {
+            transform: rotate(180deg);
+        }
+
+        /* Lista opcji */
+        .dropdown-options {
+            position: absolute;
+            top: 115%;
+            left: 0;
+            width: 100%;
+            background: #151518;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        }
+
+        .dropdown-options.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .option {
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-muted);
+            transition: background 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .option:hover {
+            background: rgba(59, 130, 246, 0.1);
+            color: white;
+        }
+        
+        .option.selected {
+            color: var(--primary);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .option-badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.05);
+            text-transform: uppercase;
+        }
+
+        /* --- STATUS --- */
+        .status-msg {
+            font-size: 13px;
+            height: 20px;
+            color: var(--text-muted);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="input-group">
-        <input type="text" id="url" placeholder="Wklej link YouTube..." autocomplete="off">
-        <button class="dl-btn" id="btn">
-            <img src="https://cdn-icons-png.flaticon.com/512/724/724933.png" style="filter: invert(1);" alt="DL">
-        </button>
-    </div>
+    <div class="background-glow"></div>
 
-    <div class="dropdown">
-        <div class="dd-head" id="ddTrig"><span>MP4 (Auto Best)</span> <span>▼</span></div>
-        <div class="dd-menu" id="ddMenu">
-            <div class="opt selected" data-val="mp4_best">MP4 (Auto Best)</div>
-            <div class="opt" data-val="mp4_1080">MP4 (1080p)</div>
-            <div class="opt" data-val="mp3">Audio (MP3)</div>
-            <div class="opt" data-val="wav">Audio (WAV)</div>
+    <div class="container">
+        
+        <div class="input-group">
+            <input type="text" id="urlInput" placeholder="Paste a YouTube URL here..." autocomplete="off">
+            <button class="dl-btn" id="downloadBtn" title="Pobierz">
+                <img src="https://i.ibb.co/qMBnf2Ss/download.png" id="btnIcon" alt="ikona">
+            </button>
         </div>
+
+        <div class="dropdown-container">
+            <div class="dropdown-selected" id="dropdownTrigger">
+                <span id="currentFormatText">MP4 (Auto Best)</span>
+                <span class="arrow">▼</span>
+            </div>
+            <div class="dropdown-options" id="dropdownOptions">
+                <div class="option selected" data-value="mp4_best">
+                    <span>MP4 (Auto Best)</span> <span class="option-badge">Video</span>
+                </div>
+                <div class="option" data-value="mp4_1080">
+                    <span>MP4 1080p</span> <span class="option-badge">Video</span>
+                </div>
+                <div class="option" data-value="mp4_720">
+                    <span>MP4 720p</span> <span class="option-badge">Video</span>
+                </div>
+                <div style="height:1px; background:rgba(255,255,255,0.05); margin: 4px 0;"></div>
+                <div class="option" data-value="mp3">
+                    <span>MP3 Audio</span> <span class="option-badge">Audio</span>
+                </div>
+                <div class="option" data-value="wav">
+                    <span>WAV Audio</span> <span class="option-badge">Audio</span>
+                </div>
+                <div class="option" data-value="opus">
+                    <span>Opus Audio</span> <span class="option-badge">Audio</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-msg" id="status">Pobieranie rozpoczęte...</div>
+
     </div>
-    <div class="status" id="status">Gotowe</div>
-</div>
 
-<script>
-    // --- Logic UI ---
-    let format = 'mp4_best';
-    const trig = document.getElementById('ddTrig');
-    const menu = document.getElementById('ddMenu');
-    const status = document.getElementById('status');
-    const input = document.getElementById('url');
-    const btn = document.getElementById('btn');
+    <script>
+        // --- KONFIGURACJA UI ---
+        const trigger = document.getElementById('dropdownTrigger');
+        const menu = document.getElementById('dropdownOptions');
+        const options = document.querySelectorAll('.option');
+        const currentFormatDisplay = document.getElementById('currentFormatText');
+        const btn = document.getElementById('downloadBtn');
+        const btnIcon = document.getElementById('btnIcon');
+        const urlInput = document.getElementById('urlInput');
+        const status = document.getElementById('status');
 
-    trig.onclick = (e) => { e.stopPropagation(); menu.classList.toggle('show'); };
-    document.querySelectorAll('.opt').forEach(o => o.onclick = () => {
-        document.querySelectorAll('.opt').forEach(x => x.classList.remove('selected'));
-        o.classList.add('selected');
-        trig.firstElementChild.innerText = o.innerText;
-        format = o.dataset.val;
-    });
-    window.onclick = () => menu.classList.remove('show');
+        let currentFormat = 'mp4_best';
 
-    // --- Logic Hybrid Download ---
-    btn.onclick = async () => {
-        if(!input.value) return;
-        const oldIcon = btn.innerHTML;
-        // Spinner SVG
-        btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:20px;animation:s 1s linear infinite" stroke="#fff" fill="none" stroke-width="3"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>`;
-        const s = document.createElement("style"); s.innerText="@keyframes s{to{transform:rotate(360deg)}}"; document.head.append(s);
+        // --- OBSŁUGA DROPDOWN ---
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            trigger.classList.toggle('active');
+            menu.classList.toggle('show');
+        });
 
-        status.style.opacity = 1; status.innerText = "Szukanie serwera lokalnego...";
+        options.forEach(opt => {
+            opt.addEventListener('click', () => {
+                options.forEach(o => o.classList.remove('selected'));
+                opt.classList.add('selected');
+                currentFormatDisplay.innerText = opt.querySelector('span').innerText;
+                currentFormat = opt.dataset.value;
+                trigger.classList.remove('active');
+                menu.classList.remove('show');
+            });
+        });
 
-        try {
-            // 1. Próba Lokalna
+        window.addEventListener('click', (e) => {
+            if (!trigger.contains(e.target)) {
+                trigger.classList.remove('active');
+                menu.classList.remove('show');
+            }
+        });
+
+        // --- GŁÓWNA LOGIKA HYBRYDOWA ---
+        btn.addEventListener('click', async () => {
+            const url = urlInput.value.trim();
+            if (!url) {
+                urlInput.parentElement.style.borderColor = "#ef4444";
+                setTimeout(() => urlInput.parentElement.style.borderColor = "rgba(255,255,255,0.05)", 500);
+                return;
+            }
+
+            // Spinner (podmiana ikony na SVG ładowania)
+            const originalBtnContent = btn.innerHTML;
+            btn.innerHTML = `<svg style="animation:spin 1s linear infinite; width:22px; height:22px;" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
+            status.style.opacity = 1;
+            status.style.color = "var(--text-muted)";
+
+            try {
+                // KROK 1: Próba lokalna (Twój Python)
+                status.innerText = "Checking local server...";
+                await tryLocalDownload(url);
+                status.style.color = "#4ade80";
+                status.innerText = "Success! Saved to Downloads.";
+
+            } catch (localError) {
+                // KROK 2: Fallback do Cobalt (Dla znajomych)
+                console.log("Local server offline, using Cobalt...");
+                status.innerText = "Online Mode (Cobalt)...";
+                status.style.color = "#60a5fa";
+
+                try {
+                    await tryCobaltDownload(url);
+                    status.style.color = "#4ade80";
+                    status.innerText = "Download started!";
+                } catch (cobaltError) {
+                    console.error(cobaltError);
+                    status.style.color = "#ef4444";
+                    status.innerText = "Error: Service unavailable.";
+                }
+            } finally {
+                setTimeout(() => {
+                    btn.innerHTML = originalBtnContent;
+                    if (status.style.color === "rgb(74, 222, 128)") { // Jeśli zielony (#4ade80)
+                        urlInput.value = "";
+                        setTimeout(() => { status.style.opacity = 0; }, 3000);
+                    }
+                }, 2000);
+            }
+        });
+
+        async function tryLocalDownload(url) {
             const controller = new AbortController();
-            setTimeout(() => controller.abort(), 1500); // 1.5s timeout
-            
-            const res = await fetch('http://127.0.0.1:5000/download', {
-                method: 'POST', headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({url: input.value, format: format}),
+            const timeoutId = setTimeout(() => controller.abort(), 1500);
+
+            const response = await fetch('http://127.0.0.1:5000/download', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url, format: currentFormat }),
                 signal: controller.signal
             });
-            const json = await res.json();
-            if(json.status === 'error') throw new Error(json.message);
-            
-            status.innerText = "Pobrano na dysk (Lokalnie)!";
-            status.style.color = "#4ade80";
+            clearTimeout(timeoutId);
 
-        } catch (e) {
-            // 2. Fallback Cobalt
-            status.innerText = "Tryb Online (Cobalt)...";
-            status.style.color = "#60a5fa";
-            
-            try {
-                let req = { url: input.value, vQuality: "max", isAudioOnly: false };
-                if(format === 'mp3') { req.isAudioOnly = true; req.aFormat = "mp3"; }
-                if(format === 'mp4_1080') req.vQuality = "1080";
-
-                const cRes = await fetch('https://api.cobalt.tools/api/json', {
-                    method: 'POST', headers: {'Accept':'application/json','Content-Type':'application/json'},
-                    body: JSON.stringify(req)
-                });
-                const cJson = await cRes.json();
-                if(cJson.url) {
-                    const a = document.createElement('a'); a.href = cJson.url; a.download = ''; 
-                    document.body.append(a); a.click(); a.remove();
-                    status.innerText = "Pobieranie rozpoczęte!"; status.style.color = "#4ade80";
-                } else { throw new Error("Błąd API"); }
-            } catch (err) {
-                status.innerText = "Błąd pobierania."; status.style.color = "#ef4444";
-            }
+            if (!response.ok) throw new Error("Offline");
+            const result = await response.json();
+            if (result.status === "error") throw new Error(result.message);
+            return true;
         }
-        
-        setTimeout(() => { 
-            btn.innerHTML = oldIcon; 
-            if(status.innerText.includes("Pobrano") || status.innerText.includes("rozpoczęte")) {
-                input.value = ""; setTimeout(()=>status.style.opacity=0, 2000); status.style.color="#aaa";
+
+        async function tryCobaltDownload(url) {
+            const requestData = {
+                url: url,
+                vCodec: "h264",
+                vQuality: "max",
+                aFormat: "mp3",
+                isAudioOnly: false
+            };
+
+            if (currentFormat.includes('mp3')) {
+                requestData.isAudioOnly = true;
+            } else if (currentFormat === 'wav') {
+                requestData.isAudioOnly = true;
+                requestData.aFormat = "wav";
+            } else if (currentFormat === 'mp4_1080') {
+                requestData.vQuality = "1080";
             }
-        }, 2000);
-    };
-</script>
+
+            const response = await fetch('https://api.cobalt.tools/api/json', {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestData)
+            });
+
+            const data = await response.json();
+            if (data.status === 'error') throw new Error(data.text);
+
+            if (data.url) {
+                const link = document.createElement('a');
+                link.href = data.url;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            }
+            return true;
+        }
+    </script>
 </body>
 </html>
