@@ -2,138 +2,263 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>RandoMap</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
 
     <style>
-        /* Reset marginesów */
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-panel: #121212;
+            --text-primary: #e0e0e0;
+            --neon-accent: #00f2ff; /* Neonowy cyjan */
+            --neon-glow: 0 0 10px rgba(0, 242, 255, 0.5), 0 0 20px rgba(0, 242, 255, 0.3);
+        }
+
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            overflow: hidden; /* Zapobiega przewijaniu na mobile */
         }
 
-        /* Pasek boczny */
+        /* Główny kontener */
+        #app-container {
+            display: flex;
+            height: 100%;
+            position: relative;
+        }
+
+        /* --- PASEK BOCZNY (SIDEBAR) --- */
         #sidebar {
-            width: 320px;
-            background-color: #2c3e50;
-            color: #ecf0f1;
+            width: 300px;
+            background-color: var(--bg-panel);
+            border-right: 1px solid #333;
             display: flex;
             flex-direction: column;
-            box-shadow: 3px 0 10px rgba(0,0,0,0.3);
-            z-index: 1000; /* Sidebar musi być nad mapą */
+            z-index: 2000;
+            transition: transform 0.3s ease-in-out;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.5);
         }
 
         #sidebar-header {
             padding: 20px;
-            background-color: #1a252f;
             text-align: center;
+            border-bottom: 1px solid #333;
         }
 
         #sidebar-header h2 {
             margin: 0;
-            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: var(--neon-accent);
+            text-shadow: var(--neon-glow);
         }
 
         #sidebar-content {
-            padding: 20px;
+            padding: 15px;
             flex-grow: 1;
             overflow-y: auto;
         }
 
-        .empty-state {
-            color: #95a5a6;
-            font-style: italic;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        /* Kategorie i pinezki w sidebarze */
-        .category-group {
-            margin-bottom: 20px;
-        }
-
+        /* --- KATEGORIE I PINEZKI --- */
         .category-title {
-            font-size: 1.1rem;
-            color: #3498db;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 5px;
+            font-size: 0.9rem;
+            color: #888;
+            margin-top: 20px;
             margin-bottom: 10px;
             text-transform: uppercase;
-            font-weight: bold;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #333;
         }
 
         .pin-item {
-            padding: 10px;
-            background: #34495e;
-            border-radius: 4px;
-            margin-bottom: 8px;
+            padding: 12px 15px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            margin-bottom: 10px;
             cursor: pointer;
-            transition: background 0.2s;
-            border-left: 4px solid transparent;
+            transition: all 0.2s;
+            border: 1px solid #333;
+            display: flex;
+            align-items: center;
         }
 
-        .pin-item:hover {
-            background: #465c73;
-            border-left: 4px solid #3498db;
+        .pin-item::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--neon-accent);
+            border-radius: 50%;
+            margin-right: 10px;
+            box-shadow: var(--neon-glow);
         }
 
-        /* Kontener na mapę */
+        .pin-item:hover, .pin-item:active {
+            background: #222;
+            border-color: var(--neon-accent);
+            box-shadow: inset 0 0 10px rgba(0, 242, 255, 0.1);
+        }
+
+        .empty-state {
+            color: #666;
+            text-align: center;
+            margin-top: 30px;
+            font-style: italic;
+        }
+
+        /* --- MAPA --- */
         #map {
             flex-grow: 1;
             height: 100%;
-            z-index: 1; /* Mapa pod sidebarem */
+            background-color: var(--bg-dark); /* Tło zanim załadują się kafelki */
+        }
+
+        /* --- CUSTOMOWE NEONOWE MARKERY (CSS) --- */
+        .glow-marker {
+            background-color: var(--neon-accent);
+            border-radius: 50%;
+            box-shadow: 0 0 15px var(--neon-accent), 0 0 30px var(--neon-accent);
+            width: 12px !important; /* Nadpisanie stylu Leaflet */
+            height: 12px !important;
+            margin-left: -6px !important;
+            margin-top: -6px !important;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 10px var(--neon-accent); }
+            50% { box-shadow: 0 0 25px var(--neon-accent), 0 0 50px var(--neon-accent); }
+            100% { box-shadow: 0 0 10px var(--neon-accent); }
+        }
+
+        /* Stylizacja popupów na mapie */
+        .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+            background: var(--bg-panel) !important;
+            color: var(--text-primary) !important;
+            border: 1px solid var(--neon-accent);
+            box-shadow: var(--neon-glow);
+        }
+        .leaflet-popup-content b {
+             color: var(--neon-accent);
+        }
+
+        /* --- MOBILE TOGGLE BUTTON --- */
+        #mobile-toggle {
+            display: none; /* Ukryty na desktopie */
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 3000;
+            background: var(--bg-panel);
+            border: 1px solid var(--neon-accent);
+            color: var(--neon-accent);
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: var(--neon-glow);
+        }
+
+        /* --- RESPONSYWNOŚĆ (TELEFONY) --- */
+        @media (max-width: 768px) {
+            #sidebar {
+                position: absolute;
+                height: 100%;
+                transform: translateX(-100%); /* Domyślnie schowany */
+            }
+
+            #sidebar.active {
+                transform: translateX(0); /* Wysunięty */
+            }
+
+            #mobile-toggle {
+                display: block; /* Pokaż przycisk na mobile */
+            }
+            
+            /* Dostosowanie UI mapy, żeby nie wchodziło pod przycisk */
+            .leaflet-top.leaflet-left {
+                top: 70px; 
+            }
         }
     </style>
 </head>
 <body>
 
-    <div id="sidebar">
-        <div id="sidebar-header">
-            <h2>Moje Trasy</h2>
-        </div>
-        <div id="sidebar-content">
-            <div id="pins-container">
-                <div class="empty-state">Brak pinezek. <br><br>Kliknij dowolne miejsce na mapie, aby coś zapisać.</div>
+    <div id="app-container">
+        <button id="mobile-toggle">☰ MENU</button>
+
+        <div id="sidebar">
+            <div id="sidebar-header">
+                <h2>NEON MAP</h2>
+            </div>
+            <div id="sidebar-content">
+                <div id="pins-container">
+                    <div class="empty-state">Dotknij mapy, aby dodać punkt.</div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div id="map"></div>
+        <div id="map"></div>
+    </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        // Inicjalizacja mapy (ustawiona na środek Polski)
-        const map = L.map('map').setView([51.9194, 19.1451], 6);
+        // Inicjalizacja mapy (środek Polski)
+        const map = L.map('map', {
+             zoomControl: false // Wyłączamy domyślną kontrolkę zoomu, dodamy ją w innym miejscu
+        }).setView([52.0693, 19.4803], 6);
 
-        // Dodanie darmowej warstwy mapy terenowej OpenTopoMap
-        L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-            maxZoom: 17,
-            attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
+        // Dodanie kontrolki zoomu w prawym górnym rogu (lepsze dla mobile)
+        L.control.zoom({
+            position: 'topright'
         }).addTo(map);
 
-        let pins = []; // Tablica na nasze pinezki
+        // --- UŻYCIE CARTODB DARK MATTER (Minimalistyczna, ciemna mapa) ---
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
 
-        // Nasłuchiwanie kliknięć na mapę
+
+        let pins = [];
+
+        // Obsługa menu na mobile
+        const sidebar = document.getElementById('sidebar');
+        const mobileToggle = document.getElementById('mobile-toggle');
+        mobileToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+
+        // --- TWORZENIE NEONOWYCH MARKERÓW ---
+        // Definiujemy customową ikonę używając klasy CSS 'glow-marker'
+        const neonIcon = L.divIcon({
+            className: 'glow-marker',
+            iconSize: [12, 12],
+            iconAnchor: [6, 6], // Wyśrodkowanie
+            popupAnchor: [0, -10]
+        });
+
+        // Kliknięcie na mapę
         map.on('click', function(e) {
-            const pinName = prompt("Podaj nazwę dla tej pinezki:");
+            const pinName = prompt("Nazwa punktu:");
             if (!pinName) return; 
 
-            let pinCategory = prompt("Podaj kategorię (np. Schroniska, Szczyty, Widoki):");
-            if (!pinCategory) pinCategory = "Inne"; 
+            let pinCategory = prompt("Kategoria (np. Baza, Cel, Spotkanie):");
+            if (!pinCategory) pinCategory = "Ogólne"; 
 
-            // Tworzenie markera
-            const marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+            // Dodanie markera z naszą neonową ikoną
+            const marker = L.marker([e.latlng.lat, e.latlng.lng], {icon: neonIcon}).addTo(map);
             
-            // Dodanie dymka do markera
-            marker.bindPopup(`<b>${pinName}</b><br>Kategoria: <i>${pinCategory}</i>`).openPopup();
+            marker.bindPopup(`<b>${pinName}</b><br><small>${pinCategory}</small>`);
 
-            // Zapis do tablicy
             const newPin = {
                 id: Date.now(),
                 name: pinName,
@@ -145,54 +270,48 @@
 
             pins.push(newPin);
             renderSidebar();
+
+            // Na mobile, po dodaniu pina, chowamy sidebar żeby zobaczyć mapę
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('active');
+            }
         });
 
-        // Funkcja aktualizująca pasek boczny
         function renderSidebar() {
             const container = document.getElementById("pins-container");
             container.innerHTML = ""; 
 
             if (pins.length === 0) {
-                container.innerHTML = '<div class="empty-state">Brak pinezek.</div>';
+                container.innerHTML = '<div class="empty-state">Brak punktów.</div>';
                 return;
             }
 
-            // Grupowanie pinezek w obiekt według kategorii
             const groupedPins = {};
             pins.forEach(pin => {
-                if (!groupedPins[pin.category]) {
-                    groupedPins[pin.category] = [];
-                }
+                if (!groupedPins[pin.category]) groupedPins[pin.category] = [];
                 groupedPins[pin.category].push(pin);
             });
 
-            // Generowanie HTML dla kategorii i pinezek
             for (const category in groupedPins) {
-                const groupDiv = document.createElement("div");
-                groupDiv.className = "category-group";
-
                 const title = document.createElement("div");
                 title.className = "category-title";
                 title.innerText = category;
-                groupDiv.appendChild(title);
+                container.appendChild(title);
 
                 groupedPins[category].forEach(pin => {
                     const itemDiv = document.createElement("div");
                     itemDiv.className = "pin-item";
                     itemDiv.innerText = pin.name;
                     
-                    // Kliknięcie w sidebarze przenosi na mapie do pinezki
                     itemDiv.onclick = () => {
-                        map.flyTo([pin.lat, pin.lng], 13, {
-                            duration: 1.5 // animacja lotu kamery
-                        });
+                        map.flyTo([pin.lat, pin.lng], 13, { duration: 1 });
                         pin.marker.openPopup();
+                        // Na mobile schowaj menu po kliknięciu
+                        if (window.innerWidth <= 768) sidebar.classList.remove('active');
                     };
 
-                    groupDiv.appendChild(itemDiv);
+                    container.appendChild(itemDiv);
                 });
-
-                container.appendChild(groupDiv);
             }
         }
     </script>
