@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista broni - Beyond Sandbox</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #ff7300;
+            --bg-base: #0a0a0c;
+            --bg-card: #151518;
+            --bg-slot: #1c1c21;
+            --text-main: #ffffff;
+            --text-sub: #8a8a93;
+            --border-color: #2a2a32;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            background-image: radial-gradient(#1a1a24 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-family: 'Oswald', sans-serif;
+            color: var(--primary);
+            font-size: 3.5rem;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .subtitle {
+            color: var(--text-sub);
+            font-size: 1.1rem;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .credit {
+            text-align: center;  
+            margin-bottom: 30px;   
+            font-size: 0.85rem;     
+            text-transform: none;   
+            color: var(--text-sub);  
+            width: 100%;            
+            opacity: 0.7;            
+        }
+
+        .category-wrapper {
+            margin-bottom: 70px;
+        }
+
+        .category-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #fff;
+        }
+
+        .category-title::before {
+            content: '';
+            display: block;
+            width: 12px;
+            height: 35px;
+            background-color: var(--primary);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .weapon-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            transition: all 0.2s ease-in-out;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .weapon-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        .img-slot {
+            height: 160px;
+            background-color: var(--bg-slot);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .img-slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.4));
+            transition: transform 0.2s;
+        }
+
+        .weapon-card:hover .img-slot img {
+            transform: scale(1.05);
+        }
+
+        .weapon-info {
+            padding: 15px;
+            text-align: center;
+        }
+
+        .weapon-name {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.2rem;
+            margin: 0;
+            color: #fff;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .weapon-type {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            margin-top: 5px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Beyond Sandbox</h1>
+            <div class="subtitle">Potwierdzona lista broni</div>
+        </header>
+
+        <div class="category-wrapper">
+            <h2 class="category-title">Broń Palna</h2>
+            <div class="grid">
+                
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/gLn8BTYQ/l1a1.png" alt="L1A1"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">L1A1</h3>
+                        <div class="weapon-type">Karabin</div>
+                    </div>
+                </div>
+
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/hxfSHknX/scar-h-i-l.png" alt="SCAR-H / L"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">SCAR-H / L</h3>
+                        <div class="weapon-type">Karabin Szturmowy</div>
+                    </div>
+                </div>
+
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/tp3T9f7N/colt-python.png" alt="Colt Python"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">Colt Python</h3>
+                        <div class="weapon-type">Rewolwer</div>
+                    </div>
+                </div>
+
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/fVKbsNwW/sig-p226.png" alt="SIG P226"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">SIG P226</h3>
+                        <div class="weapon-type">Pistolet</div>
+                    </div>
+                </div>
+
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/PzVhPsZT/mk18.png" alt="MK18"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">MK18</h3>
+                        <div class="weapon-type">Karabinek</div>
+                    </div>
+                </div>
+
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/jkqMNvZH/sawed-off.png" alt="Sawed-off"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">Obrzyn</h3>
+                        <div class="weapon-type">Strzelba</div>
+                    </div>
+                </div>
+
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/1ftX77vs/glock-9.png" alt="Glock 9"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">Glock 9</h3>
+                        <div class="weapon-type">Pistolet</div>
+                    </div>
+                </div>
+
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/3ymvmtHC/s-w-327-trr8.webp" alt="S&W 327 TRR8"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">S&W 327 TRR8</h3>
+                        <div class="weapon-type">Rewolwer Taktyczny</div>
+                    </div>
+                </div>
+
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/VWFPbpnq/beretta-m9.png" alt="Beretta M9"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">Beretta M9</h3>
+                        <div class="weapon-type">Pistolet</div>
+                    </div>
+                </div>
+
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/TDSCQy6x/akm.png" alt="AKM"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">AKM</h3>
+                        <div class="weapon-type">Karabin Szturmowy</div>
+                    </div>
+                </div>
+
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/j9NmdGyH/mossberg590.png" alt="Mossberg 500"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">Mossberg 500</h3>
+                        <div class="weapon-type">Strzelba</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="category-wrapper">
+            <h2 class="category-title">Broń Biała i Improwizowana</h2>
+            <div class="grid">
+                
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/dsFZcLyB/kastet.png" alt="Kastet"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">Kastet</h3>
+                        <div class="weapon-type">Obuchowe</div>
+                    </div>
+                </div>
+
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/wh6VKnMg/tasak.png" alt="Tasak"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">Tasak</h3>
+                        <div class="weapon-type">Ostre</div>
+                    </div>
+                </div>
+
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/DPtcbM4R/butelka.png" alt="Butelka"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">Butelka</h3>
+                        <div class="weapon-type">Zwykła / Tulipan</div>
+                    </div>
+                </div>
+
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/VYqmvZ9R/no-yce.png" alt="Nożyce"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">Nożyce</h3>
+                        <div class="weapon-type">Improwizowane</div>
+                    </div>
+                </div>
+
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/1Yrz09K4/m-ot-wyburzeniowy.png" alt="Młot Wyburzeniowy"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">Młot Wyburzeniowy</h3>
+                        <div class="weapon-type">Obuchowe Ciężkie</div>
+                    </div>
+                </div>
+
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/qMmC3LV6/om.png" alt="Łom"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">Łom</h3>
+                        <div class="weapon-type">Obuchowe</div>
+                    </div>
+                </div>
+
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/fY04jTGG/kij-do-baseballa-z-gwo-dziami.png" alt="Kij z gwoździami"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">Kij z gwoździami</h3>
+                        <div class="weapon-type">Obuchowe</div>
+                    </div>
+                </div>
+
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/3mzJGH58/siekiera-strazacka.png" alt="Siekiera Strażacka"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">Siekiera Strażacka</h3>
+                        <div class="weapon-type">Ostre Ciężkie</div>
+                    </div>
+                </div>
+
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/99kz9nXN/srubokret.png" alt="Śrubokręt"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">Śrubokręt</h3>
+                        <div class="weapon-type">Kłujące</div>
+                    </div>
+                </div>
+
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/q3JQ64PF/maczeta-krakowska.png" alt="Maczeta Krakowska"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">Maczeta Krakowska</h3>
+                        <div class="weapon-type">Ostre</div>
+                    </div>
+                </div>
+
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/QFyPYbXC/kurki-n.png" alt="Nóż Kukri"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">Nóż Kukri</h3>
+                        <div class="weapon-type">Ostre</div>
+                    </div>
+                </div>
+
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/xtKFLTK9/szpadel.png" alt="Szpadel"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">Szpadel</h3>
+                        <div class="weapon-type">Obuchowe / Ostre</div>
+                    </div>
+                </div>
+
+                <div class="weapon-card">
+                    <div class="img-slot"><img src="https://i.ibb.co/wFpcsGpr/m-otek.png" alt="Młotek"></div>
+                    <div class="weapon-info">
+                        <h3 class="weapon-name">Młotek</h3>
+                        <div class="weapon-type">Obuchowe</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="credit">made by @dinguzthedev | research by @szczuras5506</div>
+
+</body>
+</html>
