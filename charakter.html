@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Charakteru</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+        :root {
+            --primary: #A36FFF;
+            --primary-hover: #BD9FFF;
+            --bg-color: #0F091A;
+            --text-main: #F4F1FA;
+            --text-muted: #AF9FCF;
+            --card-bg: #1A1129;
+            --option-bg: #221733;
+            --option-hover: #2C1F41;
+            --shadow-color: rgba(163, 111, 255, 0.15);
+            
+            /* Kolory statystyk */
+            --stat-anger: #FF4B4B;
+            --stat-loser: #FFB703;
+            --stat-impulsive: #00F5D4;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 600px;
+            border-radius: 24px;
+            box-shadow: 0 10px 50px var(--shadow-color);
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border: 1px solid rgba(163, 111, 255, 0.1);
+        }
+
+        /* --- Ekran Startowy --- */
+        #start-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .icon-circle {
+            width: 90px;
+            height: 90px;
+            background-color: rgba(163, 111, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+            border: 2px solid rgba(163, 111, 255, 0.2);
+        }
+
+        .icon-circle svg {
+            width: 45px;
+            height: 45px;
+            fill: var(--primary);
+        }
+
+        .start-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -1px;
+        }
+
+        .start-description {
+            font-size: 16px;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .tip-box {
+            background-color: #271C40;
+            padding: 20px;
+            border-radius: 14px;
+            font-size: 14px;
+            color: var(--text-main);
+            border-left: 4px solid var(--primary);
+            text-align: left;
+            margin-bottom: 25px;
+            width: 100%;
+            line-height: 1.6;
+        }
+
+        /* --- Quiz & UI --- */
+        #quiz-screen, #results-screen {
+            display: none;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background-color: var(--option-bg);
+            border-radius: 10px;
+            margin-bottom: 45px;
+            overflow: hidden;
+            border: 1px solid rgba(163, 111, 255, 0.1);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0%;
+            border-radius: 10px;
+            transition: width 0.4s ease;
+            box-shadow: 0 0 15px rgba(163, 111, 255, 0.5);
+        }
+
+        .question {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 35px;
+            line-height: 1.5;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 45px;
+        }
+
+        .option {
+            background-color: var(--option-bg);
+            border: 2px solid transparent;
+            padding: 18px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-main);
+        }
+
+        .option:hover {
+            background-color: var(--option-hover);
+            border-color: rgba(163, 111, 255, 0.3);
+        }
+
+        .option.selected {
+            background-color: rgba(163, 111, 255, 0.15);
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 0 15px rgba(163, 111, 255, 0.2);
+        }
+
+        /* --- Przyciski --- */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: #0F091A;
+            border: none;
+            padding: 20px 32px;
+            font-size: 16px;
+            font-weight: 800;
+            border-radius: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .button-group .btn {
+            width: 60%;
+        }
+
+        .btn:hover:not(:disabled) {
+            background-color: var(--primary-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(163, 111, 255, 0.4);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background-color: #3A2C55;
+            color: #71608A;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            padding: 20px 32px;
+            font-size: 16px;
+            font-weight: 800;
+            border-radius: 16px;
+            cursor: pointer;
+            width: 40%;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background-color: rgba(163, 111, 255, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .btn-secondary:disabled {
+            border-color: #3A2C55;
+            color: #3A2C55;
+            cursor: not-allowed;
+        }
+
+        /* --- Wyniki --- */
+        .results {
+            flex-direction: column;
+            align-items: center;
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-subtitle {
+            font-size: 16px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .char-icon {
+            font-size: 64px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 15px rgba(163, 111, 255, 0.5));
+        }
+
+        .char-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(163, 111, 255, 0.4);
+            line-height: 1.2;
+        }
+
+        .char-desc {
+            font-size: 15px;
+            color: var(--text-main);
+            line-height: 1.6;
+            background-color: var(--option-bg);
+            padding: 20px;
+            border-radius: 14px;
+            border-left: 4px solid var(--primary);
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        /* Sekcja ze statystykami */
+        .stats-container {
+            width: 100%;
+            background-color: var(--option-bg);
+            padding: 20px;
+            border-radius: 14px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .stats-title {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .stat-row {
+            margin-bottom: 12px;
+        }
+
+        .stat-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .stat-bar-bg {
+            width: 100%;
+            height: 8px;
+            background-color: #1A1129;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .stat-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease-out;
+        }
+
+        .fill-anger { background-color: var(--stat-anger); box-shadow: 0 0 10px var(--stat-anger); }
+        .fill-loser { background-color: var(--stat-loser); box-shadow: 0 0 10px var(--stat-loser); }
+        .fill-impulsive { background-color: var(--stat-impulsive); box-shadow: 0 0 10px var(--stat-impulsive); }
+
+        .refresh-btn {
+            background-color: transparent;
+            color: var(--text-muted);
+            border: 2px solid var(--text-muted);
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .refresh-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="main-box">
+        
+        <!-- Ekran Startowy -->
+        <div id="start-screen">
+            <div class="icon-circle">
+                <svg viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,19.5V13H6L13,4.5V11H18L11,19.5Z"/></svg>
+            </div>
+            <h1 class="start-title">Profil Emocjonalny</h1>
+            <p class="start-description">
+                Sprawdzimy z jakiej gliny jesteś ulepiony. Wkurzasz się, ale trzymasz fason? A może jesteś oazą spokoju, dopóki nie przegrasz w gierkę? Zbadamy Twoje combo cech.
+            </p>
+            <div class="tip-box">
+                <strong>Zasady gry:</strong><br>
+                Przed Tobą 30 pytań. Odpowiadaj maksymalnie szczerze na "bardzo" lub "rzadko". Na końcu algorytm zmiksuje Twoje odpowiedzi i wyrzuci konkretny profil. Pytania można cofać!
+            </div>
+            <button class="btn" onclick="startQuiz()" style="width: 100%;">Lecimy z tym!</button>
+        </div>
+
+        <!-- Ekran Quizu -->
+        <div id="quiz-screen">
+            <div class="header">
+                <span>Analiza Charakteru</span>
+                <span id="question-counter">Pytanie 1 z 30</span>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+
+            <div class="question" id="question-text">
+                Ładowanie...
+            </div>
+
+            <div class="options" id="options-container"></div>
+
+            <div class="button-group">
+                <button class="btn-secondary" id="back-btn" disabled>Wstecz</button>
+                <button class="btn" id="next-btn" disabled>Następne</button>
+            </div>
+        </div>
+
+        <!-- Ekran Wyników -->
+        <div id="results-screen" class="results">
+            <div class="result-subtitle">Twoje Combo to:</div>
+            <div class="char-icon" id="char-icon">🔥</div>
+            <h2 class="char-title" id="char-title">Tytuł</h2>
+            
+            <div class="stats-container">
+                <div class="stats-title">Szczegółowa Analiza</div>
+                
+                <div class="stat-row">
+                    <div class="stat-labels">
+                        <span style="color: var(--stat-anger)">Agresor (Złość)</span>
+                        <span id="score-anger">0/40</span>
+                    </div>
+                    <div class="stat-bar-bg"><div class="stat-bar-fill fill-anger" id="bar-anger" style="width: 0%"></div></div>
+                </div>
+
+                <div class="stat-row">
+                    <div class="stat-labels">
+                        <span style="color: var(--stat-loser)">Tryhard (Nie umiem przegrywać)</span>
+                        <span id="score-loser">0/40</span>
+                    </div>
+                    <div class="stat-bar-bg"><div class="stat-bar-fill fill-loser" id="bar-loser" style="width: 0%"></div></div>
+                </div>
+
+                <div class="stat-row">
+                    <div class="stat-labels">
+                        <span style="color: var(--stat-impulsive)">Błyskawica (Impulsywność)</span>
+                        <span id="score-impulsive">0/40</span>
+                    </div>
+                    <div class="stat-bar-bg"><div class="stat-bar-fill fill-impulsive" id="bar-impulsive" style="width: 0%"></div></div>
+                </div>
+            </div>
+
+            <div class="char-desc" id="char-desc">Opis...</div>
+            
+            <button class="refresh-btn" onclick="location.reload()">Rozwiąż jeszcze raz</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // Agresja (Anger)
+            { category: "anger", text: "Jak często masz ochotę rzucić czymś o ścianę, gdy coś idzie nie po Twojej myśli?" },
+            { category: "anger", text: "Jak często podnosisz głos podczas zwykłej wymiany zdań, gdy ktoś się z Tobą nie zgadza?" },
+            { category: "anger", text: "Jak często odczuwasz fizyczną złość, gdy ktoś idzie bardzo wolno na chodniku przed Tobą?" },
+            { category: "anger", text: "Jak często drobne, codzienne irytacje kumulują się w Tobie aż do potężnego wybuchu złości?" },
+            { category: "anger", text: "Jak często zdarza Ci się powiedzieć celowo coś ostrego, by zranić kogoś podczas kłótni?" },
+            { category: "anger", text: "Jak często trzaskasz drzwiami z nerwów po zakończonej kłótni?" },
+            { category: "anger", text: "Jak często agresywnie przeklinasz pod nosem na rzeczy martwe (np. telefon, który zamulił)?" },
+            { category: "anger", text: "Jak często czujesz dosłowny 'gorąc' w ciele z nerwów, gdy ktoś Ci odmawia?" },
+            { category: "anger", text: "Jak często masz ochotę kogoś fizycznie uderzyć podczas kłótni (nawet jeśli to tłumisz)?" },
+            { category: "anger", text: "Jak często irytujesz się i fukasz, gdy ktoś prosi Cię o powtórzenie tego, co przed chwilą powiedziałeś?" },
+
+            // Nieumiejętność przegrywania (Loser)
+            { category: "loser", text: "Jak często zdarza Ci się rzucić padem, myszką lub uderzyć w biurko po przegranej?" },
+            { category: "loser", text: "Jak często tłumaczysz swoją przegraną 'lagami', sprzętem, oszustwem lub po prostu pechem?" },
+            { category: "loser", text: "Jak często obrażasz się na znajomych po przegranej w głupią planszówkę lub grę wideo?" },
+            { category: "loser", text: "Jak często nie potrafisz szczerze pogratulować zwycięzcy, gdy sam zająłeś ostatnie miejsce?" },
+            { category: "loser", text: "Jak często po porażce żądasz natychmiastowego rewanżu i nie odpuszczasz, póki nie wygrasz?" },
+            { category: "loser", text: "Jak często wychodzisz z gry przed jej oficjalnym zakończeniem (tzw. rage quit)?" },
+            { category: "loser", text: "Jak często umniejszasz sukcesom innych, mówiąc że 'po prostu mieli farta'?" },
+            { category: "loser", text: "Jak często psuje Ci się humor na absolutnie całą resztę dnia przez to, że coś przegrałeś?" },
+            { category: "loser", text: "Jak często po przegranej w grze drużynowej wytykasz błędy swojej drużynie, ignorując własne błędy?" },
+            { category: "loser", text: "Jak często unikasz rywalizacji w czymś, w czym wiesz, że nie jesteś najlepszy?" },
+
+            // Impulsywność (Impulsive)
+            { category: "impulsive", text: "Jak często kupujesz coś drogiego lub podejmujesz decyzję całkowicie pod wpływem chwili?" },
+            { category: "impulsive", text: "Jak często przerywasz innym w połowie zdania, bo musisz wyrzucić z siebie myśl w tej sekundzie?" },
+            { category: "impulsive", text: "Jak często robisz lub mówisz coś, czego zaledwie kilka minut później bardzo żałujesz?" },
+            { category: "impulsive", text: "Jak często najpierw robisz dramę i awanturę, a dopiero potem sprawdzasz, czy faktycznie miałeś rację?" },
+            { category: "impulsive", text: "Jak często porzucasz swoje długoterminowe plany dla natychmiastowej, krótkiej przyjemności?" },
+            { category: "impulsive", text: "Jak często zgadzasz się na jakieś wyjście, a pięć minut później myślisz 'po co ja to w ogóle zrobiłem'?" },
+            { category: "impulsive", text: "Jak często w nerwach piszesz długą, jadowitą wiadomość, którą potem w całości kasujesz przed wysłaniem?" },
+            { category: "impulsive", text: "Jak często wtrącasz się w nie swoje sprawy pod wpływem emocji, robiąc komuś niedźwiedzią przysługę?" },
+            { category: "impulsive", text: "Jak często zmieniasz zdanie o 180 stopni z minuty na minutę pod wpływem silnych emocji?" },
+            { category: "impulsive", text: "Jak często podejmujesz ryzyko bez chwili kalkulacji ewentualnych konsekwencji?" }
+        ];
+
+        // Mieszamy pytania
+        questions.sort(() => Math.random() - 0.5);
+
+        const answers = [
+            { text: "Nigdy", points: 0 },
+            { text: "Rzadko", points: 1 },
+            { text: "Czasami", points: 2 },
+            { text: "Często", points: 3 },
+            { text: "Bardzo często", points: 4 }
+        ];
+
+        let currentQuestionIndex = 0;
+        let selectedAnswerPoints = null;
+        let userChoices = new Array(questions.length).fill(null);
+
+        const questionText = document.getElementById("question-text");
+        const optionsContainer = document.getElementById("options-container");
+        const nextBtn = document.getElementById("next-btn");
+        const backBtn = document.getElementById("back-btn");
+        const progressBar = document.getElementById("progress-bar");
+        const questionCounter = document.getElementById("question-counter");
+        
+        const startScreen = document.getElementById("start-screen");
+        const quizScreen = document.getElementById("quiz-screen");
+        const resultsScreen = document.getElementById("results-screen");
+
+        function startQuiz() {
+            startScreen.style.display = "none";
+            quizScreen.style.display = "block";
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            selectedAnswerPoints = null;
+            nextBtn.disabled = true;
+            backBtn.disabled = currentQuestionIndex === 0;
+            
+            const q = questions[currentQuestionIndex];
+            questionText.innerText = q.text;
+            questionCounter.innerText = `Pytanie ${currentQuestionIndex + 1} z ${questions.length}`;
+            
+            const progress = (currentQuestionIndex / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            optionsContainer.innerHTML = "";
+            
+            const savedPoints = userChoices[currentQuestionIndex];
+
+            answers.forEach((answer) => {
+                const div = document.createElement("div");
+                div.classList.add("option");
+                div.innerText = answer.text;
+                
+                if (savedPoints !== null && answer.points === savedPoints) {
+                    div.classList.add("selected");
+                    selectedAnswerPoints = savedPoints;
+                    nextBtn.disabled = false;
+                }
+
+                div.onclick = () => selectOption(div, answer.points);
+                optionsContainer.appendChild(div);
+            });
+        }
+
+        function selectOption(selectedElement, points) {
+            const options = document.querySelectorAll(".option");
+            options.forEach(opt => opt.classList.remove("selected"));
+            
+            selectedElement.classList.add("selected");
+            selectedAnswerPoints = points;
+            nextBtn.disabled = false;
+        }
+
+        nextBtn.addEventListener("click", () => {
+            userChoices[currentQuestionIndex] = selectedAnswerPoints;
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        });
+
+        backBtn.addEventListener("click", () => {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
+            }
+        });
+
+        function showResults() {
+            quizScreen.style.display = "none";
+            resultsScreen.style.display = "flex";
+
+            let scores = { anger: 0, loser: 0, impulsive: 0 };
+            
+            for (let i = 0; i < questions.length; i++) {
+                scores[questions[i].category] += userChoices[i];
+            }
+
+            // Animacyjne paski statystyk
+            setTimeout(() => {
+                document.getElementById("bar-anger").style.width = `${(scores.anger / 40) * 100}%`;
+                document.getElementById("bar-loser").style.width = `${(scores.loser / 40) * 100}%`;
+                document.getElementById("bar-impulsive").style.width = `${(scores.impulsive / 40) * 100}%`;
+            }, 100);
+
+            document.getElementById("score-anger").innerText = `${scores.anger}/40`;
+            document.getElementById("score-loser").innerText = `${scores.loser}/40`;
+            document.getElementById("score-impulsive").innerText = `${scores.impulsive}/40`;
+
+            // LOGIKA COMBO (Powyżej 16 punktów traktujemy cechę jako wysoką)
+            const isAnger = scores.anger >= 17 ? '1' : '0';
+            const isLoser = scores.loser >= 17 ? '1' : '0';
+            const isImpulsive = scores.impulsive >= 17 ? '1' : '0';
+
+            const comboKey = `${isAnger}${isLoser}${isImpulsive}`;
+
+            const profiles = {
+                "000": { 
+                    icon: "🧘‍♂️", title: "Mnich z Tybetu (Totalny Chill)", 
+                    desc: "Wiesz o co chodzi, jesteś definicją spokoju. Mało co potrafi wyprowadzić Cię z równowagi. Potrafisz przegrywać z uśmiechem na twarzy, nie dajesz się ponieść chwilowym emocjom, a gdy inni krzyczą, Ty stoisz niewzruszony. Szacun!" 
+                },
+                "100": { 
+                    icon: "🌋", title: "Czysty Agresor (Niepanujący nad emocjami)", 
+                    desc: "Może i umiesz przegrać z godnością i nie podejmujesz głupich decyzji pod wpływem chwili, ale jak coś Cię naprawdę wkurzy... to nie ma przebacz! Odpalasz się szybko i masz bardzo krótki lont na codzienne głupoty." 
+                },
+                "010": { 
+                    icon: "🏆", title: "Cichy Tryhard (Nie umiem przegrywać, ale trzymam fason)", 
+                    desc: "Twoje ego bardzo krwawi, jak przegrywasz. W środku skręca Cię z frustracji i winisz za to wszystko, byle nie siebie. Jednak masz na tyle samokontroli i braku agresji, że na zewnątrz trzymasz fason i nie rozwalasz klawiatury." 
+                },
+                "001": { 
+                    icon: "⚡", title: "Chaos Neutralny (Błyskawica)", 
+                    desc: "Działasz o wiele szybciej niż myślisz! Nie jesteś typowo agresywny i umiesz przegrywać z uśmiechem, ale podejmujesz takie decyzje z kosmosu, że głowa mała. Z Tobą na pewno nie ma nudy, ale czasem warto policzyć do trzech." 
+                },
+                "110": { 
+                    icon: "🎮", title: "Toksyczny Gracz (Furiat Gamingowy)", 
+                    desc: "Przegrana to dla Ciebie koniec świata, a złość wylewa się na wszystko dookoła. Nienawidzisz porażek, a Twoja agresja sprawia, że znajomi dwa razy zastanowią się, zanim zagrają z Tobą w planszówkę albo Lola." 
+                },
+                "101": { 
+                    icon: "🧨", title: "Chodzący Wulkan (Odpalony Lont)", 
+                    desc: "Istna mieszanka wybuchowa! Reagujesz ogromną złością i do tego bardzo impulsywnie. Ktoś coś powie, Ty od razu atakujesz bez namysłu. Ale hej, przynajmniej potrafisz w miarę normalnie przyjąć porażkę w grze, wiesz o co chodzi." 
+                },
+                "011": { 
+                    icon: "🤡", title: "Impulsywny Rage-Quitter", 
+                    desc: "Strasznie szybko się frustrujesz jak coś nie idzie po Twojej myśli, a przez impulsywność rzucasz wszystko w cholerę. Podejmujesz szybkie, złe decyzje w trakcie rywalizacji. Nie jesteś agresywny do innych, ale strasznie psujesz sobie nerwy." 
+                },
+                "111": { 
+                    icon: "☢️", title: "Szef Wszystkich Szefów (Final Boss Toxica)", 
+                    desc: "Bingo! Ustrzeliłeś combo absolutne. Wkurzasz się o byle co, nienawidzisz przegrywać do granic możliwości i do tego wszystkiego działasz całkowicie bez namysłu pod wpływem emocji. Jesteś chodzącym tornadem... Jak Ty funkcjonujesz, człowieku?!" 
+                }
+            };
+
+            const finalProfile = profiles[comboKey];
+
+            document.getElementById("char-icon").innerText = finalProfile.icon;
+            document.getElementById("char-title").innerText = finalProfile.title;
+            document.getElementById("char-desc").innerText = finalProfile.desc;
+        }
+    </script>
+</body>
+</html>
