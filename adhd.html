@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test na ADHD</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+        /* --- NOWE ZMIENNE KOLORÓW (DARK PURPLE) --- */
+        :root {
+            --primary: #A36FFF;          /* Jasny, neonowy fiolet dla akcentów */
+            --primary-hover: #BD9FFF;    /* Jeszcze jaśniejszy na hover */
+            --bg-color: #0F091A;         /* Bardzo ciemny, głęboki fiolet tła */
+            --text-main: #F4F1FA;        /* Prawie biały, lawendowy tekst */
+            --text-muted: #AF9FCF;       /* Zgaszony fiolet dla opisów */
+            --card-bg: #1A1129;          /* Nieco jaśniejszy fiolet dla kontenera */
+            --option-bg: #221733;        /* Tło dla nieaktywnych opcji */
+            --option-hover: #2C1F41;     /* Tło opcji po najechaniu */
+            --shadow-color: rgba(163, 111, 255, 0.15); /* Cień z poświatą fioletu */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 600px;
+            border-radius: 24px;
+            box-shadow: 0 10px 50px var(--shadow-color);
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border: 1px solid rgba(163, 111, 255, 0.1); /* Delikatna ramka */
+        }
+
+        /* --- Ekran Startowy --- */
+        #start-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .icon-circle {
+            width: 90px;
+            height: 90px;
+            background-color: rgba(163, 111, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+            border: 2px solid rgba(163, 111, 255, 0.2);
+        }
+
+        .icon-circle svg {
+            width: 45px;
+            height: 45px;
+            fill: var(--primary);
+        }
+
+        .start-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -1px;
+        }
+
+        .start-description {
+            font-size: 16px;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .tip-box {
+            background-color: #271C40; /* Ciemny boks porady */
+            padding: 20px;
+            border-radius: 14px;
+            font-size: 14px;
+            color: var(--text-main);
+            border-left: 4px solid var(--primary);
+            text-align: left;
+            margin-bottom: 25px;
+            width: 100%;
+            line-height: 1.6;
+        }
+
+        /* --- Quiz & UI --- */
+        #quiz-screen, #results-screen {
+            display: none;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background-color: var(--option-bg);
+            border-radius: 10px;
+            margin-bottom: 45px;
+            overflow: hidden;
+            border: 1px solid rgba(163, 111, 255, 0.1);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0%;
+            border-radius: 10px;
+            transition: width 0.4s ease;
+            box-shadow: 0 0 15px rgba(163, 111, 255, 0.5); /* Neonowa poświata */
+        }
+
+        .question {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 35px;
+            line-height: 1.5;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 45px;
+        }
+
+        .option {
+            background-color: var(--option-bg);
+            border: 2px solid transparent;
+            padding: 18px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-main);
+        }
+
+        .option:hover {
+            background-color: var(--option-hover);
+            border-color: rgba(163, 111, 255, 0.3);
+        }
+
+        .option.selected {
+            background-color: rgba(163, 111, 255, 0.15);
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 0 15px rgba(163, 111, 255, 0.2);
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: #0F091A; /* Ciemny tekst na jasnym przycisku */
+            border: none;
+            padding: 20px 32px;
+            font-size: 16px;
+            font-weight: 800;
+            border-radius: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(163, 111, 255, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background-color: #3A2C55;
+            color: #71608A;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* --- Wyniki --- */
+        .results {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .result-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .percentage-container {
+            font-size: 84px;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 25px 0;
+            text-shadow: 0 0 30px rgba(163, 111, 255, 0.6);
+            letter-spacing: -2px;
+        }
+
+        .points {
+            font-size: 18px;
+            color: var(--text-muted);
+            margin-bottom: 35px;
+        }
+
+        .disclaimer {
+            background-color: #311111; /* Bardzo ciemny boks ostrzeżenia */
+            color: #FF6666; /* Jasnoczerwony tekst */
+            padding: 20px;
+            border-radius: 14px;
+            font-size: 14px;
+            line-height: 1.6;
+            border: 1px solid #751111;
+        }
+
+        .disclaimer strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #FF4444;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="main-box">
+        
+        <!-- --- Ekran Startowy --- -->
+        <div id="start-screen">
+            <div class="icon-circle">
+                <svg viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M11,6V12L15.2,14.2L16,13L12.5,11.2V6H11M13,6V11.2L16.5,13L17.3,11.8L13,9.7V6H13Z"/></svg>
+            </div>
+            <h1 class="start-title">Test na ADHD</h1>
+            <p class="start-description">
+                Często czujesz, że Twój umysł pracuje na najwyższych obrotach, ale trudno Ci skończyć jedną rzecz? Ten test pomoże Ci ocenić intensywność objawów ADHD w Twoim codziennym życiu.
+            </p>
+            <div class="tip-box">
+                <strong>Wskazówka:</strong><br>
+                Odpowiadaj szczerze, bazując na swoich doświadczeniach z ostatnich 6 miesięcy. Nie spiesz się – przeczytaj każde pytanie powoli i zastanów się nad odpowiedzią.
+            </div>
+            <button class="btn" onclick="startQuiz()">Rozpocznij Test (100 pytań)</button>
+        </div>
+
+        <!-- --- Ekran Quizu --- -->
+        <div id="quiz-screen">
+            <div class="header">
+                <span>W toku...</span>
+                <span id="question-counter">Pytanie 1 z 100</span>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+
+            <div class="question" id="question-text">
+                Ładowanie...
+            </div>
+
+            <div class="options" id="options-container"></div>
+
+            <button class="btn" id="next-btn" disabled>Następne</button>
+        </div>
+
+        <!-- --- Ekran Wyników --- -->
+        <div id="results-screen" class="results">
+            <h2 class="result-title">Wskaźnik Podejrzenia</h2>
+            
+            <div class="percentage-container" id="percentage-anim">0%</div>
+            <div class="points" id="points-text">Punkty: 0 / 400</div>
+            
+            <div class="disclaimer">
+                <strong>⚠️ Ważne Ostrzeżenie:</strong>
+                Ten wynik jest wyłącznie poglądowy i edukacyjny. Nie stanowi diagnozy medycznej. ADHD jest skomplikowanym zaburzeniem, które może zdiagnozować jedynie wykwalifikowany lekarz psychiatra na podstawie pełnego wywiadu klinicznego. Jeśli Twoje objawy utrudniają Ci funkcjonowanie, skonsultuj się ze specjalistą.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // Skupienie i uwaga
+            { question: "Jak często masz trudności ze skupieniem uwagi na nudnych lub powtarzalnych zadaniach?" },
+            { question: "Jak często łapiesz się na tym, że odpływasz myślami, gdy ktoś mówi bezpośrednio do Ciebie?" },
+            { question: "Jak często popełniasz drobne, głupie błędy z niedopatrzenia w pracy lub szkole?" },
+            { question: "Jak często musisz czytać ten sam akapit kilka razy, bo Twój mózg 'nie zarejestrował' treści?" },
+            { question: "Jak często zapominasz, po co wszedłeś do pokoju?" },
+            { question: "Jak często masz problem z utrzymaniem uwagi podczas długich spotkań lub wykładów?" },
+            { question: "Jak często łatwo rozpraszasz się przez dźwięki z otoczenia (np. tykanie zegara, rozmowy w tle)?" },
+            { question: "Jak często rozpraszasz się własnymi myślami, które nie są związane z tym, co aktualnie robisz?" },
+            { question: "Jak często zaczynasz czytać książkę lub oglądać film, a po chwili robisz już coś zupełnie innego?" },
+            { question: "Jak często gubisz wątek w środku własnej wypowiedzi?" },
+            // Organizacja i pamięć robocza
+            { question: "Jak często gubisz lub szukasz rzeczy codziennego użytku (klucze, telefon, portfel)?" },
+            { question: "Jak często zapominasz o oddzwonieniu do kogoś lub odpisaniu na wiadomość?" },
+            { question: "Jak często masz bałagan na biurku, w pokoju lub w samochodzie?" },
+            { question: "Jak często zapominasz o zapłaceniu rachunków, mimo że masz na to pieniądze?" },
+            { question: "Jak często kupujesz coś w sklepie, zapominając o głównej rzeczy, po którą tam poszedłeś?" },
+            { question: "Jak często masz problem z zaplanowaniem kolejności działań w złożonym zadaniu?" },
+            { question: "Jak często polegasz na przypomnieniach i alarmach, bo bez nich o wszystkim byś zapomniał?" },
+            { question: "Jak często zdarza Ci się zostawić włączone żelazko, kuchenkę lub niezamknięte drzwi?" },
+            { question: "Jak często masz wrażenie, że Twoja pamięć jest jak sito do krótkoterminowych informacji?" },
+            { question: "Jak często masz trudności ze znalezieniem ważnych dokumentów, gdy są pilnie potrzebne?" },
+            // Nadpobudliwość ruchowa
+            { question: "Jak często masz trudności z usiedzeniem w miejscu, gdy jest to od Ciebie wymagane?" },
+            { question: "Jak często bawisz się długopisem, stukasz palcami lub ruszasz nogą podczas siedzenia?" },
+            { question: "Jak często czujesz wewnętrzny niepokój, jakby napędzał Cię niewidzialny silnik?" },
+            { question: "Jak często wolisz stać lub chodzić, zamiast siedzieć podczas rozmowy przez telefon?" },
+            { question: "Jak często czujesz się nieswojo, odpoczywając lub nic nie robiąc w czasie wolnym?" },
+            { question: "Jak często zmieniasz pozycję na krześle, bo nie potrafisz usiąść wygodnie na dłużej?" },
+            { question: "Jak często czujesz potrzebę fizycznego zmęczenia się, żeby móc uspokoić gonitwę myśli?" },
+            { question: "Jak często inni zwracają Ci uwagę, żebyś przestał się wiercić?" },
+            { question: "Jak często odczuwasz fizyczne napięcie w ciele bez wyraźnego powodu?" },
+            { question: "Jak często podczas oglądania telewizji musisz jednocześnie robić coś w telefonie lub rękach?" },
+            // Impulsywność i mówienie
+            { question: "Jak często zdarza Ci się przerywać innym lub dokończać za nich zdania?" },
+            { question: "Jak często odpowiadasz na pytanie, zanim ktoś zdąży je do końca zadać?" },
+            { question: "Jak często mówisz rzeczy pod wpływem impulsu, których potem żałujesz?" },
+            { question: "Jak często kupujesz rzeczy pod wpływem impulsu, na które Cię nie stać lub których nie potrzebujesz?" },
+            { question: "Jak często masz problem z czekaniem na swoją kolej w kolejce lub w rozmowie?" },
+            { question: "Jak często mówisz za dużo lub zbyt szybko w sytuacjach towarzyskich?" },
+            { question: "Jak często podejmujesz ryzykowne decyzje bez przemyślenia konsekwencji?" },
+            { question: "Jak często zjadasz coś na co masz ochotę, mimo że planowałeś trzymać dietę?" },
+            { question: "Jak często nagle zmieniasz plany w ostatniej chwili pod wpływem chwili?" },
+            { question: "Jak często masz wrażenie, że nie masz filtru między mózgiem a ustami?" },
+            // Funkcje wykonawcze
+            { question: "Jak często odkładasz rozpoczęcie zadania, które wymaga dużego wysiłku umysłowego?" },
+            { question: "Jak często potrzebujesz presji czasu (tzw. deadline'u), żeby w ogóle zacząć pracę?" },
+            { question: "Jak często wykonujesz mnóstwo nieistotnych, małych zadań, byle tylko uniknąć tego najważniejszego?" },
+            { question: "Jak często patrzysz na zadanie do zrobienia i fizycznie nie potrafisz zacząć (paraliż ADHD)?" },
+            { question: "Jak często zaczynasz nowy projekt z entuzjazmem, ale nigdy go nie kończysz?" },
+            { question: "Jak często porzucasz hobby po tym, jak wydasz pieniądze na sprzęt?" },
+            { question: "Jak często masz trudności z przejściem z jednej aktywności do drugiej?" },
+            { question: "Jak często rano masz problem z wyjściem z łóżka, nawet jeśli jesteś wyspany?" },
+            { question: "Jak często odczuwasz przytłoczenie na samą myśl o ilości rzeczy do zrobienia?" },
+            { question: "Jak często prokrastynujesz nawet w przypadku rzeczy, które lubisz robić?" },
+            // Ślepota czasowa
+            { question: "Jak często źle oceniasz, ile czasu zajmie Ci dojazd w jakieś miejsce?" },
+            { question: "Jak często myślisz, że zadanie zajmie 5 minut, a zajmuje 2 godziny?" },
+            { question: "Jak często spóźniasz się na spotkania, mimo szczerych chęci bycia na czas?" },
+            { question: "Jak często gubisz poczucie czasu i nagle uświadamiasz sobie, że minęło kilka godzin?" },
+            { question: "Jak często odkładasz wyjście z domu do absolutnie ostatniej sekundy?" },
+            { question: "Jak często masz problem z ustaleniem priorytetów w swoich zadaniach?" },
+            { question: "Jak często wydaje Ci się, że masz mnóstwo czasu, a nagle wpadasz w panikę?" },
+            { question: "Jak często funkcjonujesz w trybie 'teraz' lub 'nie teraz'?" },
+            { question: "Jak często kładziesz się spać znacznie później niż planowałeś?" },
+            { question: "Jak często zapominasz o zaplanowanych spotkaniach lub wizytach?" },
+            // Hiperfocus
+            { question: "Jak często tak bardzo wciągasz się w coś, że zapominasz o jedzeniu lub piciu?" },
+            { question: "Jak często zapominasz o pójściu do toalety, bo jesteś zbyt skupiony?" },
+            { question: "Jak często masz tzw. 'hiperfiksacje' na punkcie nowej piosenki?" },
+            { question: "Jak często obsesyjnie zgłębiasz nowy, losowy temat w internetcie przez godziny?" },
+            { question: "Jak często bliscy muszą do Ciebie mówić kilka razy, zanim zareagujesz?" },
+            { question: "Jak często wchodzisz w stan 'flow', z którego bardzo trudno Cię wyrwać?" },
+            { question: "Jak często ignorujesz ważne obowiązki na rzecz aktualnego zainteresowania?" },
+            { question: "Jak często zmieniasz swoje główne zainteresowania co kilka tygodni?" },
+            { question: "Jak często w pracy potrafisz zrobić tygodniową normę w jeden dzień, a w inne nic?" },
+            { question: "Jak często tracisz rachubę czasu podczas grania lub tworzenia?" },
+            // Emocje
+            { question: "Jak często Twoje emocje zmieniają się w bardzo intensywny sposób?" },
+            { question: "Jak często czujesz się ekstremalnie odrzucony drobną krytyką (RSD)?" },
+            { question: "Jak często wybuchasz frustracją szybciej niż inne osoby?" },
+            { question: "Jak często masz problem z utrzymaniem kontaktu ze znajomymi z braku sił?" },
+            { question: "Jak często 'odcinasz się' od świata, gdy bodźców wokół jest za dużo?" },
+            { question: "Jak często złościsz się, gdy ktoś przerywa Ci głębokie skupienie?" },
+            { question: "Jak często odczuwasz poczucie winy, że znów czegoś nie zrobiłeś?" },
+            { question: "Jak często zgadzasz się na za dużo rzeczy, by zadowolić innych?" },
+            { question: "Jak często czujesz, że musisz 'udawać' normalnego (maskowanie)?" },
+            { question: "Jak często czujesz się wyczerpany psychicznie po zwykłych spotkaniach?" },
+            // Dom
+            { question: "Jak często Twoja szafa lub lodówka to strefy totalnego chaosu?" },
+            { question: "Jak często wyjmujesz pranie z pralki dopiero następnego dnia?" },
+            { question: "Jak często zostawiasz otwarte szafki w kuchni po zrobieniu posiłku?" },
+            { question: "Jak często pijesz zimną kawę, bo zapomniałeś, że ją zrobiłeś?" },
+            { question: "Jak często odkładasz naczynia do zlewu 'na zaraz' i leżą tam dni?" },
+            { question: "Jak często masz kilkadziesiąt otwartych kart w przeglądarce?" },
+            { question: "Jak często gubisz telefon, mimo że miałeś go w ręce chwilę temu?" },
+            { question: "Jak często musisz pisać listy zadań, ale potem je gubisz?" },
+            { question: "Jak często czujesz paraliż decyzyjny przy wyborze filmu?" },
+            { question: "Jak często masz wrażenie, że obowiązki domowe to góra nie do zdobycia?" },
+            // Sen i Umysł
+            { question: "Jak często masz w głowie kilka 'torów myślowych' jednocześnie?" },
+            { question: "Jak często nie możesz zasnąć, bo mózg analizuje Twoje życie?" },
+            { question: "Jak często rano czujesz się wyczerpany mimo spania 8 godzin?" },
+            { question: "Jak często w Twojej głowie gra losowa piosenka na zapętleniu?" },
+            { question: "Jak często musisz wymyślać skomplikowane systemy, by nie zapominać kluczy?" },
+            { question: "Jak często czujesz potrzebę kofeiny, żeby móc się uspokoić?" },
+            { question: "Jak często odkładasz pójście spać, żeby mieć 'wolny czas' dla siebie?" },
+            { question: "Jak często czujesz się jak oszust (syndrom oszusta) mimo sukcesów?" },
+            { question: "Jak często masz wrażenie, że mózg potrzebuje chaosu, by działać?" },
+            { question: "Jak często czujesz, że Twój własny mózg jest Twoim największym wrogiem?" }
+        ];
+
+        const answers = [
+            { text: "Nigdy", points: 0 },
+            { text: "Rzadko", points: 1 },
+            { text: "Czasami", points: 2 },
+            { text: "Często", points: 3 },
+            { text: "Bardzo często", points: 4 }
+        ];
+
+        let currentQuestionIndex = 0;
+        let totalScore = 0;
+        let selectedAnswerPoints = null;
+        const maxPossibleScore = questions.length * 4;
+
+        // Ekrany
+        const startScreen = document.getElementById("start-screen");
+        const quizScreen = document.getElementById("quiz-screen");
+        const resultsScreen = document.getElementById("results-screen");
+
+        // UI Quizu
+        const questionText = document.getElementById("question-text");
+        const optionsContainer = document.getElementById("options-container");
+        const nextBtn = document.getElementById("next-btn");
+        const progressBar = document.getElementById("progress-bar");
+        const questionCounter = document.getElementById("question-counter");
+        
+        // UI Wyników
+        const percentageAnim = document.getElementById("percentage-anim");
+        const pointsText = document.getElementById("points-text");
+
+        function startQuiz() {
+            startScreen.style.display = "none";
+            quizScreen.style.display = "block";
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            selectedAnswerPoints = null;
+            nextBtn.disabled = true;
+            
+            questionText.innerText = questions[currentQuestionIndex].question;
+            questionCounter.innerText = `Pytanie ${currentQuestionIndex + 1} z ${questions.length}`;
+            
+            const progress = (currentQuestionIndex / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            optionsContainer.innerHTML = "";
+            answers.forEach((answer) => {
+                const div = document.createElement("div");
+                div.classList.add("option");
+                div.innerText = answer.text;
+                div.onclick = () => selectOption(div, answer.points);
+                optionsContainer.appendChild(div);
+            });
+        }
+
+        function selectOption(selectedElement, points) {
+            const options = document.querySelectorAll(".option");
+            options.forEach(opt => opt.classList.remove("selected"));
+            
+            selectedElement.classList.add("selected");
+            selectedAnswerPoints = points;
+            nextBtn.disabled = false;
+        }
+
+        nextBtn.addEventListener("click", () => {
+            totalScore += selectedAnswerPoints;
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        });
+
+        function showResults() {
+            quizScreen.style.display = "none";
+            resultsScreen.style.display = "flex";
+
+            const percentage = Math.round((totalScore / maxPossibleScore) * 100);
+            pointsText.innerText = `Zdobyte punkty: ${totalScore} / ${maxPossibleScore}`;
+
+            animateValue(percentageAnim, 0, percentage, 3500);
+        }
+
+        function animateValue(obj, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const easeOutProgress = 1 - Math.pow(1 - progress, 3); // Ease-out effect
+                const currentVal = Math.floor(easeOutProgress * (end - start) + start);
+                
+                obj.innerHTML = currentVal + "%";
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+    </script>
+</body>
+</html>
