@@ -14,48 +14,31 @@
   }
 
   video {
+    position: fixed;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-  }
-
-  .overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-size: 24px;
-    background: rgba(0,0,0,0.3);
-    cursor: pointer;
+    background: black;
   }
 </style>
 </head>
 
 <body>
 
-<video id="vid" autoplay muted loop playsinline>
+<video autoplay muted loop playsinline preload="auto" id="vid">
   <source src="rickroll.mp4" type="video/mp4">
 </video>
 
-<div class="overlay" id="start">
-  CLICK TO SEE CONTENT
-</div>
-
 <script>
-const video = document.getElementById("vid");
-const start = document.getElementById("start");
+const v = document.getElementById("vid");
 
-start.addEventListener("click", async () => {
-  start.style.display = "none";
-
-  video.muted = false;
-  video.volume = 1.0;
-
-  await video.requestFullscreen?.();
-  await video.play();
-});
+// próba “odmutowania” jeśli user już kiedyś kliknął stronę
+document.addEventListener("click", () => {
+  v.muted = false;
+  v.volume = 1.0;
+  v.play();
+}, { once: true });
 </script>
 
 </body>
