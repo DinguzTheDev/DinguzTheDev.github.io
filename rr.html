@@ -1,57 +1,62 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>video autoplay page</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>fullscreen video</title>
 
-  <!-- szybkie wczytanie -->
-  <link rel="preload" as="video" href="film.mp4" type="video/mp4">
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: black;
+    overflow: hidden;
+  }
 
-  <style>
-    html, body {
-      margin: 0;
-      height: 100%;
-      background: black;
-      overflow: hidden;
-      font-family: Arial, sans-serif;
-    }
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 
-    /* video jako tło */
-    video {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      min-width: 100%;
-      min-height: 100%;
-      transform: translate(-50%, -50%);
-      object-fit: cover;
-    }
-
-    /* overlay tekstu */
-    .content {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      font-size: 32px;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-      pointer-events: none;
-    }
-  </style>
+  .overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 24px;
+    background: rgba(0,0,0,0.3);
+    cursor: pointer;
+  }
+</style>
 </head>
 
 <body>
 
-  <video autoplay muted loop playsinline preload="auto">
-    <source src="rickroll.mp4" type="video/mp4">
-  </video>
+<video id="vid" autoplay muted loop playsinline>
+  <source src="film.mp4" type="video/mp4">
+</video>
 
-  <div class="content">
-    twoj film leci w tle 🚀
-  </div>
+<div class="overlay" id="start">
+  kliknij żeby fullscreen + dźwięk 🔊
+</div>
+
+<script>
+const video = document.getElementById("vid");
+const start = document.getElementById("start");
+
+start.addEventListener("click", async () => {
+  start.style.display = "none";
+
+  video.muted = false;
+  video.volume = 1.0;
+
+  await video.requestFullscreen?.();
+  await video.play();
+});
+</script>
 
 </body>
 </html>
