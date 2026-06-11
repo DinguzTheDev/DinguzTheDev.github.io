@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kwestionariusz Spektrum - Dark Modern</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+        :root {
+            /* Główne kolory gradientu i glow */
+            --primary: #4facfe;
+            --secondary: #00f2fe;
+            --glow: 0 0 20px rgba(0, 242, 254, 0.25);
+            
+            /* Ciemny motyw */
+            --bg-body: #090e17;
+            --bg-container: #111827;
+            --bg-surface: #1f2937;
+            
+            /* Teksty */
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            
+            /* Kolory systemowe */
+            --danger: #f87171;
+            --danger-bg: rgba(239, 68, 68, 0.1);
+            --radius: 20px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--text-main);
+        }
+
+        .container {
+            background: var(--bg-container);
+            width: 100%;
+            max-width: 700px;
+            border-radius: var(--radius);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), var(--glow);
+            border: 1px solid rgba(79, 172, 254, 0.1);
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Ekran startowy i ostrzeżenie */
+        #intro-screen {
+            text-align: center;
+        }
+
+        .warning-box {
+            background: var(--danger-bg);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .warning-box p {
+            margin-bottom: 10px;
+        }
+
+        /* Przyciski */
+        .btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: #000;
+            border: none;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 800;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            outline: none;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.6);
+        }
+
+        .btn:disabled {
+            background: #374151;
+            color: #6b7280;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--secondary);
+            border: 2px solid var(--secondary);
+            box-shadow: none;
+        }
+        
+        .btn-outline:hover {
+            background: rgba(0, 242, 254, 0.1);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+            color: #fff;
+        }
+
+        /* Ekran quizu */
+        #quiz-screen, #result-screen {
+            display: none;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 12px;
+            background: var(--bg-surface);
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            width: 0%;
+            transition: width 0.4s ease;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+        }
+
+        .question-category {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--secondary);
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+        }
+
+        .question-text {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            line-height: 1.4;
+            color: var(--text-main);
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            background: var(--bg-surface);
+            padding: 16px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .option:hover {
+            background: #374151;
+            color: var(--text-main);
+        }
+
+        .option.selected {
+            background: rgba(0, 242, 254, 0.05);
+            border-color: var(--secondary);
+            color: var(--secondary);
+            box-shadow: inset 0 0 15px rgba(0, 242, 254, 0.15), 0 0 10px rgba(0, 242, 254, 0.1);
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Ekran wyników */
+        .result-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: 800;
+            margin: 0 auto 30px;
+            box-shadow: 0 0 40px rgba(0, 242, 254, 0.5);
+            border: 4px solid var(--bg-container);
+        }
+
+        .result-disclaimer {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 5px solid #f59e0b;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #fcd34d;
+        }
+        
+        .result-disclaimer strong {
+            color: #fbbf24;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="intro-screen">
+        <div class="warning-box">
+            <p>🔴 UWAGA: STRONA WYGENEROWANA PRZEZ AI</p>
+            <p>Ten test został w całości stworzony przez Sztuczną Inteligencję. Projekt jest całkowicie non-profit i służy wyłącznie celom edukacyjnym/poglądowym.</p>
+            <p style="font-size: 14px; margin-top: 15px; color: #fca5a5;">Jeżeli nie zgadzasz się na używanie narzędzi AI lub nie chcesz brać udziału w teście, prosimy o opuszczenie strony.</p>
+        </div>
+        <h1 style="margin-bottom: 20px;">Kwestionariusz Cech Spektrum Autyzmu (Asperger)</h1>
+        <p style="margin-bottom: 30px; color: var(--text-muted); line-height: 1.6;">Test składa się z 50 pytań z 5 różnych kategorii. Odpowiadaj szczerze, wybierając opcję, która najlepiej opisuje Twoje codzienne zachowanie.</p>
+        <button class="btn" onclick="startQuiz()">Rozumiem, rozpocznij test</button>
+    </div>
+
+    <div id="quiz-screen">
+        <div class="top-bar">
+            <span id="question-counter">Pytanie 1 / 50</span>
+            <span id="progress-percent">0%</span>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+
+        <div class="question-category" id="question-category">Kategoria</div>
+        <div class="question-text" id="question-text">Tekst pytania pojawi się tutaj...</div>
+
+        <div class="options" id="options-container">
+            </div>
+
+        <div class="navigation">
+            <button class="btn btn-outline" id="btn-prev" onclick="prevQuestion()">Wstecz</button>
+            <button class="btn" id="btn-next" onclick="nextQuestion()">Następne</button>
+        </div>
+    </div>
+
+    <div id="result-screen">
+        <h2 style="text-align: center; margin-bottom: 30px; color: var(--text-main);">Twój Wynik</h2>
+        <div class="result-circle" id="result-score">0%</div>
+        <p style="text-align: center; font-size: 18px; font-weight: 600; color: var(--secondary);" id="result-message"></p>
+
+        <div class="result-disclaimer">
+            <strong>⚠️ WAŻNE OSTRZEŻENIE MEDYCZNE:</strong><br><br>
+            Powyższy wynik jest w 100% <strong>nieoficjalny</strong> i stanowi jedynie sugestię opartą na punktacji odpowiedzi z algorytmu AI. To NIE JEST diagnoza.<br><br>
+            Spektrum autyzmu (w tym zespół Aspergera) u każdej osoby wygląda zupełnie inaczej – powyższe pytania opisują jedynie najbardziej stereotypowe i typowe zachowania. Wiele osób neurotypowych również posiada niektóre z tych cech.<br><br>
+            Jeśli podejrzewasz u siebie spektrum autyzmu i chcesz to sprawdzić, <strong>Twój wynik powinien zostać skonsultowany z wykwalifikowanym lekarzem psychiatrą lub psychologiem</strong> posiadającym doświadczenie w diagnozowaniu dorosłych/młodzieży.
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn" onclick="location.reload()">Rozwiąż ponownie</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        // KATEGORIA 1: Interakcje Społeczne
+        { cat: "Interakcje Społeczne", text: "Trudno mi utrzymać naturalny kontakt wzrokowy podczas rozmowy z innymi." },
+        { cat: "Interakcje Społeczne", text: "Często nie wiem, kiedy jest moja kolej na mówienie w grupie." },
+        { cat: "Interakcje Społeczne", text: "Czuję się fizycznie i psychicznie wyczerpany po przebywaniu w grupie ludzi." },
+        { cat: "Interakcje Społeczne", text: "Trudno mi odczytać intencje, motywy ukryte i 'czytać między wierszami'." },
+        { cat: "Interakcje Społeczne", text: "Zdarza mi się powiedzieć coś, co inni uznają za nietaktowne, choć nie miałem takich intencji." },
+        { cat: "Interakcje Społeczne", text: "Zdecydowanie wolę spędzać czas samotnie niż w towarzystwie rówieśników." },
+        { cat: "Interakcje Społeczne", text: "Nawiązywanie nowych przyjaźni sprawia mi ogromną trudność i stres." },
+        { cat: "Interakcje Społeczne", text: "Nie wiem, jak zareagować lub co powiedzieć, gdy ktoś przy mnie płacze." },
+        { cat: "Interakcje Społeczne", text: "Czuję, że muszę naśladować zachowania innych i 'udawać' normalność (maskowanie)." },
+        { cat: "Interakcje Społeczne", text: "Nienawidzę tzw. 'small talku' (luźnych rozmów o pogodzie, o niczym)." },
+        
+        // KATEGORIA 2: Komunikacja
+        { cat: "Komunikacja", text: "Biorę wypowiedzi innych zbyt dosłownie, omijając ironię lub sarkazm." },
+        { cat: "Komunikacja", text: "Rozwodzę się długo nad jednym tematem, nie zauważając, że słuchacz jest już znudzony." },
+        { cat: "Komunikacja", text: "Zwracano mi uwagę, że mówię zbyt głośno, zbyt cicho lub bardzo monotonnie." },
+        { cat: "Komunikacja", text: "Często używam bardzo oficjalnego, 'książkowego' słownictwa w codziennych rozmowach." },
+        { cat: "Komunikacja", text: "Zdarza mi się mimowolnie powtarzać zasłyszane słowa lub dźwięki (echolalia)." },
+        { cat: "Komunikacja", text: "Nie rozumiem żartów sytuacyjnych, z których śmieją się wszyscy dookoła." },
+        { cat: "Komunikacja", text: "Zwracam uwagę na mało istotne szczegóły w wypowiedzi, gubiąc jej główny sens." },
+        { cat: "Komunikacja", text: "Poprawiam błędy logiczne lub gramatyczne innych w trakcie luźnej dyskusji." },
+        { cat: "Komunikacja", text: "Mam duży problem z nazwaniem i ubraniem w słowa tego, co aktualnie czuję." },
+        { cat: "Komunikacja", text: "Moja mimika twarzy często nie odzwierciedla emocji, które przeżywam w środku." },
+
+        // KATEGORIA 3: Sztywność Rutyny i Zainteresowania
+        { cat: "Rutyna i Zainteresowania", text: "Mam bardzo specyficzne zainteresowania (fiksacje), o których mógłbym mówić godzinami." },
+        { cat: "Rutyna i Zainteresowania", text: "Odczuwam silny niepokój lub złość, gdy moje zaplanowane działania nagle ulegną zmianie." },
+        { cat: "Rutyna i Zainteresowania", text: "Wykonuję codzienne czynności (np. poranna toaleta, trasa do szkoły/pracy) w dokładnie ten sam sposób." },
+        { cat: "Rutyna i Zainteresowania", text: "Czuję przymus układania rzeczy w określonym porządku, symetrii lub według kolorów." },
+        { cat: "Rutyna i Zainteresowania", text: "Z pasją kolekcjonuję szczegółowe dane, listy lub przedmioty związane z moim zainteresowaniem." },
+        { cat: "Rutyna i Zainteresowania", text: "Czuję ogromną frustrację, gdy ktoś bez pytania przestawi moje rzeczy na biurku lub w pokoju." },
+        { cat: "Rutyna i Zainteresowania", text: "Zauważam powtarzające się wzory i schematy (np. w datach, liczbach), tam gdzie inni ich nie widzą." },
+        { cat: "Rutyna i Zainteresowania", text: "Drobne zaburzenie mojej rutyny potrafi zepsuć mi cały dzień." },
+        { cat: "Rutyna i Zainteresowania", text: "Trudno mi przerwać zajmowanie się moją fiksacją, aby zająć się ważnymi obowiązkami." },
+        { cat: "Rutyna i Zainteresowania", text: "Wpadam w stan tzw. hiperfokusu, zapominając o jedzeniu, piciu czy upływie czasu." },
+
+        // KATEGORIA 4: Przetwarzanie Sensoryczne
+        { cat: "Przetwarzanie Sensoryczne", text: "Przeszkadzają mi dźwięki tła (tykanie zegara, buczenie lodówki, żarówki), których inni nie słyszą." },
+        { cat: "Przetwarzanie Sensoryczne", text: "Mocne światło świetlówek lub błyskające lampy wywołują u mnie fizyczny dyskomfort." },
+        { cat: "Przetwarzanie Sensoryczne", text: "Drażnią mnie metki w ubraniach, szwy lub specyficzne materiały ubrań." },
+        { cat: "Przetwarzanie Sensoryczne", text: "Mam bardzo wąskie preferencje żywieniowe, często uwarunkowane konsystencją jedzenia." },
+        { cat: "Przetwarzanie Sensoryczne", text: "Wykonuję powtarzalne ruchy w stresie (stimming) np. kołysanie się, machanie rękami, stukanie." },
+        { cat: "Przetwarzanie Sensoryczne", text: "Zrywam się lub irytuję, gdy ktoś mnie dotyka z zaskoczenia, nawet delikatnie." },
+        { cat: "Przetwarzanie Sensoryczne", text: "Intensywne zapachy (perfumy, zapach jedzenia) potrafią wywołać u mnie mdłości i stres." },
+        { cat: "Przetwarzanie Sensoryczne", text: "W głośnych, zatłoczonych miejscach (np. galerie handlowe) czuję się szybko przebodźcowany." },
+        { cat: "Przetwarzanie Sensoryczne", text: "Czuję potrzebę głębokiego ucisku, aby się uspokoić (np. spanie pod bardzo ciężką kołdrą)." },
+        { cat: "Przetwarzanie Sensoryczne", text: "Zdarza się, że mój mózg po prostu się 'wyłącza', gdy dociera do niego zbyt wiele bodźców naraz." },
+
+        // KATEGORIA 5: Elastyczność Myślenia i Emocje
+        { cat: "Elastyczność i Emocje", text: "Gdy wpadam w furię z bezsilności (meltdown), bardzo trudno mi nad tym zapanować." },
+        { cat: "Elastyczność i Emocje", text: "Trudno mi sobie wyobrazić hipotetyczne sytuacje, w których osobiście nigdy nie uczestniczyłem." },
+        { cat: "Elastyczność i Emocje", text: "Wykonuję niektóre czynności po prostu dla samej rutyny, a nie dla osiągnięcia konkretnego celu." },
+        { cat: "Elastyczność i Emocje", text: "Często współczuję lub przypisuję ludzkie uczucia przedmiotom nieożywionym." },
+        { cat: "Elastyczność i Emocje", text: "Mam problem z przewidzeniem tego, jakie konsekwencje wywołają moje działania u innych." },
+        { cat: "Elastyczność i Emocje", text: "Mam wyjątkowo silne poczucie sprawiedliwości i oburzam się, gdy ktoś łamie nawet błahe zasady." },
+        { cat: "Elastyczność i Emocje", text: "Reaguję niewspółmiernie silnymi emocjami na z pozoru drobne problemy i błędy." },
+        { cat: "Elastyczność i Emocje", text: "Doświadczam momentów odcięcia (shutdown), w których nie potrafię nic z siebie wydusić." },
+        { cat: "Elastyczność i Emocje", text: "Trudno mi zaakceptować fakt, że inni mogą mieć zupełnie inny punkt widzenia na oczywistą sprawę." },
+        { cat: "Elastyczność i Emocje", text: "Często opieram się wyłącznie na suchych faktach i logice, ignorując w argumentacji emocje." }
+    ];
+
+    const answerValues = [
+        { label: "Zawsze", value: 4 },
+        { label: "Często", value: 3 },
+        { label: "Czasami", value: 2 },
+        { label: "Rzadko", value: 1 },
+        { label: "Nigdy", value: 0 }
+    ];
+
+    let currentQuestionIndex = 0;
+    let userAnswers = new Array(questions.length).fill(null);
+
+    function startQuiz() {
+        document.getElementById('intro-screen').style.display = 'none';
+        document.getElementById('quiz-screen').style.display = 'block';
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const q = questions[currentQuestionIndex];
+        document.getElementById('question-counter').innerText = `Pytanie ${currentQuestionIndex + 1} / ${questions.length}`;
+        document.getElementById('question-category').innerText = q.cat;
+        document.getElementById('question-text').innerText = q.text;
+
+        // Progres
+        const progress = ((currentQuestionIndex) / questions.length) * 100;
+        document.getElementById('progress-bar').style.width = `${progress}%`;
+        document.getElementById('progress-percent').innerText = `${Math.round(progress)}%`;
+
+        // Generowanie opcji
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+        
+        answerValues.forEach((ans) => {
+            const div = document.createElement('div');
+            div.className = 'option';
+            if (userAnswers[currentQuestionIndex] === ans.value) {
+                div.classList.add('selected');
+            }
+            div.innerText = ans.label;
+            div.onclick = () => selectOption(ans.value, div);
+            optionsContainer.appendChild(div);
+        });
+
+        // Obsługa przycisków
+        document.getElementById('btn-prev').style.visibility = currentQuestionIndex === 0 ? 'hidden' : 'visible';
+        
+        const nextBtn = document.getElementById('btn-next');
+        if (userAnswers[currentQuestionIndex] !== null) {
+            nextBtn.disabled = false;
+        } else {
+            nextBtn.disabled = true;
+        }
+
+        if (currentQuestionIndex === questions.length - 1) {
+            nextBtn.innerText = "Zakończ i pokaż wynik";
+        } else {
+            nextBtn.innerText = "Następne";
+        }
+    }
+
+    function selectOption(value, element) {
+        userAnswers[currentQuestionIndex] = value;
+        
+        // Reset klas
+        const options = document.querySelectorAll('.option');
+        options.forEach(opt => opt.classList.remove('selected'));
+        
+        // Dodaj do wybranej
+        element.classList.add('selected');
+        document.getElementById('btn-next').disabled = false;
+    }
+
+    function nextQuestion() {
+        if (currentQuestionIndex < questions.length - 1) {
+            currentQuestionIndex++;
+            loadQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function prevQuestion() {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            loadQuestion();
+        }
+    }
+
+    function showResult() {
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'block';
+
+        // Obliczanie wyniku
+        const maxScore = questions.length * 4;
+        const userScore = userAnswers.reduce((a, b) => a + b, 0);
+        const percentage = Math.round((userScore / maxScore) * 100);
+
+        // Animacja licznika
+        let currentPercent = 0;
+        const resultCircle = document.getElementById('result-score');
+        const interval = setInterval(() => {
+            if (currentPercent >= percentage) {
+                clearInterval(interval);
+                resultCircle.innerText = `${percentage}%`;
+            } else {
+                currentPercent++;
+                resultCircle.innerText = `${currentPercent}%`;
+            }
+        }, 20);
+
+        // Ustalenie krótkiej wiadomości
+        const msgEl = document.getElementById('result-message');
+        if (percentage >= 75) {
+            msgEl.innerText = "Twoje odpowiedzi wykazują bardzo wysokie nasilenie cech charakterystycznych dla spektrum autyzmu.";
+        } else if (percentage >= 50) {
+            msgEl.innerText = "Twoje odpowiedzi wskazują na umiarkowane nasilenie cech związanych ze spektrum.";
+        } else if (percentage >= 25) {
+            msgEl.innerText = "Posiadasz niewiele cech wspólnych z typowym profilem osoby w spektrum.";
+        } else {
+            msgEl.innerText = "Twoje odpowiedzi sugerują profil silnie neurotypowy.";
+        }
+    }
+</script>
+
+</body>
+</html>
