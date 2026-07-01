@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Legendarny Call</title>
+
+<style>
+@font-face {
+    font-family: "Gotham";
+    src: url("Gotham-Bold.woff2") format("woff2");
+    font-weight: 700;
+}
+
+/* Jeśli nie masz Gothama, użyje Inter/Arial */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Gotham","Inter","Segoe UI",Arial,sans-serif;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+}
+
+body{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:
+        radial-gradient(circle at top, rgb(28,28,28) 0%, rgb(15,15,15) 55%),
+        rgb(15,15,15);
+    color:white;
+    overflow:hidden;
+    position:relative;
+}
+
+/* Delikatny glow */
+body::before{
+    content:"";
+    position:absolute;
+    width:900px;
+    height:900px;
+    background:radial-gradient(circle,
+        rgba(255,255,255,.025),
+        transparent 70%);
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    pointer-events:none;
+}
+
+/* Lekki szum */
+body::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    opacity:.03;
+    background-image:
+        radial-gradient(white 1px, transparent 1px);
+    background-size:8px 8px;
+    pointer-events:none;
+}
+
+.container{
+    position:relative;
+    z-index:2;
+
+    padding:70px 90px;
+    text-align:center;
+
+    background:rgba(255,255,255,.025);
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:30px;
+
+    backdrop-filter:blur(18px);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.04),
+        0 25px 80px rgba(0,0,0,.45);
+
+    animation:fade .8s ease;
+}
+
+@keyframes fade{
+    from{
+        opacity:0;
+        transform:translateY(15px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+h1{
+    font-size:3rem;
+    font-weight:700;
+    letter-spacing:-1px;
+    margin-bottom:45px;
+}
+
+#timer{
+    font-size:5.8rem;
+    font-weight:700;
+    letter-spacing:-3px;
+    line-height:1;
+    text-shadow:0 0 25px rgba(255,255,255,.08);
+}
+
+.subtitle{
+    margin-top:28px;
+    color:#8c8c8c;
+    font-size:1rem;
+    letter-spacing:.8px;
+}
+
+@media(max-width:900px){
+
+.container{
+    width:92%;
+    padding:45px 20px;
+}
+
+h1{
+    font-size:2rem;
+}
+
+#timer{
+    font-size:2.8rem;
+}
+
+.subtitle{
+    font-size:.9rem;
+}
+
+.copyright{
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    color:rgba(255,255,255,.25);
+    font-size:.85rem;
+    font-weight:500;
+    letter-spacing:.6px;
+    user-select:none;
+    pointer-events:none;
+    z-index:10;
+}
+
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Legendarny Call</h1>
+
+    <div id="timer">
+        0d 00h 00m 00s
+    </div>
+
+    <div class="subtitle">
+        Od 30 czerwca 2026 • 17:24
+    </div>
+
+</div>
+
+<script>
+
+const startDate = new Date("2026-06-30T17:24:00");
+
+function updateTimer(){
+
+    let diff = Date.now() - startDate.getTime();
+
+    if(diff < 0) diff = 0;
+
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+
+    document.getElementById("timer").textContent =
+        `${days}d ${String(hours).padStart(2,"0")}h ${String(minutes).padStart(2,"0")}m ${String(seconds).padStart(2,"0")}s`;
+
+}
+
+updateTimer();
+setInterval(updateTimer,1000);
+
+</script>
+
+<footer class="copyright">
+    .dinguzthedev © 2026. All Rights Reserved
+</footer>
+
+</body>
+</html>
